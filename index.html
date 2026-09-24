@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAAGAR — This Is What You Are Searching For | sagardahal123.com.np</title>
+<meta name="description" content="SAAGAR — Smart Tools, Games, General Knowledge, WOW Facts, Skills, Formulas, Jokes, Quotes and Philosophy. Free, fast and made for Nepal.">
+<meta name="theme-color" content="#0f2c4c">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<style>
+  :root{
+    --navy:#1c3d5e; --navy-deep:#122c46; --navy-ink:#0f2c4c;
+    --paper:#f4f8fd; --card:#ffffff;
+    --line:#d7e3f0; --line2:#c3d5e8;
+    --text:#1a2b3c; --dim:#5b7186; --faint:#8ba1b5;
+    --blue:#2f6df6; --gold:#f0a72e; --green:#1fa564; --red:#e05252;
+    --grad:linear-gradient(135deg,#2f6df6,#17b3a3);
+    --radius:18px;
+    --font:"Segoe UI",system-ui,-apple-system,Roboto,"Noto Sans Devanagari",Arial,sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--paper); color:var(--text); font-family:var(--font); line-height:1.6; -webkit-font-smoothing:antialiased;}
+  img,svg{display:block; max-width:100%;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 22px;}
+
+  /* ---------- header ---------- */
+  header.top{
+    background:var(--navy-ink); color:#fff; position:sticky; top:0; z-index:40;
+    border-bottom:3px solid var(--gold);
+  }
+  .top-inner{max-width:1080px; margin:0 auto; padding:12px 22px; display:flex; align-items:center; gap:14px;}
+  .brand-badge{width:46px; height:46px; flex-shrink:0;}
+  .brand-name{font-weight:800; letter-spacing:1px; font-size:18px;}
+  .brand-name small{display:block; font-weight:600; font-size:10.5px; letter-spacing:2.4px; color:#bcd2e6; text-transform:uppercase;}
+  .top-links{margin-left:auto; display:flex; gap:4px; align-items:center;}
+  .top-links a{font-size:13.5px; font-weight:600; color:#cfe0ef; padding:8px 12px; border-radius:9px; transition:.18s;}
+  .top-links a:hover{background:rgba(255,255,255,.12); color:#fff;}
+
+  /* ---------- hero ---------- */
+  .hero{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-deep) 100%); color:#fff; padding:46px 0 30px; position:relative; overflow:hidden;}
+  .hero::after{content:""; position:absolute; right:-90px; top:-90px; width:300px; height:300px; border-radius:50%; border:34px solid rgba(255,255,255,.06);}
+  .hero-inner{max-width:1080px; margin:0 auto; padding:0 22px; display:flex; align-items:center; gap:26px; position:relative; z-index:1;}
+  .hero-badge{width:150px; height:150px; flex-shrink:0; filter:drop-shadow(0 12px 26px rgba(0,0,0,.35));}
+  .hero h1{font-size:clamp(26px,4.2vw,44px); font-weight:900; letter-spacing:.5px; line-height:1.15;}
+  .hero p{margin-top:8px; color:#cfe0ef; max-width:600px; font-size:clamp(14px,1.7vw,17px);}
+  .hero .dom{display:inline-block; margin-top:14px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); padding:7px 14px; border-radius:999px; font-size:12.5px; letter-spacing:.6px;}
+
+  /* ---------- grid ---------- */
+  .grid-sec{padding:38px 0 56px;}
+  .sec-head{display:flex; align-items:baseline; gap:12px; margin-bottom:20px; flex-wrap:wrap;}
+  .sec-head h2{font-size:22px; font-weight:800;}
+  .sec-head span{color:var(--faint); font-size:13px;}
+  .tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media(max-width:860px){.tiles{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:540px){.tiles{grid-template-columns:1fr;}}
+  .tile{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:24px 22px 20px; display:flex; flex-direction:column; gap:8px;
+    box-shadow:0 3px 12px rgba(15,44,76,.05);
+    transition:transform .2s, box-shadow .2s, border-color .2s;
+    position:relative; overflow:hidden;
+  }
+  .tile::before{content:""; position:absolute; left:0; top:0; right:0; height:4px; background:var(--grad); opacity:.9;}
+  .tile:hover{transform:translateY(-5px); box-shadow:0 16px 34px rgba(15,44,76,.14); border-color:var(--line2);}
+  .tile .ic{width:52px; height:52px; border-radius:14px; display:grid; place-items:center; font-size:26px; color:#fff; margin-bottom:6px;}
+  .tile h3{font-size:18px; font-weight:800;}
+  .tile p{font-size:13.5px; color:var(--dim); flex:1;}
+  .tile .go{font-size:13px; font-weight:700; color:var(--blue); display:inline-flex; align-items:center; gap:6px;}
+  .tile:hover .go{text-decoration:underline;}
+
+  /* tile accent colors */
+  .c-tools .ic{background:var(--grad);} .c-games .ic{background:linear-gradient(135deg,#7c3aed,#a855f7);}
+  .c-gk .ic{background:linear-gradient(135deg,#0ea5e9,#22d3ee);} .c-facts .ic{background:linear-gradient(135deg,#f59e0b,#f97316);}
+  .c-skills .ic{background:linear-gradient(135deg,#059669,#10b981);} .c-formula .ic{background:linear-gradient(135deg,#dc2626,#f43f5e);}
+  .c-jokes .ic{background:linear-gradient(135deg,#d97706,#fbbf24);} .c-quotes .ic{background:linear-gradient(135deg,#2563eb,#38bdf8);}
+  .c-phil .ic{background:linear-gradient(135deg,#4f46e5,#818cf8);}
+
+  /* ---------- footer ---------- */
+  footer{background:var(--navy-ink); color:#b9cddd; padding:26px 0; margin-top:10px;}
+  .foot-inner{max-width:1080px; margin:0 auto; padding:0 22px; display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; font-size:13px;}
+  .foot-inner a{color:#e6eef6; font-weight:600;}
+  .foot-inner a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <img class="brand-badge" src="assets/logo.svg" alt="SAAGAR logo">
+    <div class="brand-name">SAAGAR<small>sagardahal123.com.np</small></div>
+    <nav class="top-links">
+      <a href="#hub">Explore</a>
+      <a href="tools.html">Smart Tools</a>
+      <a href="#footer">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <img class="hero-badge" src="assets/logo.svg" alt="SAAGAR — since 2026">
+    <div>
+      <h1>This Is What You Are Searching For.</h1>
+      <p>Tools, games, knowledge, facts, skills, formulas, jokes, quotes and philosophy — one simple hub, free for everyone.</p>
+      <span class="dom">🇳🇵 sagardahal123.com.np · since 2026</span>
+    </div>
+  </div>
+</section>
+
+<main id="hub" class="grid-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Explore everything</h2>
+      <span>9 sections · tap any card</span>
+    </div>
+    <div class="tiles">
+      <a class="tile c-tools" href="tools.html">
+        <div class="ic">🧰</div>
+        <h3>Smart Tools</h3>
+        <p>Every tool I built in Smart Tools Nepal — date converter, calculators, converters and more. Just plain, useful, fast.</p>
+        <span class="go">Open tools →</span>
+      </a>
+      <a class="tile c-games" href="games.html">
+        <div class="ic">🎮</div>
+        <h3>Games</h3>
+        <p>Quick browser games to relax — no install, no login. Play straight away.</p>
+        <span class="go">Play now →</span>
+      </a>
+      <a class="tile c-gk" href="gk.html">
+        <div class="ic">🧠</div>
+        <h3>G·K Knowledge</h3>
+        <p>General knowledge about Nepal and the world — facts, quizzes and things worth knowing.</p>
+        <span class="go">Learn →</span>
+      </a>
+      <a class="tile c-facts" href="facts.html">
+        <div class="ic">🤯</div>
+        <h3>WOW Facts</h3>
+        <p>Facts that make you say WOW — science, space, history, human body.</p>
+        <span class="go">Get amazed →</span>
+      </a>
+      <a class="tile c-skills" href="skills.html">
+        <div class="ic">🚀</div>
+        <h3>Skills</h3>
+        <p>Real, learnable skills with free resources — start from zero, step by step.</p>
+        <span class="go">Start learning →</span>
+      </a>
+      <a class="tile c-formula" href="formulas.html">
+        <div class="ic">📐</div>
+        <h3>Formulas</h3>
+        <p>Formulas for Excel, maths, science and economics — clean list with examples.</p>
+        <span class="go">See formulas →</span>
+      </a>
+      <a class="tile c-jokes" href="jokes.html">
+        <div class="ic">😂</div>
+        <h3>Jokes</h3>
+        <p>Funny Nepali + English jokes to brighten your day. Press the button, laugh, repeat.</p>
+        <span class="go">Make me laugh →</span>
+      </a>
+      <a class="tile c-quotes" href="quotes.html">
+        <div class="ic">💬</div>
+        <h3>Motivation · Quotes</h3>
+        <p>Motivational quotes to push you forward — one tap for your daily dose.</p>
+        <span class="go">Get motivated →</span>
+      </a>
+      <a class="tile c-phil" href="philosophy.html">
+        <div class="ic">🕯️</div>
+        <h3>Photos · Philosophy</h3>
+        <p>Short philosophy with soulful lines — thoughts about life with a gallery to match.</p>
+        <span class="go">Read &amp; feel →</span>
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer id="footer">
+  <div class="foot-inner">
+    <span>© 2026 Sagar Dahal · sagardahal123.com.np</span>
+    <span><a href="mailto:dahalsaagar8@gmail.com">dahalsaagar8@gmail.com</a> · <a href="https://www.facebook.com/saagar.dahal.50">Facebook</a></span>
+  </div>
+</footer>
+
+</body>
+</html>

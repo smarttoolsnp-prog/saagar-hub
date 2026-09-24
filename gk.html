@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GK Knowledge | SAAGAR</title>
+<meta name="description" content="General knowledge about Nepal and the world — quick facts and a self-scoring quiz.">
+<meta name="theme-color" content="#0f2c4c">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<style>
+  :root{--ink:#0f2c4c; --paper:#f4f8fd; --card:#fff; --line:#d7e3f0; --text:#1a2b3c; --dim:#5b7186; --blue:#2f6df6; --ok:#1fa564; --bad:#e05252; --gold:#f0a72e;}
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Segoe UI",system-ui,sans-serif; background:var(--paper); color:var(--text); line-height:1.6;}
+  header{background:var(--ink); color:#fff; padding:12px 20px; display:flex; align-items:center; gap:12px; border-bottom:3px solid var(--gold);}
+  header img{width:38px; height:38px;}
+  header a{color:#cfe0ef; font-size:13.5px; font-weight:600; margin-left:auto;}
+  .wrap{max-width:880px; margin:0 auto; padding:28px 20px 70px;}
+  h1{font-size:26px; font-weight:800; margin-bottom:4px;}
+  .sub{color:var(--dim); font-size:14px; margin-bottom:24px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:16px;}
+  .card h2{font-size:17px; margin-bottom:10px;}
+  ul.facts{padding-left:20px;}
+  ul.facts li{margin:7px 0; font-size:14.5px;}
+  .q{margin-bottom:16px;}
+  .q .qq{font-weight:700; font-size:15px; margin-bottom:8px;}
+  .opt{display:block; width:100%; text-align:left; margin:6px 0; padding:10px 14px; border:1px solid var(--line); border-radius:10px; background:#fff; cursor:pointer; font:inherit; font-size:14px;}
+  .opt:hover{border-color:var(--blue);}
+  .opt.right{background:#e6f7ef; border-color:var(--ok); font-weight:700;}
+  .opt.wrong{background:#fdeaea; border-color:var(--bad);}
+  button.primary{background:var(--blue); color:#fff; border:0; padding:11px 18px; border-radius:10px; font-weight:700; cursor:pointer; font:inherit;}
+  .score{font-size:17px; font-weight:800; margin-top:10px; min-height:26px;}
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/logo.svg" alt="SAAGAR"><strong>SAAGAR</strong>
+  <a href="index.html">← Back to hub</a>
+</header>
+<div class="wrap">
+  <h1>🧠 G·K Knowledge</h1>
+  <p class="sub">General knowledge — Nepal first, then the world. Read the facts, then test yourself.</p>
+
+  <div class="card">
+    <h2>🇳🇵 Nepal — must-know facts</h2>
+    <ul class="facts">
+      <li>Nepal's flag is the <b>only national flag in the world that is not rectangular</b> — it's two stacked triangles.</li>
+      <li>Eight of the world's ten highest peaks are in Nepal, including <b>Mount Everest (8,848.86 m)</b> — called Sagarmatha in Nepali.</li>
+      <li>Nepal was <b>never colonised</b> by any country — a rare thing in Asia.</li>
+      <li>The capital <b>Kathmandu</b> was once a lake, according to legend drained by Manjushri cutting the Chobar gorge.</li>
+      <li>Nepal follows the <b>Bikram Sambat calendar</b> — about 56.7 years ahead of the Gregorian calendar. New Year falls in mid-April.</li>
+      <li><b>Lumbini</b> in Nepal is the birthplace of Gautama Buddha.</li>
+      <li>Nepal's time zone is <b>UTC+5:45</b> — one of only three places in the world using a :45 offset.</li>
+      <li>The <b>living goddess Kumari</b> is worshipped in Kathmandu — a real tradition found nowhere else.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🌍 World — quick facts</h2>
+    <ul class="facts">
+      <li>The <b>Pacific Ocean</b> is the largest ocean — bigger than all land combined.</li>
+      <li><b>Venus</b> is the hottest planet, not Mercury — its atmosphere traps heat.</li>
+      <li>The <b>Great Wall of China</b> is over 21,000 km long including all its branches.</li>
+      <li>Humans share about <b>60% of DNA with bananas</b>.</li>
+      <li>The shortest war in history lasted <b>38 minutes</b> (Britain vs Zanzibar, 1896).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>📝 Quiz — 8 questions</h2>
+    <div id="quiz"></div>
+    <button class="primary" id="q-submit">Check my score</button>
+    <button class="primary" id="q-reset" style="background:#eef4fb; color:var(--blue); margin-left:8px;">Reset</button>
+    <div class="score" id="q-score"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var QS=[
+    {q:'What is the highest mountain in the world?', o:['K2','Mount Everest','Kangchenjunga','Makalu'], a:1},
+    {q:'What is the capital city of Nepal?', o:['Pokhara','Biratnagar','Kathmandu','Lalitpur'], a:2},
+    {q:'Which calendar does Nepal officially follow?', o:['Gregorian','Bikram Sambat','Hijri','Chinese'], a:1},
+    {q:'Where was Gautama Buddha born?', o:['India','China','Sri Lanka','Nepal (Lumbini)'], a:3},
+    {q:'Nepal\'s flag is unique because it is…', o:['Square','Circular','Not rectangular','Triangular only'], a:2},
+    {q:'Which is the largest ocean on Earth?', o:['Atlantic','Indian','Arctic','Pacific'], a:3},
+    {q:'Nepal\'s time zone is…', o:['UTC+5:00','UTC+5:30','UTC+5:45','UTC+6:00'], a:2},
+    {q:'Which planet is the hottest in our solar system?', o:['Mercury','Venus','Mars','Jupiter'], a:1}
+  ];
+  var root=document.getElementById('quiz');
+  function render(){
+    root.innerHTML='';
+    QS.forEach(function(item,i){
+      var d=document.createElement('div'); d.className='q';
+      var qq=document.createElement('div'); qq.className='qq'; qq.textContent=(i+1)+'. '+item.q; d.appendChild(qq);
+      item.o.forEach(function(op,j){
+        var b=document.createElement('button'); b.className='opt'; b.type='button'; b.textContent=op;
+        b.addEventListener('click', function(){
+          Array.prototype.forEach.call(d.querySelectorAll('.opt'), function(x){ x.classList.remove('right','wrong'); x.disabled=false; });
+          if(j===item.a){ b.classList.add('right'); b.dataset.ok='1'; }
+          else { b.classList.add('wrong'); b.disabled=true; }
+        });
+        d.appendChild(b);
+      });
+      root.appendChild(d);
+    });
+    document.getElementById('q-score').textContent='';
+  }
+  document.getElementById('q-submit').addEventListener('click', function(){
+    var score=0, answered=0;
+    QS.forEach(function(item,i){
+      var d=root.children[i];
+      var picked=d.querySelector('.opt.right');
+      if(picked){ answered++; score++; }
+    });
+    var s=document.getElementById('q-score');
+    s.textContent='🎯 Correct answers marked green: '+score+' / '+QS.length+(score===QS.length? ' — perfect! 🏆':'');
+  });
+  document.getElementById('q-reset').addEventListener('click', render);
+  render();
+})();
+</script>
+</body>
+</html>

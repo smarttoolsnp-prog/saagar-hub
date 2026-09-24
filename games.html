@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Games | SAAGAR</title>
+<meta name="description" content="Quick free browser games — Guess the Number, Memory Match, Reaction Test and Rock-Paper-Scissors.">
+<meta name="theme-color" content="#0f2c4c">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<style>
+  :root{--ink:#0f2c4c; --paper:#f4f8fd; --card:#fff; --line:#d7e3f0; --text:#1a2b3c; --dim:#5b7186; --blue:#2f6df6; --ok:#1fa564; --bad:#e05252;}
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Segoe UI",system-ui,sans-serif; background:var(--paper); color:var(--text); line-height:1.6;}
+  header{background:var(--ink); color:#fff; padding:12px 20px; display:flex; align-items:center; gap:12px; border-bottom:3px solid #f0a72e;}
+  header img{width:38px; height:38px;}
+  header a{color:#cfe0ef; font-size:13.5px; font-weight:600; margin-left:auto;}
+  .wrap{max-width:900px; margin:0 auto; padding:28px 20px 70px;}
+  h1{font-size:26px; font-weight:800; margin-bottom:4px;}
+  .sub{color:var(--dim); font-size:14px; margin-bottom:24px;}
+  .game{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:16px;}
+  .game h2{font-size:17px; margin-bottom:8px;}
+  .game p{font-size:13.5px; color:var(--dim); margin-bottom:10px;}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  input,button{font:inherit; padding:10px 14px; border:1px solid var(--line); border-radius:9px;}
+  button{background:var(--blue); color:#fff; border:0; font-weight:700; cursor:pointer;}
+  button:hover{filter:brightness(1.08);}
+  button.ghost{background:#eef4fb; color:var(--blue);}
+  .out{margin-top:10px; font-weight:700; min-height:24px;}
+  .ok{color:var(--ok);} .bad{color:var(--bad);}
+  .board{display:grid; grid-template-columns:repeat(4,64px); gap:8px; margin-top:8px;}
+  .cell{height:64px; border-radius:10px; background:#e3edf8; display:grid; place-items:center; font-size:26px; cursor:pointer; user-select:none; transition:.15s;}
+  .cell.flip{background:#fff; outline:2px solid var(--blue);}
+  .cell.done{background:#e6f7ef; outline:2px solid var(--ok);}
+  .big{font-size:15px; font-weight:700;}
+  .pad{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
+  .pad button{min-width:70px;}
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/logo.svg" alt="SAAGAR"><strong>SAAGAR</strong>
+  <a href="index.html">← Back to hub</a>
+</header>
+<div class="wrap">
+  <h1>🎮 Games</h1>
+  <p class="sub">No install. No login. Just play.</p>
+
+  <div class="game">
+    <h2>🔢 Guess the Number</h2>
+    <p>I'm thinking of a number between 1 and 100.</p>
+    <div class="row">
+      <input type="number" id="g-in" placeholder="1–100" min="1" max="100">
+      <button id="g-go">Guess</button>
+      <button class="ghost" id="g-new">New game</button>
+    </div>
+    <div class="out" id="g-out"></div>
+  </div>
+
+  <div class="game">
+    <h2>🧠 Memory Match</h2>
+    <p>Find all 8 matching pairs. Fewest moves wins.</p>
+    <div class="row"><span class="big">Moves: <b id="m-moves">0</b></span> <button class="ghost" id="m-new">New game</button></div>
+    <div class="board" id="m-board"></div>
+    <div class="out" id="m-out"></div>
+  </div>
+
+  <div class="game">
+    <h2>⚡ Reaction Test</h2>
+    <p>Wait for the box to turn green, then click as fast as you can.</p>
+    <button id="r-box" style="width:100%; padding:34px; background:#e05252; font-size:17px;">Click to start</button>
+    <div class="out" id="r-out"></div>
+  </div>
+
+  <div class="game">
+    <h2>✊ Rock · Paper · Scissors</h2>
+    <p>First to 5 points wins the match.</p>
+    <div class="pad">
+      <button data-mv="rock">✊ Rock</button>
+      <button data-mv="paper">✋ Paper</button>
+      <button data-mv="scissors">✌️ Scissors</button>
+      <button class="ghost" id="rps-new">Reset</button>
+    </div>
+    <div class="out" id="rps-out">You 0 — 0 CPU</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  /* ---------- Guess the number ---------- */
+  var secret, tries;
+  function newGuess(){ secret=1+Math.floor(Math.random()*100); tries=0; document.getElementById('g-out').textContent='New game — start guessing!'; }
+  document.getElementById('g-new').addEventListener('click', newGuess);
+  document.getElementById('g-go').addEventListener('click', function(){
+    var v=+document.getElementById('g-in').value, out=document.getElementById('g-out');
+    if(!v||v<1||v>100){ out.textContent='Enter a number 1–100.'; return; }
+    tries++;
+    if(v===secret){ out.className='out ok'; out.textContent='🎉 Correct! '+secret+' in '+tries+' tries.'; newGuess(); }
+    else { out.className='out bad'; out.textContent=(v<secret?'⬆️ Higher…':'⬇️ Lower…')+' ('+tries+' tries)'; }
+  });
+  newGuess();
+
+  /* ---------- Memory match ---------- */
+  var EMO=['🍎','🚗','🎈','⚽','🌟','🍌','🎵','🐼'];
+  var first=null, lock=false, moves=0, matched=0;
+  function newMem(){
+    first=null; lock=false; moves=0; matched=0;
+    document.getElementById('m-moves').textContent='0';
+    document.getElementById('m-out').textContent='';
+    var deck=EMO.concat(EMO).sort(function(){ return Math.random()-0.5; });
+    var b=document.getElementById('m-board'); b.innerHTML='';
+    deck.forEach(function(e){
+      var c=document.createElement('div'); c.className='cell'; c.dataset.e=e; c.textContent='';
+      c.addEventListener('click', function(){
+        if(lock || c.classList.contains('done') || c.classList.contains('flip')) return;
+        c.classList.add('flip'); c.textContent=e;
+        if(!first){ first=c; return; }
+        moves++; document.getElementById('m-moves').textContent=moves;
+        if(first.dataset.e===e){
+          first.classList.add('done'); c.classList.add('done');
+          first.classList.remove('flip'); c.classList.remove('flip');
+          first=null; matched++;
+          if(matched===EMO.length){ document.getElementById('m-out').className='out ok'; document.getElementById('m-out').textContent='🎉 All pairs found in '+moves+' moves!'; }
+        } else {
+          lock=true;
+          var a=first; first=null;
+          setTimeout(function(){ a.classList.remove('flip'); a.textContent=''; c.classList.remove('flip'); c.textContent=''; lock=false; }, 650);
+        }
+      });
+      b.appendChild(c);
+    });
+  }
+  document.getElementById('m-new').addEventListener('click', newMem);
+  newMem();
+
+  /* ---------- Reaction ---------- */
+  var state='idle', t0=0, tmr;
+  var box=document.getElementById('r-box'), rOut=document.getElementById('r-out');
+  box.addEventListener('click', function(){
+    if(state==='idle'||state==='done'){
+      state='wait'; box.style.background='#f0a72e'; box.textContent='Wait for green…';
+      rOut.textContent=''; rOut.className='out';
+      tmr=setTimeout(function(){ state='go'; t0=performance.now(); box.style.background='#1fa564'; box.textContent='CLICK NOW!'; }, 900+Math.random()*2200);
+    } else if(state==='wait'){
+      clearTimeout(tmr); state='idle'; box.style.background='#e05252'; box.textContent='Too soon! Click to retry.';
+      rOut.className='out bad'; rOut.textContent='You clicked before green. Patience 😄';
+    } else if(state==='go'){
+      var ms=Math.round(performance.now()-t0);
+      state='done'; box.style.background='#e05252'; box.textContent='Click to start again';
+      rOut.className='out ok'; rOut.textContent='⚡ Your reaction: '+ms+' ms '+(ms<250?'— superhuman!':ms<350?'— great!':'— keep trying!');
+    }
+  });
+
+  /* ---------- RPS ---------- */
+  var you=0, cpu=0;
+  var beats={rock:'scissors', paper:'rock', scissors:'paper'};
+  var label={rock:'✊ Rock', paper:'✋ Paper', scissors:'✌️ Scissors'};
+  function rpsReset(){ you=0; cpu=0; upd('Match reset — first to 5!'); }
+  function upd(msg){
+    document.getElementById('rps-out').textContent=msg+'  ·  You '+you+' — '+cpu+' CPU';
+    if(you>=5||cpu>=5){
+      var w=you>=5? '🎉 You win the match!':'😈 CPU wins the match!';
+      document.getElementById('rps-out').textContent=w+'  Final: '+you+' — '+cpu;
+      rpsReset();
+    }
+  }
+  document.querySelectorAll('[data-mv]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var mv=b.dataset.mv, c=['rock','paper','scissors'][Math.floor(Math.random()*3)];
+      if(mv===c) upd('🤝 Draw — both chose '+label[mv]);
+      else if(beats[mv]===c){ you++; upd('✅ '+label[mv]+' beats '+label[c]); }
+      else { cpu++; upd('❌ '+label[c]+' beats '+label[mv]); }
+    });
+  });
+  document.getElementById('rps-new').addEventListener('click', rpsReset);
+})();
+</script>
+</body>
+</html>
