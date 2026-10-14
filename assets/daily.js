@@ -204,10 +204,23 @@
     g.fillStyle = '#f6f2ff';
     g.font = '900 150px Nunito, system-ui, sans-serif';
     g.fillText(day.score + '/' + day.total, 80, 400);
-    /* emoji grid */
-    g.font = '76px system-ui, sans-serif';
-    var marks = day.marks || [], gx = 84, gy = 500;
-    marks.forEach(function (m, i) { g.fillText(m ? '🟩' : '🟥', gx + i * 82, gy); });
+    /* result grid — drawn as shapes, not emoji: emoji fonts are missing or
+       monochrome on some phones, which would break the card */
+    var marks = day.marks || [], gx = 84, gy = 470, cell = 68, gap = 16;
+    marks.forEach(function (m, i) {
+      var x = gx + i * (cell + gap);
+      g.fillStyle = m ? '#22c55e' : '#ef4444';
+      g.beginPath();
+      var rr = 16, w = cell, h = cell;
+      g.moveTo(x + rr, gy);
+      g.arcTo(x + w, gy, x + w, gy + h, rr);
+      g.arcTo(x + w, gy + h, x, gy + h, rr);
+      g.arcTo(x, gy + h, x, gy, rr);
+      g.arcTo(x, gy, x + w, gy, rr);
+      g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.35)';
+      g.beginPath(); g.ellipse(x + w * 0.34, gy + h * 0.28, w * 0.2, h * 0.14, -0.5, 0, 7); g.fill();
+    });
     g.fillStyle = '#fbbf24';
     g.font = '900 44px Nunito, system-ui, sans-serif';
     g.fillText('🔥 ' + p.streak + '-day streak', 84, 620);
