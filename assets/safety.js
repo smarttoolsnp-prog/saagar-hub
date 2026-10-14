@@ -117,11 +117,12 @@
   var BAD_EN = ['fuck', 'fucking', 'fuk', 'fck', 'shit', 'bitch', 'bastard', 'asshole', 'dick',
     'pussy', 'whore', 'slut', 'rape', 'raped', 'retard', 'faggot', 'nigger', 'nigga',
     'motherfucker', 'cunt', 'wanker', 'moron', 'idiot', 'stupid'];
-  var BAD_ROMAN_NP = ['murkh', 'murka', 'kutta', 'kuti', 'kukkur', 'gadha', 'harami', 'harame',
+  var BAD_ROMAN_NP = ['murkh', 'murka', 'murkha', 'murkhe', 'kutta', 'kuti', 'kukkur', 'gadha', 'harami', 'harame',
     'chhinal', 'chinaal', 'chhinal', 'randi', 'randy', 'jhatu', 'jatha', 'lado', 'loda',
     'bhosadi', 'bhosdike', 'madarchod', 'bhenchod', 'behenchod', 'chakka', 'hijada',
     'kamina', 'kamin', 'saala', 'sala', 'sali', 'gandu', 'gaand', 'chikne', 'chikni',
-    'tharkee', 'tharki', 'nangaa', 'nachaine', 'bhatij'];
+    'tharkee', 'tharki', 'nangaa', 'nachaine', 'bhatij',
+    'chutiya', 'chutiye', 'chutia', 'chutya', 'bokachoda', 'randibaaz'];
   var BAD_NE = ['मूर्ख', 'कुकुर', 'राँडी', 'हरामी', 'चिनाल', 'गधा', 'छिनाल', 'जाठू',
     'भोसडी', 'मादरचोद', 'भेनचोद', 'गान्डु', 'लाडो', 'थरकी', 'नांगा', 'कमिना', 'साला'];
 
@@ -149,13 +150,24 @@
       .replace(/\s+/g, ' ')
       .trim();
   }
+  /* spelling evasion: letters spaced out like "f u c k" or "s.h.i.t".
+     Only runs that START and END on a single character get squished, so
+     normal words ("a class") are never joined. */
+  function squash(text) {
+    return String(text).toLowerCase().replace(/(?:\b[a-z0-9][\s._*\-]+)+[a-z0-9]\b/g, function (m) {
+      return m.replace(/[\s._*\-]+/g, '');
+    });
+  }
+
   function wordHit(text, list) {
     var norm = normalise(text);
+    var squished = normalise(squash(text));
     for (var i = 0; i < list.length; i++) {
       var w = list[i];
-      if (norm.indexOf(w) === -1) continue;
-      var re = new RegExp('(^|[^a-z0-9\\u0900-\\u097f])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z0-9\\u0900-\\u097f]|$)');
-      if (re.test(norm)) return w;
+      var esc = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      var re = new RegExp('(^|[^a-z0-9\\u0900-\\u097f])' + esc + '([^a-z0-9\\u0900-\\u097f]|$)');
+      if (norm.indexOf(w) !== -1 && re.test(norm)) return w;
+      if (squished.indexOf(w) !== -1 && re.test(squished)) return w;
     }
     return null;
   }
@@ -177,7 +189,16 @@
       /* keep the message but star it out — less confrontation than a block */
       var clean = raw;
       try {
-        clean = raw.replace(new RegExp(hit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), mask(hit));
+        var star = mask(hit);
+        clean = raw.replace(new RegExp(hit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), star);
+        /* spaced-out evasion like "f u c k" leaves the plain replace untouched,
+           so fall back to a per-letter pattern that skips separators */
+        if (clean === raw && hit.length > 2) {
+          var parts = hit.split('').map(function (c) {
+            return c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          });
+          clean = raw.replace(new RegExp(parts.join('[\\s._*\\-]*'), 'gi'), star);
+        }
       } catch (e) {}
       return { ok: true, clean: clean, warned: true, why: 'bad language' };
     }
@@ -254,6 +275,7 @@
     noteSent: noteSent,
     applyRoomFlags: applyRoomFlags,
     normalise: normalise,
+    squash: squash,
     RULES: RULES
   };
 })();

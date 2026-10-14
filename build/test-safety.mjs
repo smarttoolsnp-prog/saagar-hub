@@ -68,6 +68,17 @@ console.log('\nfilter');
   const bad4 = api.check('you 4ssh0le');   /* leetspeak obfuscation */
   t('leetspeak obfuscation is caught', bad4.warned === true, JSON.stringify(bad4));
 
+  /* spelling-evasion: letters spaced, dotted or trailing-vowel inflections */
+  const spaced = api.check('F U C K you');
+  t('spaced letters caught', spaced.warned === true, JSON.stringify(spaced));
+  t('spaced letters masked in output', /[*]/.test(spaced.clean), JSON.stringify(spaced));
+  const dotted = api.check('s.h.i.t game');
+  t('dot-separated letters caught', dotted.warned === true, JSON.stringify(dotted));
+  const inflect = api.check('timi murkha chau');
+  t('Roman Nepali inflected insult caught', inflect.warned === true, JSON.stringify(inflect));
+  const chutiya = api.check('chutiya khel');
+  t('"chutiya" insult caught', chutiya.warned === true, JSON.stringify(chutiya));
+
   const links = api.check('check http://freestuff.com now');
   t('links are blocked', links.ok === false && /link/.test(links.why), JSON.stringify(links));
   const phone = api.check('call me 9812345678');
@@ -81,6 +92,8 @@ console.log('\nfilter');
   t('"class" is not a false positive', ok('I have a class at 10'));
   t('"assam" style words are not caught', ok('I am from Assam in India'));
   t('"analysis" is not caught', ok('my analysis of the game'));
+  /* squash() must not join ordinary spaced words */
+  t('spaced normal words stay clean', ok('a b c d') && api.check('we meet at 9 am ok').warned !== true);
   t('empty message rejected', api.check('   ').ok === false);
 }
 
