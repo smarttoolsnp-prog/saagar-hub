@@ -261,7 +261,7 @@
       out.firstElementChild.focus(); e.preventDefault();
     }
   });
-  output.addEventListener('keydown', function (e) {
+  out.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && document.activeElement && document.activeElement.tagName === 'A') {
       document.activeElement.click(); e.preventDefault();
     }
