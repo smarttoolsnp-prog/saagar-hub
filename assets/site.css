@@ -1188,3 +1188,23 @@ html.lite .disc{display:none;}
   box-shadow:var(--sh); border-left:5px solid var(--mint,#34d399);
 }
 .pm-note b{color:var(--ink);}
+
+/* ---------- dark-mode contrast fixes for page heroes ---------- */
+html[data-theme="dark"] .phero{
+  background:linear-gradient(135deg,#241c58 0%,#2e2570 55%,#392f8c 100%);
+  border-color:#3a3090; box-shadow:0 10px 28px rgba(0,0,0,.42);
+}
+html[data-theme="dark"] .phero h1,
+html[data-theme="dark"] .phero .lg{color:#f6f2ff;}
+html[data-theme="dark"] .phero .mut,
+html[data-theme="dark"] .crumb,
+html[data-theme="dark"] .crumb a{color:#c9bfef;}
+html[data-theme="dark"] .mut{color:#c6bbee;}
+html[data-theme="dark"] .sec{background:transparent;}
+html[data-theme="dark"] .prose h2{color:#f4f0ff;}
+html[data-theme="dark"] .prose li,
+html[data-theme="dark"] .prose p{color:#dcd4f7;}
+html[data-theme="dark"] .prose a{color:#c4b5fd;}
+html[data-theme="dark"] code{background:#241c58; color:#e9e3ff;}
+html[data-theme="dark"] table th{background:#241c58; color:#f1ecff;}
+html[data-theme="dark"] table td{border-color:#332a6e; color:#e6dffb;}
