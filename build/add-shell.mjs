@@ -21,7 +21,8 @@ for (const file of walk(ROOT)) {
   const rel = relative(ROOT, file);
   const depth = rel.split(sep).length - 1;
   const up = '../'.repeat(depth);
-  const tag = `<!-- SAAGAR shell: sound, settings (theme/size/lite/lang), clay mascot -->\n` +
+  const tag = `<!-- SAAGAR shell: room safety, sound, settings (theme/size/lite/lang), mascot -->\n` +
+    `<script src="${up}assets/safety.js"></script>\n` +
     `<script src="${up}assets/sound.js"></script>\n` +
     `<script src="${up}assets/settings.js"></script>\n` +
     `<script src="${up}assets/mascot.js"></script>\n`;
@@ -29,8 +30,14 @@ for (const file of walk(ROOT)) {
   if (html.includes('assets/settings.js')) {
     /* pages already carry the shell — slot sound.js in front of settings.js.
        The src may carry a ?v=<hash> cache-buster, so tolerate that. */
-    if (html.includes('assets/sound.js')) { skipped++; continue; }
-    const patched = html.replace(
+    if (html.includes('assets/safety.js') && html.includes('assets/sound.js')) { skipped++; continue; }
+    let base = html;
+    if (!base.includes('assets/safety.js')) {
+      base = base.replace(/(<script src="[^"]*assets\/(?:sound|settings)\.js(?:\?v=[0-9a-f]+)?"><\/script>)/,
+        `<script src="${up}assets/safety.js"></script>\n$1`);
+    }
+    if (base.includes('assets/sound.js')) { writeFileSync(file, base); changed++; continue; }
+    const patched = base.replace(
       /(<script src="[^"]*assets\/settings\.js(?:\?v=[0-9a-f]+)?"><\/script>)/,
       `<script src="${up}assets/sound.js"></script>\n$1`);
     if (patched === html) { console.log('no settings.js tag found: ' + rel); continue; }

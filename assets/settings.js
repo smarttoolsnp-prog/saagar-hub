@@ -225,6 +225,40 @@
     });
   }
 
+  /* ---------- PWA: install prompt ---------- */
+  var installEvt = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    installEvt = e;
+    buildInstallRow();
+  });
+  window.addEventListener('appinstalled', function () {
+    installEvt = null;
+    var row = document.querySelector('.install-row');
+    if (row) row.remove();
+  });
+
+  function buildInstallRow() {
+    var settings = document.querySelector('.hd-settings');
+    if (!settings || settings.querySelector('.install-row')) return;
+    var row = document.createElement('div');
+    row.className = 'set-row install-row';
+    var lab = document.createElement('span');
+    lab.className = 'set-lab';
+    lab.textContent = state.lang === 'ne' ? 'एप' : 'App';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'set-pill';
+    btn.textContent = state.lang === 'ne' ? 'इन्स्टल गर्नुहोस्' : 'Install';
+    btn.onclick = function () {
+      if (!installEvt) return;
+      installEvt.prompt();
+      installEvt.userChoice.then(function () { installEvt = null; });
+    };
+    row.appendChild(lab); row.appendChild(btn);
+    settings.appendChild(row);
+  }
+
   /* ---------- PWA: service worker ---------- */
   function pwa() {
     var link = document.createElement('link');

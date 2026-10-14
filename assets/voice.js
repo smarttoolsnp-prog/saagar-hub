@@ -146,6 +146,13 @@
   /* ---------- join / leave / mute ---------- */
   function joinCall() {
     if (!V.room || V.joined) return Promise.resolve(false);
+    /* room-safety kill switch: respect the global and per-room voice flag */
+    if (window.SAAGAR_SAFETY && !window.SAAGAR_SAFETY.voiceAllowed()) {
+      sysNote('🎙️ Voice is off' +
+        (window.SAAGAR_SAFETY.flag('voice') ? ' for under-16 accounts' : ' right now') +
+        ' — text chat still works.');
+      return Promise.resolve(false);
+    }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       sysNote('🎙️ This browser has no microphone support.');
       return Promise.resolve(false);

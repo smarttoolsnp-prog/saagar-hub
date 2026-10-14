@@ -166,6 +166,11 @@
        🎙 mic    — tap: join the call / mute-unmute; hold ≥700ms: leave
        🔊 speaker— tap: mute/unmute ALL incoming voice (local only)  */
   function buildVoiceDock() {
+    /* voice is off for under-16 accounts, or when the kill switch is on */
+    if (voiceOff()) {
+      if (state.vdock) { state.vdock.remove(); state.vdock = null; state.vmic = null; state.vspk = null; }
+      return;
+    }
     if (state.vdock) return;
     var dock = el('div', 'voice-dock');
 
@@ -381,11 +386,81 @@
   }
   function sys(text) { bubble({ sys: true, text: text }); }
 
+  /* ---------- safety gate (assets/safety.js provides the rules) ---------- */
+  function SAFE() { return window.SAAGAR_SAFETY || null; }
+  function quietReactionOnly() { var S = SAFE(); return !!(S && S.isMinor()); }
+  function chatOff() { var S = SAFE(); return !!(S && !S.flag('chat')); }
+  function voiceOff() { var S = SAFE(); return !!(S && !S.voiceAllowed()); }
+
+  function lockUI(reason) {
+    if (!state.sheet) return;
+    var form = state.sheet.querySelector('.chat-form');
+    if (form && !form.classList.contains('locked')) {
+      form.classList.add('locked');
+      var note = el('p', 'chat-locked-note', reason);
+      form.parentNode.insertBefore(note, form);
+    }
+  }
+
   function sendText(text) {
-    var msg = { t: 'chat', text: text, from: nick(), sid: SID };
+    text = String(text || '');
+    var S = SAFE();
+
+    /* chat switched off for this room or globally */
+    if (chatOff()) {
+      sys('Chat is off in this room right now.');
+      return;
+    }
+    /* under-16 accounts can only use the quick-reaction row */
+    if (quietReactionOnly() && !isQuickReaction(text)) {
+      sys('Quick reactions only for younger players — use the emoji row.');
+      return;
+    }
+    /* rate limiting */
+    if (S) {
+      var gate = S.allowSend();
+      if (!gate.ok) {
+        sys('Please wait a moment (' + gate.why + ').');
+        return;
+      }
+    }
+    /* filter */
+    var out = text;
+    if (S) {
+      var res = S.check(text);
+      if (!res.ok) {
+        sys('That message can\u2019t be sent here (' + res.why + ').');
+        if (window.SAAGAR_SOUND) window.SAAGAR_SOUND.play('error');
+        return;
+      }
+      out = res.clean;
+      if (res.warned) sys('Some words were hidden \u2014 keep it friendly (see rules.html).');
+      if (!S.noteSent(out)) {
+        sys('You are repeating the same message \u2014 please stop.');
+        return;
+      }
+    }
+
+    var msg = { t: 'chat', text: out, from: nick(), sid: SID };
     try { if (state.room) state.room.send(msg); } catch (e) { }
-    bubble({ text: text, from: nick(), me: true, at: now() });
-    playSound(soundForText(text));
+    bubble({ text: out, from: nick(), me: true, at: now() });
+    playSound(soundForText(out));
+  }
+
+  /* quick emoji reactions are the one thing under-16 accounts may send */
+  var EMOJI_ONLY = (function () {
+    /* unicode property escapes need a modern browser — build it safely so an
+       old browser can never throw a syntax error and break the whole file */
+    try { return new RegExp('^[\\p{Extended_Pictographic}\\uFE0F\\u200D\\s]+$', 'u'); }
+    catch (e) { return null; }
+  })();
+  function isQuickReaction(text) {
+    var t = String(text || '').trim();
+    if (!t) return false;
+    if (QUICK.indexOf(t) > -1) return true;
+    if (t.length <= 8 && EMOJI_ONLY && EMOJI_ONLY.test(t)) return true;
+    if (t.length <= 8 && !EMOJI_ONLY && !/[a-z0-9\u0900-\u097f]/i.test(t)) return true;
+    return false;
   }
 
   function setOpen(v) {
@@ -407,6 +482,19 @@
   function attach(room, isHost, opts) {
     opts = opts || {};
     detach(true);
+    var S = SAFE();
+    if (S) {
+      S.applyRoomFlags(opts.flags || (opts.room && opts.room.flags) || null);
+      /* ask the age group once, then apply the matching limits */
+      S.ensureAge(function () {
+        if (quietReactionOnly()) {
+          lockUI('Quick reactions only (under 16) \u2014 voice is off. See rules.html');
+          if (state.vdock) { state.vdock.remove(); state.vdock = null; state.vmic = null; state.vspk = null; }
+        } else if (chatOff()) {
+          lockUI('Chat is off in this room right now.');
+        }
+      });
+    }
     state.room = room;
     state.isHost = !!isHost;
     state.open = false;
@@ -415,9 +503,10 @@
     state.sheet.classList.add('hidden');
     state.log.innerHTML = '';
     sys('Chat ready' + (opts.title ? ' · ' + opts.title : ''));
+    if (chatOff()) { sys('Chat is switched off right now.'); lockUI('Chat is off in this room right now.'); }
+    if (quietReactionOnly()) lockUI('Quick reactions only (under 16) \u2014 voice is off. See rules.html');
     state.toggle.classList.remove('hidden');
-    attachVoice();
-    buildVoiceDock();
+    if (!voiceOff()) { attachVoice(); buildVoiceDock(); }
     if (state.sndbar) state.sndbar.classList.remove('hidden');
   }
 
@@ -437,15 +526,25 @@
   function receive(msg) {
     if (!msg || msg.t !== 'chat') return;
     if (msg.sid && msg.sid === SID) return;   /* our own message relayed back */
+    /* never trust a remote peer: filter what arrives too, and drop anything
+       that breaks the rules outright */
+    var S = SAFE();
+    var text = String(msg.text == null ? '' : msg.text);
+    if (S) {
+      var res = S.check(text);
+      if (!res.ok) { sys('A message was hidden (blocked: ' + res.why + ').'); return; }
+      text = res.clean;
+    }
+    if (chatOff()) return;
     build();
-    bubble({ text: msg.text, from: msg.from || 'Friend', at: now() });
-    playSound(soundForText(msg.text));
+    bubble({ text: text, from: msg.from || 'Friend', at: now() });
+    playSound(soundForText(text));
     if (!state.open) {
       state.unread++;
       state.pip.textContent = state.unread > 9 ? '9+' : state.unread;
       state.pip.classList.remove('hidden');
     }
-    if (window.SAAGAR) window.SAAGAR.toast('💬 ' + (msg.from || 'Friend') + ': ' + String(msg.text).slice(0, 40));
+    if (window.SAAGAR) window.SAAGAR.toast('💬 ' + (msg.from || 'Friend') + ': ' + text.slice(0, 40));
   }
 
   function note(text) { bubble({ sys: true, text: text }); }
