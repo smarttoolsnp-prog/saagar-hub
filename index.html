@@ -32,7 +32,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="assets/site.css?v=ba4566cc">
+<link rel="stylesheet" href="assets/site.css?v=ad8808e0">
 <link rel="stylesheet" href="assets/clay.css?v=13a6030a">
 <link rel="stylesheet" href="assets/clay.css?v=13a6030a">
 <link rel="stylesheet" href="assets/clay.css?v=13a6030a">
@@ -164,9 +164,29 @@
   </div>
 </main>
 
+<main class="sec" style="padding-top:0">
+  <div class="wrap">
+    <a class="daily-teaser" href="daily.html">
+      <div class="dt-mascot" id="dtMascot"></div>
+      <div class="dt-body">
+        <strong>Today's daily challenge</strong>
+        <p>Five questions — Nepal GK plus a logic puzzle. Same set for everyone today, a shareable emoji result, and a streak to keep alive. Resets at midnight (Nepal time).</p>
+        <span class="dt-go">Play today's challenge →</span>
+      </div>
+    </a>
+  </div>
+</main>
+<script>
+  /* mascot.js loads at the end of <body>, so wait for the document to finish */
+  document.addEventListener('DOMContentLoaded', function () {
+    var h = document.getElementById('dtMascot');
+    if (h && window.SAAGAR_MASCOT) h.innerHTML = window.SAAGAR_MASCOT.html('think', 88);
+  });
+</script>
+
 <div id="ftr"></div>
 
-<script src="assets/app.js?v=ed6f1b9b"></script>
+<script src="assets/app.js?v=bc306dd9"></script>
 <script src="assets/icons.js?v=e76314ce"></script>
 <script src="assets/catalog.js?v=7d8503e2"></script>
 <script>
@@ -270,7 +290,8 @@
 })();
 </script>
 <!-- SAAGAR shell: settings (theme/size/lite/lang) + clay mascot -->
-<script src="assets/settings.js?v=dde28757"></script>
+<script src="assets/sound.js?v=fa3decc6"></script>
+<script src="assets/settings.js?v=fb3a030a"></script>
 <script src="assets/mascot.js?v=324763e5"></script>
 </body>
 </html>

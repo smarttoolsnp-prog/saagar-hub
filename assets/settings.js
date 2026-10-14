@@ -36,7 +36,8 @@
   /* ---------- language ---------- */
   var DICT = {
     en: {
-      home: 'Home', tools: 'Tools', games: 'Games', skills: 'Skills', laws: 'Laws',
+      home: 'Home', tools: 'Tools', games: 'Games', skills: 'Skills', laws: 'Laws', daily: 'Daily',
+      dailyLong: 'Daily challenge',
       play: 'Play now', chat: 'chat in room', privacy: 'Privacy', contact: 'Contact',
       about: 'About', terms: 'Terms', rules: 'Community rules', report: 'Report a problem',
       more: 'Settings', theme: 'Theme', font: 'Text size', lite: 'Lite mode', lang: 'Language',
@@ -47,7 +48,8 @@
       langName: 'English'
     },
     ne: {
-      home: 'गृहपृष्ठ', tools: 'औजार', games: 'खेल', skills: 'सीप', laws: 'कानुन',
+      home: 'गृहपृष्ठ', tools: 'औजार', games: 'खेल', skills: 'सीप', laws: 'कानुन', daily: 'दैनिक',
+      dailyLong: 'दैनिक चुनौती',
       play: 'अहिले खेल्नुहोस्', chat: 'कोठामा कुराकानी', privacy: 'गोपनीयता', contact: 'सम्पर्क',
       about: 'बारेमा', terms: 'सर्तहरू', rules: 'समुदायका नियम', report: 'समस्या पठाउनुहोस्',
       more: 'सेटिङ', theme: 'रङ', font: 'अक्षर आकार', lite: 'लाइट मोड', lang: 'भाषा',
@@ -92,9 +94,9 @@
   function translate() {
     var lang = state.lang;
     var pairs = [
-      ['.hd-nav a', { 'Home': 'home', 'Tools': 'tools', 'Games': 'games', 'Skills': 'skills', 'Laws': 'laws' }],
-      ['.hd-sheet-in > a', { 'Home': 'home', 'Tools': 'tools', 'Games': 'games', 'Skills': 'skills', 'Laws': 'laws' }],
-      ['.ft-links a', { 'Privacy': 'privacy', 'Contact': 'contact', 'About': 'about', 'Terms': 'terms', 'Community rules': 'rules', 'Report a problem': 'report', 'Report': 'report', 'Home': 'home', 'Tools': 'tools', 'Games': 'games', 'Skills': 'skills', 'Laws': 'laws' }],
+      ['.hd-nav a', { 'Home': 'home', 'Tools': 'tools', 'Games': 'games', 'Daily': 'daily', 'Daily challenge': 'dailyLong', 'Skills': 'skills', 'Laws': 'laws' }],
+      ['.hd-sheet-in > a', { 'Home': 'home', 'Tools': 'tools', 'Games': 'games', 'Daily': 'daily', 'Daily challenge': 'dailyLong', 'Skills': 'skills', 'Laws': 'laws' }],
+      ['.ft-links a', { 'Privacy': 'privacy', 'Contact': 'contact', 'About': 'about', 'Terms': 'terms', 'Community rules': 'rules', 'Report a problem': 'report', 'Report': 'report', 'Home': 'home', 'Tools': 'tools', 'Games': 'games', 'Daily challenge': 'dailyLong', 'Daily': 'daily', 'Skills': 'skills', 'Laws': 'laws' }],
       ['.gcard .play', { 'Play now →': 'play', 'Play now': 'play' }],
       ['.gcard .online', { '💬 chat in room': 'chat' }]
     ];

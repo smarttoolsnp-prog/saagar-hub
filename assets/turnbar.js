@@ -37,6 +37,8 @@
   function arm(opts) {
     opts = opts || {};
     build();
+    /* your-turn ding (sound engine is optional — games work without it) */
+    if (window.SAAGAR_SOUND) window.SAAGAR_SOUND.play('turn');
     gen++;
     var my = gen;
     total = opts.secs > 0 ? opts.secs : 30;

@@ -1208,3 +1208,89 @@ html[data-theme="dark"] .prose a{color:#c4b5fd;}
 html[data-theme="dark"] code{background:#241c58; color:#e9e3ff;}
 html[data-theme="dark"] table th{background:#241c58; color:#f1ecff;}
 html[data-theme="dark"] table td{border-color:#332a6e; color:#e6dffb;}
+
+/* ---------- sound controls in the settings panel ---------- */
+.sound-toggle{min-width:52px; font-size:15px;}
+.sound-vol{
+  -webkit-appearance:none; appearance:none; width:96px; height:34px;
+  background:transparent; cursor:pointer; margin-left:4px;
+}
+.sound-vol::-webkit-slider-runnable-track{height:6px; border-radius:99px; background:linear-gradient(90deg,#7c3aed,#3b82f6);}
+.sound-vol::-webkit-slider-thumb{
+  -webkit-appearance:none; width:22px; height:22px; border-radius:50%;
+  background:#fff; box-shadow:0 2px 6px rgba(40,25,90,.35); margin-top:-8px;
+}
+.sound-vol::-moz-range-track{height:6px; border-radius:99px; background:linear-gradient(90deg,#7c3aed,#3b82f6);}
+.sound-vol::-moz-range-thumb{width:22px; height:22px; border:0; border-radius:50%; background:#fff;}
+.sound-note{min-height:14px;}
+
+/* ---------- daily challenge ---------- */
+.daily-wrap{display:flex; flex-direction:column; gap:16px;}
+.daily-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+.daily-strip .stat{
+  background:var(--card); border-radius:var(--r,22px); box-shadow:var(--sh);
+  padding:12px 10px; text-align:center; display:flex; flex-direction:column; gap:2px;
+}
+.daily-strip .stat b{font-size:22px; font-weight:900; color:var(--ink); line-height:1.1;}
+.daily-strip .stat span{font-size:11px; font-weight:800; color:var(--dim); letter-spacing:.02em;}
+.daily-clock{margin:0; font-size:12.5px; font-weight:800; color:var(--dim); text-align:center;}
+.daily-card{background:var(--card); border-radius:var(--r-lg,26px); box-shadow:var(--sh); padding:20px 18px 22px; display:flex; flex-direction:column; gap:14px;}
+.daily-head{display:flex; flex-direction:column; gap:8px;}
+.daily-day{font-size:12px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+.daily-qnum{font-size:13.5px; font-weight:800; color:var(--dim);}
+.daily-qnum b{color:var(--ink);}
+.daily-bar{height:8px; border-radius:99px; background:var(--line-2); overflow:hidden;}
+.daily-bar i{display:block; height:100%; background:linear-gradient(90deg,#7c3aed,#3b82f6); transition:width .35s ease;}
+.daily-q{margin:2px 0 0; font-size:19px; font-weight:900; color:var(--ink); line-height:1.45;}
+.daily-opts{display:flex; flex-direction:column; gap:10px;}
+.daily-opt{
+  font:inherit; font-size:15.5px; font-weight:800; text-align:left; cursor:pointer;
+  padding:16px 18px; min-height:52px; border:0; border-radius:var(--r-sm,18px);
+  background:var(--bg-2); color:var(--ink); box-shadow:var(--sh);
+  transition:transform .15s, box-shadow .15s;
+}
+.daily-opt:hover{transform:translateY(-2px);}
+.daily-opt:disabled{cursor:default; opacity:.92;}
+.daily-opt.picked{background:linear-gradient(135deg,#d1fae5,#a7f3d0); color:#065f46;}
+.daily-opt.reveal{background:linear-gradient(135deg,#c7d2fe,#a5b4fc); color:#1e1b4b;}
+.daily-why{margin:0; font-size:13.5px; font-weight:700; color:var(--dim); line-height:1.6;}
+.daily-next{align-self:flex-start; padding:14px 26px;}
+.daily-score{font-size:44px; font-weight:900; color:var(--ink); line-height:1;}
+.daily-score b{font-size:44px;}
+.daily-grid{font-size:34px; letter-spacing:6px; line-height:1.3;}
+.daily-gain{margin:0; font-size:14.5px; font-weight:800; color:var(--ink);}
+.daily-review{font-size:13.5px; color:var(--dim); font-weight:700;}
+.daily-review summary{cursor:pointer; font-weight:900; color:var(--ink); padding:6px 0;}
+.daily-actions{display:flex; flex-wrap:wrap; gap:10px;}
+.daily-actions .btn{padding:14px 20px; font-size:14.5px;}
+.daily-badges{display:flex; flex-wrap:wrap; gap:8px;}
+.badge{
+  font-size:12px; font-weight:900; padding:8px 13px; border-radius:999px;
+  background:linear-gradient(135deg,#ede9fe,#ddd6fe); color:#5b21b6; box-shadow:var(--sh);
+}
+.badge.dim{background:var(--bg-2); color:var(--dim);}
+.daily-invite{display:flex; align-items:center; gap:12px; margin:0; font-size:13px; font-weight:700; color:var(--dim);}
+.daily-invite .mascot{margin:0; flex:none;}
+@media (max-width:420px){
+  .daily-strip{grid-template-columns:repeat(2,1fr);}
+  .daily-grid{font-size:26px; letter-spacing:3px;}
+  .daily-q{font-size:17px;}
+}
+
+/* ---------- home: daily challenge teaser ---------- */
+.daily-teaser{
+  display:flex; align-items:center; gap:18px; padding:20px 22px;
+  background:linear-gradient(135deg,#241c58 0%,#2e2570 55%,#392f8c 100%);
+  border-radius:var(--r-lg,26px); box-shadow:var(--sh-2); color:#f6f2ff;
+  text-decoration:none; transition:transform .2s, box-shadow .2s;
+}
+.daily-teaser:hover{transform:translateY(-3px);}
+.dt-mascot{flex:none;}
+.dt-body{display:flex; flex-direction:column; gap:5px; min-width:0;}
+.dt-body strong{font-size:18px; font-weight:900; color:#fff;}
+.dt-body p{margin:0; font-size:13.5px; font-weight:700; color:#c9bfef; line-height:1.55;}
+.dt-go{margin-top:4px; font-size:14px; font-weight:900; color:#fbbf24;}
+@media (max-width:480px){
+  .daily-teaser{flex-direction:column; align-items:flex-start; gap:10px; padding:18px;}
+  .dt-body strong{font-size:16.5px;}
+}

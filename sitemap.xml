@@ -3,6 +3,7 @@
   <url><loc>https://sagardahal123.com.np/index.html</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://sagardahal123.com.np/about.html</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://sagardahal123.com.np/contact.html</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://sagardahal123.com.np/daily.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
   <url><loc>https://sagardahal123.com.np/games/carrom.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://sagardahal123.com.np/games/checkers.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://sagardahal123.com.np/games/connect4.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>

@@ -21,11 +21,23 @@ for (const file of walk(ROOT)) {
   const rel = relative(ROOT, file);
   const depth = rel.split(sep).length - 1;
   const up = '../'.repeat(depth);
-  const tag = `<!-- SAAGAR shell: settings (theme/size/lite/lang) + clay mascot -->\n` +
+  const tag = `<!-- SAAGAR shell: sound, settings (theme/size/lite/lang), clay mascot -->\n` +
+    `<script src="${up}assets/sound.js"></script>\n` +
     `<script src="${up}assets/settings.js"></script>\n` +
     `<script src="${up}assets/mascot.js"></script>\n`;
   const html = readFileSync(file, 'utf8');
-  if (html.includes('assets/settings.js')) { skipped++; continue; }
+  if (html.includes('assets/settings.js')) {
+    /* pages already carry the shell — slot sound.js in front of settings.js.
+       The src may carry a ?v=<hash> cache-buster, so tolerate that. */
+    if (html.includes('assets/sound.js')) { skipped++; continue; }
+    const patched = html.replace(
+      /(<script src="[^"]*assets\/settings\.js(?:\?v=[0-9a-f]+)?"><\/script>)/,
+      `<script src="${up}assets/sound.js"></script>\n$1`);
+    if (patched === html) { console.log('no settings.js tag found: ' + rel); continue; }
+    writeFileSync(file, patched);
+    changed++;
+    continue;
+  }
   const idx = html.search(/<\/body>/i);
   if (idx === -1) { console.log('no </body>: ' + rel); continue; }
   writeFileSync(file, html.slice(0, idx) + tag + html.slice(idx));

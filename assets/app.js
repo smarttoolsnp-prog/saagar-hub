@@ -21,6 +21,7 @@
       { id: 'home', label: 'Home', url: 'index.html', icon: svg('home') },
       { id: 'tools', label: 'Tools', url: 'tools.html', icon: svg('tools') },
       { id: 'games', label: 'Games', url: 'games.html', icon: svg('games') },
+      { id: 'daily', label: 'Daily', url: 'daily.html', icon: svg('games') },
       { id: 'skills', label: 'Skills', url: 'skills.html', icon: svg('skills') },
       { id: 'law', label: 'Laws', url: 'law.html', icon: svg('law') }
     ];
@@ -95,6 +96,7 @@
     var I = (typeof ICONS !== 'undefined' && ICONS) ? ICONS : null;
     function svg(key, extra, size) { return I ? I.render(key, extra, size) : ''; }
     NAV.concat([
+      { label: 'Daily challenge', url: 'daily.html' },
       { label: 'About', url: 'about.html' },
       { label: 'Contact', url: 'contact.html' },
       { label: 'Community rules', url: 'rules.html' },
@@ -117,6 +119,7 @@
   /* ---------- toast ---------- */
   var toastEl = null, toastTimer = null;
   function toast(msg, isErr) {
+    if (window.SAAGAR_SOUND) window.SAAGAR_SOUND.play(isErr ? 'error' : 'tapSoft');
     if (!toastEl) { toastEl = el('div', { id: 'toast' }); document.body.appendChild(toastEl); }
     toastEl.textContent = msg;
     toastEl.className = isErr ? 'show err' : 'show';

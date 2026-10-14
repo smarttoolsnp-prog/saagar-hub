@@ -138,6 +138,7 @@
       var spin = 2 + Math.floor(Math.random() * 2);
       var tilt = Math.round((Math.random() * 26 - 13));
       wrap.classList.add('roll');
+      if (window.SAAGAR_SOUND) window.SAAGAR_SOUND.play('dice');
       cube.style.transition = 'transform .68s cubic-bezier(.2,.75,.25,1)';
       cube.style.transform = 'rotateX(' + (r[0] + 360 * spin) + 'deg) rotateY(' +
         (r[1] + 360 * (spin + 1)) + 'deg) rotateZ(' + tilt + 'deg)';
@@ -149,6 +150,7 @@
         api.rolling = false;
         api.value = v;
         wrap.classList.remove('roll');
+        if (window.SAAGAR_SOUND) window.SAAGAR_SOUND.play('diceLand');
         if (typeof cb === 'function') cb(v);
       }, 990);
       return api;

@@ -23,6 +23,9 @@ function walk(dir, out = []) {
 
 let changed = 0, skipped = 0;
 for (const file of walk(ROOT)) {
+  const rel = relative(ROOT, file).split('\\').join('/');
+  /* ads are not allowed on error pages — never inject the loader there */
+  if (rel === '404.html') { skipped++; continue; }
   const html = readFileSync(file, 'utf8');
   if (html.includes('adsbygoogle')) { skipped++; continue; }
   const idx = html.search(/<\/head>/i);
