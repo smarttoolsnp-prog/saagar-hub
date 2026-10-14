@@ -32,6 +32,9 @@ Live: 51 pages, deployed to Cloudflare Pages `saagar-hub` → sagardahal123.com.
 - [ ] Board quality pass: Ludo (15×15, extruded pawns), Carrom, Teen Patti (felt, 64×92 cards)
 - [ ] Mark “Featured” vs “Coming soon” on the games hub
 - [ ] Desktop-only tilt cards
+- [ ] Consolidate sounds: `assets/chat.js` still carries its own WAV generator
+      (`makeSound`/`playSound`) from before the engine existed — fold it into
+      `assets/sound.js` so there is one sound system, not two
 
 ## Phase 6 — rooms, voice, safety (partial)
 
