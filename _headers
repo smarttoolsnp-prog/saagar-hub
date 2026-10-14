@@ -1,0 +1,21 @@
+# Cloudflare Pages headers
+# Assets were cached for 4 hours by default, which made updated JS/CSS invisible
+# to returning visitors. HTML always revalidates; assets refresh every 10 minutes.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: microphone=(self), camera=(), geolocation=()
+  X-Frame-Options: SAMEORIGIN
+
+/assets/*
+  Cache-Control: public, max-age=600, must-revalidate
+
+/sw.js
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=3600
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
