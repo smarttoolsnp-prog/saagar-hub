@@ -1,0 +1,40 @@
+{
+  "name": "SAAGAR — games, tools, skills & Nepal laws",
+  "short_name": "SAAGAR",
+  "description": "Free browser games with friends, 25 everyday tools, skills guides and plain-language Nepal law explainers. Works on slow connections and cheap phones.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#eef0ff",
+  "theme_color": "#7c3aed",
+  "categories": ["games", "education", "utilities", "productivity"],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Play games", "short_name": "Games", "url": "./games.html" },
+    { "name": "Use a tool", "short_name": "Tools", "url": "./tools.html" },
+    { "name": "Nepal laws", "short_name": "Laws", "url": "./law.html" }
+  ]
+}

@@ -95,6 +95,11 @@
     var I = (typeof ICONS !== 'undefined' && ICONS) ? ICONS : null;
     function svg(key, extra, size) { return I ? I.render(key, extra, size) : ''; }
     NAV.concat([
+      { label: 'About', url: 'about.html' },
+      { label: 'Contact', url: 'contact.html' },
+      { label: 'Community rules', url: 'rules.html' },
+      { label: 'Report a problem', url: 'report.html' },
+      { label: 'Terms', url: 'terms.html' },
       { label: 'Privacy', url: 'privacy.html', icon: svg('privacy') },
       { label: 'Email', url: 'mailto:dahalsaagar8@gmail.com', ext: true, icon: svg('mail') },
       { label: 'Facebook', url: 'https://www.facebook.com/saagar.dahal.50', ext: true, icon: svg('social') }

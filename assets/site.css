@@ -1091,3 +1091,100 @@ a{color:inherit;text-decoration:none}
   color:#fff; font-weight:900; font-size:18px;
 }
 .colorchip{ display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:18px; border:0; cursor:pointer; box-shadow:var(--clay); }
+
+/* ===========================================================
+   SAAGAR — settings layer (dark/light, text size, lite mode)
+   Appended block; presentation only. Toggled by assets/settings.js
+   via <html data-theme data-font class="lite" data-lang>.
+   =========================================================== */
+
+/* ---------- dark theme ---------- */
+html[data-theme="dark"]{
+  --bg:#141033; --bg-2:#1a1540; --card:#211a52;
+  --line:#2c2463; --line-2:#372d76; --glass:rgba(33,26,82,.82);
+  --ink:#f1ecff; --dim:#c6bbee; --faint:#a296d0;
+  --bg-2:#1a1540;
+  --sh:0 1px 2px rgba(0,0,0,.35), 0 10px 26px rgba(0,0,0,.4);
+  --sh-2:0 16px 40px rgba(0,0,0,.5), 0 3px 10px rgba(0,0,0,.35);
+  --sh-3:0 30px 64px rgba(0,0,0,.55);
+  --candy-bg:
+    radial-gradient(1200px 560px at 88% -10%, rgba(124,58,237,.30), transparent 60%),
+    radial-gradient(1000px 480px at 2% 2%, rgba(34,211,238,.16), transparent 55%),
+    radial-gradient(820px 420px at 70% 110%, rgba(244,114,182,.16), transparent 60%),
+    var(--bg);
+  color-scheme:dark;
+}
+html[data-theme="dark"] .hd,
+html[data-theme="dark"] .hd-sheet{background:#1b1646;}
+html[data-theme="dark"] .hd-brand,
+html[data-theme="dark"] .hd-nav a{color:#e9e3ff;}
+html[data-theme="dark"] .hd-nav a.on{background:linear-gradient(135deg,#7c3aed,#3b82f6);color:#fff;}
+html[data-theme="dark"] .clay-card,
+html[data-theme="dark"] .gcard,
+html[data-theme="dark"] .tool-card,
+html[data-theme="dark"] .sec-card,
+html[data-theme="dark"] .phero{box-shadow:0 8px 22px rgba(0,0,0,.42);}
+html[data-theme="dark"] .gbody h3,
+html[data-theme="dark"] h1,html[data-theme="dark"] h2,
+html[data-theme="dark"] h3{color:#f4f0ff;}
+html[data-theme="dark"] .modes span{background:#2f2770;color:#c7bdf7;box-shadow:none;}
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea{background:#241c58;color:#f1ecff;border-color:#3a3090;}
+html[data-theme="dark"] .callout,
+html[data-theme="dark"] .howto,
+html[data-theme="dark"] .faq,
+html[data-theme="dark"] .result{background:#211a52;color:#efeaff;}
+
+/* ---------- text size ---------- */
+html[data-font="1.15"] body{zoom:1.15;}
+html[data-font="1.3"] body{zoom:1.3;}
+@media (min-width:900px){
+  html[data-font="1.15"] body,
+  html[data-font="1.3"] body{zoom:1;}
+}
+
+/* ---------- lite mode: kill paint-heavy effects ---------- */
+html.lite *{animation:none!important; transition:none!important; text-shadow:none!important; filter:none!important; backdrop-filter:none!important;}
+html.lite body{background:var(--bg)!important; background-attachment:scroll!important;}
+html.lite .reveal{opacity:1!important; transform:none!important;}
+html.lite #bgfx,html.lite canvas.bgfx,html.lite .clay-ray,html.lite .spark{display:none!important;}
+html.lite .clay-card,html.lite .gcard,html.lite .gamecard,html.lite .catcard,html.lite .tool-card,html.lite .btn,html.lite .play{box-shadow:0 1px 3px rgba(40,25,90,.18)!important;}
+html.lite .hd{box-shadow:0 1px 3px rgba(40,25,90,.2)!important;}
+html.lite .gcard:hover,html.lite .clay-card:hover{transform:none!important;}
+html.lite .disc{display:none;}
+
+/* ---------- settings panel in the header sheet ---------- */
+.hd-settings{margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,.14); display:flex; flex-direction:column; gap:9px;}
+.set-head{font-size:11px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);}
+.set-row{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+.set-lab{font-size:13.5px; font-weight:800; color:var(--dim);}
+.set-ctl{display:flex; gap:6px;}
+.set-pill{
+  font:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+  padding:9px 14px; min-height:38px; min-width:44px; border:0; border-radius:999px;
+  background:var(--card); color:var(--dim); box-shadow:var(--sh);
+}
+.set-pill.on{background:linear-gradient(135deg,#7c3aed,#3b82f6); color:#fff; box-shadow:0 6px 16px rgba(124,58,237,.35);}
+.set-pill.f-s{font-size:12px;} .set-pill.f-m{font-size:14.5px;} .set-pill.f-l{font-size:17px;}
+.set-home{display:inline-flex; align-items:center; gap:8px; align-self:flex-start; margin-top:2px;
+  font-size:13px; font-weight:800; color:#a5b4fc; padding:10px 14px; border-radius:999px;
+  background:rgba(124,58,237,.14); min-height:44px;}
+.hd-sheet-in{padding-bottom:18px;}
+
+/* ---------- mascot ---------- */
+.mascot{display:block; margin:0 auto;}
+.mascot-inline{display:inline-block; vertical-align:middle;}
+.mascot-card{display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:var(--r-lg,26px);
+  background:var(--card); box-shadow:var(--sh);}
+.mascot-card p{margin:0; font-size:14px; font-weight:700; color:var(--dim);}
+.mascot-card strong{display:block; color:var(--ink); font-size:15.5px; font-weight:900; margin-bottom:2px;}
+.mascot-empty{display:flex; flex-direction:column; align-items:center; gap:10px; padding:26px 18px; text-align:center; color:var(--dim); font-weight:700;}
+
+/* ---------- play-money notice (Teen Patti and any card game) ---------- */
+.pm-note{
+  margin:0 0 18px; padding:14px 18px; border-radius:var(--r,22px);
+  background:var(--card); color:var(--dim); font-size:13.5px; font-weight:700;
+  box-shadow:var(--sh); border-left:5px solid var(--mint,#34d399);
+}
+.pm-note b{color:var(--ink);}
