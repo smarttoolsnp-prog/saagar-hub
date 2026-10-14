@@ -1,3 +1,15 @@
+# Ship checklist (run before every deploy)
+
+```bash
+node build/add-adsense.mjs     # AdSense loader on new pages (and never on 404.html)
+node build/add-shell.mjs       # settings.js + mascot.js on new pages
+node build/adsense-meta.mjs    # google-adsense-account meta; strips ads off 404
+node build/bust-assets.mjs     # ?v=<content hash> to beat Cloudflare's 4h asset cache
+node build/gen-sitemap.mjs     # rebuild sitemap.xml from the real page set
+```
+
+All five are idempotent. `build/gen-icons.mjs` regenerates the PWA icons.
+
 # Deploying sagardahal123.com.np
 
 Production = **Cloudflare Pages** project `saagar-hub` (`saagar-hub.pages.dev`),
