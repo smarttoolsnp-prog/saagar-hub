@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sagardahal123.com.np/sitemap.xml

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2048 — merge the tiles | SAAGAR Games</title>
+<meta name="description" content="Play 2048 with swipe or arrow keys, undo your last move, and let the built-in bot suggest the best move.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/games/g2048.html">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/clay.css">
+<style>
+  /* clay spec: cream board with clay cell faces, score chips on card */
+  .gwrap{background:var(--bg-2); padding:0 16px 10px; border-radius:32px; box-shadow:var(--sh-clay); touch-action:none;
+    border-top:3px solid var(--grad);}
+  .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  .cell{aspect-ratio:1; border-radius:14px; background:#fff; display:grid; place-items:center;
+    font-weight:900;    font-size:clamp(19px,5.2vw,30px); transition:background .12s, box-shadow .12s;
+    box-shadow:3px 3px 8px rgba(214,138,94,.2), -3px -3px 8px rgba(255,255,255,.9);
+    position:relative;
+  }
+  .cell.nudge{animation:bump .22s ease-out}
+  @keyframes bump{from{transform:scale(.92)}70%{transform:scale(1.07)}to{transform:scale(1)}}
+  @media(prefers-reduced-motion:reduce){.cell.nudge{animation:none}}
+  .grid{animation:board-appear .4s ease-out}
+  @keyframes board-appear{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+  @media(prefers-reduced-motion:reduce){.grid{animation:none}}
+  .boardnudge{position:relative;}
+  .boardnudge::after{content:""; position:absolute; inset:14px; border-radius:32px; pointer-events:none;
+    box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2), inset 0 -4px 8px rgba(209,134,56,.14);}
+  .cell::after{content:""; position:absolute; inset:3px; border-radius:13px; pointer-events:none;
+    background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.85), transparent 60%);
+  }
+  .cell.empty{    background:linear-gradient(145deg,#fff9f0,#fef0d6);
+    box-shadow:inset 4px 5px 14px rgba(214,138,94,.22), inset -4px -5px 14px rgba(255,255,255,.92); color:#97775f;}
+  .cell:not(.empty) .tlabel{border-radius:4px 10px 10px 10px;}
+  .cell:not(.empty) .tlabel{border-radius:4px 10px 10px 10px;}
+  .t2{background:#fde68a;} .t4{background:#fbcfe8;} .t8{background:#bae6fd;}
+  .t16{background:#bbf7d0;} .t32{background:#ffd66b; color:#7a5200;}
+  .t64{background:#ffedc2;} .t128{background:#ffe0ec;}
+  .t256{background:#d9d2f2;} .t512{background:#c7d2fe;}
+  .t1024{background:#a8dcff;} .t2048{background:#facc15; color:#5a3e00;}
+  .scores{display:flex; gap:10px; justify-content:center; margin:14px 0; flex-wrap:wrap;}
+  .sc{background:var(--card); border:none; border-radius:18px; padding:9px 18px; text-align:center; min-width:96px; box-shadow:var(--sh-clay);}
+  .sc b{display:block; font-size:20px; color:var(--navy-ink);}
+  .sc span{font-size:10.5px; font-weight:800; letter-spacing:.5px; color:var(--dim); text-transform:uppercase;}
+  .hintbar{text-align:center; font-size:14px; font-weight:800; color:var(--navy-2); min-height:26px; margin-top:10px;}
+  @media(min-width:761px){ .dpad{display:none;} }
+  .dpad{display:grid; grid-template-columns:repeat(3,58px); grid-template-rows:repeat(2,58px); gap:8px; justify-content:center; margin-top:12px;}
+  .dpad button{background:var(--card); border:none; color:var(--navy-ink); border-radius:20px; font-size:20px;
+    box-shadow:var(--sh-clay); transition:.14s cubic-bezier(.34,1.4,.5,1);}
+  .dpad button[data-m]{padding:0 6px;}
+  .dpad button:active{box-shadow:var(--sh-clay-press); transform:scale(.92);}
+  .dpad .sp{visibility:hidden;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="games">
+
+<div id="hdr"></div>
+<div class="clay-shell" style="display:none"><div class="row gap">
+  <a class="chip" style="font-size:13px;pointer-events:none">SAAGAR</a>
+  <a class="chip" style="font-size:13px">Log in</a>
+  <a class="chip" style="font-size:13px;color:#a35d2b;background:var(--clay-butter);border:1px solid var(--clay-lemon);font-weight:900">Play now →</a>
+</div></div>
+<div id="ftr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../games.html">Games</a> / 2048</div>
+    <h1><span class="lg"><img src="../assets/clay-logos/sections/games.svg" width="56" height="56" alt="" style="vertical-align:top;margin-right:8px"></span>2048</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:560px;">
+    <div id="lobby"></div>
+
+    <div id="stage" class="hidden">
+      <div class="card">
+        <h2><span class="em"><img src="../assets/clay-logos/sections/games.svg" width="44" height="44" alt="" style="vertical-align:middle;margin-right:6px;border-radius:12px"></svg></span> <span id="modeLabel">2048</span></h2>
+        <div class="scores">
+          <div class="sc"><b id="scNow">0</b><span>Score</span></div>
+          <div class="sc"><b id="scBest">0</b><span>Best</span></div>
+          <div class="sc"><b id="scMax">2</b><span>Top tile</span></div>
+          <div class="sc" id="scOppWrap" style="display:none"><b id="scOpp">0</b><span>Friend</span></div>
+        </div>
+        <div class="gwrap"><div class="grid" id="grid"></div></div>
+        <div class="hintbar" id="hintbar"></div>
+        <div class="dpad">
+          <button class="sp"></button><button data-m="up">▲</button><button class="sp"></button>
+          <button data-m="left">◀</button><button data-m="down">▼</button><button data-m="right">▶</button>
+        </div>
+        <div class="row mt" style="justify-content:center;">
+          <button class="btn shape-notch sm" id="hint" style="flex:0 0 auto;">💡 Hint</button>
+          <button class="btn shape-lozenge soft sm" id="auto" style="flex:0 0 auto;">🤖 Auto-play</button>
+          <button class="btn shape-notch soft sm" id="undo" style="flex:0 0 auto;">↶ Undo</button>
+          <button class="btn shape-pill ghost sm" id="restart" style="flex:0 0 auto;">New game</button>
+          <button class="btn shape-pill ghost sm" id="back" style="flex:0 0 auto;">Change mode</button>
+        </div>
+      </div>
+      <p class="muted center mt" id="netNote">Arrow keys / WASD · swipe on mobile.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/peerjs.min.js"></script>
+<script src="../assets/app.js"></script>
+<script src="../assets/net.js"></script>
+<script src="../assets/lobby.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var N = 4;
+  var G = null, autoTimer = null;
+  var cfg = { online: false, isHost: false, room: null, opp: { score: 0, over: false } };
+
+  /* ---------------- core ---------------- */
+  function blank() { return Array.from({ length: N }, function () { return Array(N).fill(0); }); }
+  /* Seeded RNG so an online race starts from the exact same board for both players. */
+  var rng = null;
+  function mulberry(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function rnd() { return rng ? rng() : Math.random(); }
+  function addTile(g) {
+    var free = [];
+    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) if (!g[r][c]) free.push([r, c]);
+    if (!free.length) return;
+    var p = free[Math.floor(rnd() * free.length)];
+    g[p[0]][p[1]] = rnd() < 0.9 ? 2 : 4;
+  }
+  function clone(g) { return g.map(function (r) { return r.slice(); }); }
+  function empty() { return G.g.map(function (r) { return r.slice(); }); }
+
+  function slideRow(row) {
+    var vals = row.filter(function (v) { return v; });
+    var out = [], gained = 0;
+    for (var i = 0; i < vals.length; i++) {
+      if (vals[i] === vals[i + 1]) { out.push(vals[i] * 2); gained += vals[i] * 2; i++; }
+      else out.push(vals[i]);
+    }
+    while (out.length < N) out.push(0);
+    return { row: out, gained: gained };
+  }
+  function move(g, dir) {
+    var before = JSON.stringify(g), gained = 0;
+    var grid = clone(g);
+    if (dir === 'left' || dir === 'right') {
+      for (var r = 0; r < N; r++) {
+        var row = grid[r].slice();
+        if (dir === 'right') row.reverse();
+        var res = slideRow(row);
+        gained += res.gained;
+        if (dir === 'right') res.row.reverse();
+        grid[r] = res.row;
+      }
+    } else {
+      for (var c = 0; c < N; c++) {
+        var col = [];
+        for (var r2 = 0; r2 < N; r2++) col.push(grid[r2][c]);
+        if (dir === 'down') col.reverse();
+        var res2 = slideRow(col);
+        gained += res2.gained;
+        if (dir === 'down') res2.row.reverse();
+        for (var r3 = 0; r3 < N; r3++) grid[r3][c] = res2.row[r3];
+      }
+    }
+    return { grid: grid, gained: gained, changed: JSON.stringify(grid) !== before };
+  }
+  function canMove(g) {
+    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) {
+      if (!g[r][c]) return true;
+      if (c + 1 < N && g[r][c] === g[r][c + 1]) return true;
+      if (r + 1 < N && g[r][c] === g[r + 1][c]) return true;
+    }
+    return false;
+  }
+  function maxTile(g) {
+    var m = 0;
+    g.forEach(function (row) { row.forEach(function (v) { if (v > m) m = v; }); });
+    return m;
+  }
+
+  /* ---------------- bot heuristics ---------------- */
+  function heuristic(g) {
+    var emptyCount = 0, smooth = 0, mono = 0, maxV = 0;
+    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) {
+      var v = g[r][c];
+      if (!v) { emptyCount++; continue; }
+      if (v > maxV) maxV = v;
+      if (c + 1 < N && g[r][c + 1]) smooth -= Math.abs(Math.log2(v) - Math.log2(g[r][c + 1]));
+      if (r + 1 < N && g[r + 1][c]) smooth -= Math.abs(Math.log2(v) - Math.log2(g[r + 1][c]));
+    }
+    /* monotonicity: prefer rows/cols consistently ordered */
+    for (var i = 0; i < N; i++) {
+      var inc = 0, dec = 0;
+      for (var j = 0; j < N - 1; j++) {
+        var a = g[i][j] ? Math.log2(g[i][j]) : 0, b = g[i][j + 1] ? Math.log2(g[i][j + 1]) : 0;
+        if (a > b) dec += (a - b); else inc += (b - a);
+      }
+      mono -= Math.min(inc, dec) * 0.6;
+      var inc2 = 0, dec2 = 0;
+      for (var j2 = 0; j2 < N - 1; j2++) {
+        var a2 = g[j2][i] ? Math.log2(g[j2][i]) : 0, b2 = g[j2 + 1][i] ? Math.log2(g[j2 + 1][i]) : 0;
+        if (a2 > b2) dec2 += (a2 - b2); else inc2 += (b2 - a2);
+      }
+      mono -= Math.min(inc2, dec2) * 0.6;
+    }
+    /* corner bonus */
+    var corners = [g[0][0], g[0][N - 1], g[N - 1][0], g[N - 1][N - 1]];
+    var cornerBonus = Math.max.apply(null, corners) === maxV ? Math.log2(maxV) * 1.5 : 0;
+    return emptyCount * 2.7 + smooth * 0.12 + mono * 0.35 + cornerBonus + Math.log2(maxV);
+  }
+
+  function expectimax(g, depth, isPlayer) {
+    if (depth === 0) return heuristic(g);
+    var dirs = ['up', 'down', 'left', 'right'];
+    if (isPlayer) {
+      var best = -Infinity;
+      for (var i = 0; i < dirs.length; i++) {
+        var res = move(g, dirs[i]);
+        if (!res.changed) continue;
+        var v = expectimax(res.grid, depth - 1, false) + res.gained * 0.35;
+        if (v > best) best = v;
+      }
+      return best === -Infinity ? heuristic(g) : best;
+    }
+    /* chance node: a tile appears */
+    var free = [];
+    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) if (!g[r][c]) free.push([r, c]);
+    if (!free.length) return heuristic(g);
+    var total = 0;
+    free.forEach(function (p) {
+      var g2 = clone(g);
+      g2[p[0]][p[1]] = 2;
+      total += expectimax(g2, depth - 1, true) * 0.9;
+      var g3 = clone(g);
+      g3[p[0]][p[1]] = 4;
+      total += expectimax(g3, depth - 1, true) * 0.1;
+    });
+    return total / free.length;
+  }
+
+  function bestMove(depth) {
+    var dirs = ['up', 'left', 'down', 'right'], best = null, bestV = -Infinity;
+    dirs.forEach(function (d) {
+      var res = move(G.g, d);
+      if (!res.changed) return;
+      var v = expectimax(res.grid, depth || 3, false) + res.gained * 0.4;
+      if (v > bestV) { bestV = v; best = d; }
+    });
+    return best;
+  }
+
+  /* ---------------- render ---------------- */
+  function draw() {
+    var el = $('grid');
+    el.innerHTML = '';
+    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) {
+      var v = G.g[r][c];
+      var d = document.createElement('div');
+      d.className = 'cell' + (v ? ' t' + (v > 2048 ? 2048 : v) : ' empty');
+      if (v) {
+        var wrap = document.createElement('span');
+        wrap.className = 'tlabel';
+        wrap.textContent = v;
+        d.textContent = '';
+        d.appendChild(wrap);
+        d.classList.add('nudge');
+        setTimeout(function () { d.classList.remove('nudge'); }, 260);
+      } else { d.textContent = ''; }
+      el.appendChild(d);
+    }
+    $('scNow').textContent = G.score;
+    $('scBest').textContent = G.best;
+    $('scMax').textContent = maxTile(G.g);
+  }
+
+  function newGame(seed) {
+    rng = (seed == null) ? null : mulberry(seed >>> 0);
+    G = { g: blank(), score: 0, best: SAAGAR.store('g2048.best') || 0, prev: null, over: false };
+    addTile(G.g); addTile(G.g);
+    draw();
+    $('hintbar').textContent = '';
+    if (cfg.online) {
+      cfg.opp = { score: 0, over: false };
+      paintOpp();
+      netSend();
+    }
+  }
+
+  function paintOpp() { $('scOpp').textContent = cfg.opp.score; }
+
+  function netSend() {
+    if (!cfg.online || !cfg.room || !G) return;
+    cfg.room.send({ t: 'score', score: G.score, max: maxTile(G.g), over: !!G.over });
+  }
+
+  function doMove(dir, fromAuto) {
+    if (!G || G.over) return false;
+    var res = move(G.g, dir);
+    if (!res.changed) return false;
+    G.prev = { g: empty(), score: G.score };
+    G.g = res.grid;
+    G.score += res.gained;
+    addTile(G.g);
+    if (G.score > G.best) { G.best = G.score; SAAGAR.store('g2048.best', G.best); }
+    draw();
+    if (!canMove(G.g)) {
+      G.over = true;
+      stopAuto();
+      if (cfg.online) {
+        netSend();
+        $('hintbar').textContent = 'You finished with ' + G.score + '. Waiting for your friend…';
+      } else {
+        $('hintbar').textContent = 'No moves left — game over at ' + G.score + '.';
+      }
+    } else if (cfg.online) {
+      netSend();
+    }
+    return true;
+  }
+
+  /* ---------------- input ---------------- */
+  document.addEventListener('keydown', function (e) {
+    var m = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+              w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right' };
+    if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+    var dir = m[e.key];
+    if (dir && !$('stage').classList.contains('hidden')) { e.preventDefault(); doMove(dir); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.dpad button[data-m]'), function (b) {
+    b.onclick = function () { doMove(b.getAttribute('data-m')); };
+  });
+  var sx = 0, sy = 0;
+  var gw = document.querySelector('.gwrap');
+  gw.addEventListener('touchstart', function (e) {
+    var t = e.changedTouches[0]; sx = t.clientX; sy = t.clientY;
+  }, { passive: true });
+  gw.addEventListener('touchend', function (e) {
+    var t = e.changedTouches[0];
+    var dx = t.clientX - sx, dy = t.clientY - sy;
+    if (Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
+    doMove(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+  }, { passive: true });
+
+  /* ---------------- bot buttons ---------------- */
+  $('hint').onclick = function () {
+    var d = bestMove(3);
+    $('hintbar').textContent = d ? 'Bot says: swipe ' + d.toUpperCase() : 'No move helps — you are stuck.';
+  };
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; $('auto').textContent = '🤖 Auto-play'; }
+  }
+  function startAuto() {
+    if (autoTimer) return;
+    $('auto').textContent = '⏸ Stop';
+    autoTimer = setInterval(function () {
+      if (!G || G.over) { stopAuto(); return; }
+      var d = bestMove(3);
+      if (!d) { stopAuto(); return; }
+      doMove(d, true);
+    }, 340);
+  }
+  $('auto').onclick = function () { if (autoTimer) stopAuto(); else startAuto(); };
+  $('undo').onclick = function () {
+    if (!G || !G.prev) return;
+    G.g = G.prev.g; G.score = G.prev.score; G.prev = null;
+    G.over = false;
+    draw();
+    $('hintbar').textContent = 'Move undone.';
+  };
+  /* ---------------- modes ---------------- */
+  function showStage() {
+    $('lobby').classList.add('hidden');
+    $('stage').classList.remove('hidden');
+  }
+
+  /* ---------------- online race ---------------- */
+  function showRace(label, note) {
+    $('scOppWrap').style.display = '';
+    showStage();
+    $('modeLabel').textContent = label;
+    $('netNote').textContent = note;
+  }
+  function startRace() {                        /* host only */
+    var seed = (Date.now() ^ Math.floor(Math.random() * 0xfffffff)) >>> 0;
+    cfg.room.send({ t: 'seed', seed: seed });
+    showRace('Race — room ' + cfg.room.code, 'Identical starting board. Highest score when both finish wins.');
+    newGame(seed);
+  }
+  function raceResult() {
+    var o = cfg.opp.score;
+    $('hintbar').textContent = 'You ' + G.score + ' — ' + o + ' friend. ' +
+      (G.score > o ? '🏆 You win!' : (G.score < o ? 'Your friend wins this one.' : 'Dead heat — a draw.'));
+  }
+
+  window.SAAGAR_LOBBY.create({
+    key: 'g2048',
+    seatChoices: [2],
+    title: '🔲 Start a game',
+    root: $('lobby'),
+    labels: { solo: '▶  New game', bot: '🤖  Let the bot play it', create: '＋  Create race', join: '🔗  Join race' },
+    onSolo: function (o) {
+      cfg = { online: false, isHost: false, room: null, opp: { score: 0, over: false } };
+      $('scOppWrap').style.display = 'none';
+      showStage();
+      $('modeLabel').textContent = (o && o.bot) ? 'Bot plays 2048' : '2048';
+      $('netNote').textContent = 'Arrow keys / WASD · swipe on mobile · Undo takes back one move.';
+      newGame();
+      if (o && o.bot) startAuto();
+    },
+    onHostReady: function (room) {
+      cfg = { online: true, isHost: true, room: room, opp: { score: 0, over: false } };
+      startRace();
+    },
+    onGuestReady: function (room) {
+      cfg = { online: true, isHost: false, room: room, opp: { score: 0, over: false } };
+      showRace('Race — room ' + room.code, 'Identical starting board. Waiting for the host…');
+    },
+    onMessage: function (msg, room, isHost) {
+      if (msg.t === 'seed') {
+        showRace('Race — room ' + room.code, 'Identical starting board. Highest score when both finish wins.');
+        newGame(msg.seed);
+        return;
+      }
+      if (msg.t === 'score') {
+        cfg.opp.score = msg.score || 0;
+        cfg.opp.over = !!msg.over;
+        paintOpp();
+        if (G && G.over && cfg.opp.over) raceResult();
+        else if (G && G.over) $('hintbar').textContent = 'You finished with ' + G.score + '. Your friend is on ' + cfg.opp.score + '.';
+        else if (cfg.opp.over) $('hintbar').textContent = 'Your friend finished on ' + cfg.opp.score + '. Beat it if you can!';
+        return;
+      }
+      if (msg.t === 'rematch-req' && isHost) startRace();
+    },
+    onPeerLeave: function () {
+      $('netNote').textContent = 'Your friend disconnected — keep playing for your own best score.';
+      window.SAAGAR.toast('Friend left the race', true);
+    }
+  });
+
+  $('restart').onclick = function () {
+    stopAuto();
+    if (cfg.online) { if (cfg.isHost) startRace(); else cfg.room.send({ t: 'rematch-req' }); }
+    else newGame();
+  };
+
+  $('back').onclick = function () {
+    stopAuto();
+    if (cfg.room) { try { cfg.room.close(true); } catch (e) { } }
+    cfg = { online: false, isHost: false, room: null, opp: { score: 0, over: false } };
+    $('scOppWrap').style.display = 'none';
+    $('stage').classList.add('hidden');
+    $('lobby').classList.remove('hidden');
+    location.reload();
+  };
+})();
+</script>
+</body>
+</html>

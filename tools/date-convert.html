@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BS ↔ AD Date Converter (2000–2090) | SAAGAR Tools</title>
+<meta name="description" content="Convert Nepali Bikram Sambat dates to English AD dates and back. Covers BS 2000 to 2090 with weekday and Nepali digits.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/date-convert.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .result-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;}
+  .res{background:linear-gradient(150deg,#fff,#eef4fb); border:1px solid var(--line); border-radius:14px; padding:16px;}
+  .res h4{font-size:11.5px; font-weight:900; letter-spacing:1.6px; color:var(--faint); text-transform:uppercase;}
+  .res .v{font-size:clamp(20px,3.4vw,27px); font-weight:900; color:var(--navy-2); margin-top:5px; line-height:1.25;}
+  .res .n{font-size:14px; color:var(--dim); font-weight:700; margin-top:3px;}
+  @media(max-width:620px){ .result-grid{grid-template-columns:1fr;} }
+  .tabbar{display:flex; gap:6px; background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:5px; margin-bottom:18px;}
+  .tabbar button{flex:1; border:0; background:transparent; padding:10px; border-radius:9px; font-weight:800; font-size:13.5px; color:var(--dim);}
+  .tabbar button.on{background:#fff; color:var(--navy); box-shadow:var(--sh);}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Date Converter</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9 L21 9 M8 3 L8 7 M16 3 L16 7"/><rect x="7" y="12" width="4" height="4" rx="1" fill="currentColor" opacity=".35" stroke="none"/></svg></span>BS ↔ AD Date Converter</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:740px;">
+    <div class="card">
+      <div class="tabbar" role="tablist">
+        <button id="tabAd" class="on" type="button" role="tab">AD → BS</button>
+        <button id="tabBs" type="button" role="tab">BS → AD</button>
+      </div>
+
+      <!-- AD -> BS -->
+      <div id="paneAd">
+        <div class="row">
+          <div class="field" style="flex:2;">
+            <label for="adDate">English date (AD)</label>
+            <input type="date" id="adDate">
+          </div>
+          <button class="btn" id="convAd" style="flex:0 0 auto;">Convert →</button>
+          <button class="btn soft" id="todayBtn" style="flex:0 0 auto;">Today</button>
+        </div>
+      </div>
+
+      <!-- BS -> AD -->
+      <div id="paneBs" class="hidden">
+        <div class="row">
+          <div class="field"><label for="bsY">Year (BS)</label><select id="bsY"></select></div>
+          <div class="field"><label for="bsM">Month</label><select id="bsM"></select></div>
+          <div class="field"><label for="bsD">Day</label><select id="bsD"></select></div>
+          <button class="btn" id="convBs" style="flex:0 0 auto;">Convert →</button>
+        </div>
+        <p class="muted mt-s" id="bsInfo"></p>
+      </div>
+
+      <div class="result-grid" id="results" style="display:none;">
+        <div class="res">
+          <h4>Bikram Sambat</h4>
+          <div class="v" id="outBs">—</div>
+          <div class="n" id="outBsNe"></div>
+        </div>
+        <div class="res">
+          <h4>English (AD)</h4>
+          <div class="v" id="outAd">—</div>
+          <div class="n" id="outDay"></div>
+        </div>
+      </div>
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">📌</span> Quick reference</h2>
+      <table class="tbl">
+        <thead><tr><th>Nepali event</th><th>BS</th><th>AD</th></tr></thead>
+        <tbody>
+          <tr><td>Nepali New Year 2082</td><td>1 Baisakh 2082</td><td>14 April 2025</td></tr>
+          <tr><td>Nepali New Year 2083</td><td>1 Baisakh 2083</td><td>14 April 2026</td></tr>
+          <tr><td>Constitution Day</td><td>3 Ashoj</td><td>19–20 September</td></tr>
+          <tr><td>Dashain (varies yearly)</td><td>Ashwin–Kartik</td><td>September–October</td></tr>
+        </tbody>
+      </table>
+      <p class="muted mt">Bikram Sambat runs about 56 years and 8.5 months ahead of the English calendar. The conversion uses the official month-length tables, so every date in range is exact.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script src="../assets/bs-calendar.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var BS = SAAGAR.bs;
+
+  /* ---------------- build BS pickers ---------------- */
+  var range = BS.range();
+  (function fillYears() {
+    var s = $('bsY');
+    for (var y = range[1]; y >= range[0]; y--) {
+      var o = document.createElement('option');
+      o.value = y; o.textContent = y;
+      if (y === BS.today().year) o.selected = true;
+      s.appendChild(o);
+    }
+  })();
+  BS.MONTHS.forEach(function (m, i) {
+    var o = document.createElement('option');
+    o.value = i + 1;
+    o.textContent = (i + 1) + ' — ' + m + ' (' + BS.MONTHS_NE[i] + ')';
+    $('bsM').appendChild(o);
+  });
+
+  function fillDays() {
+    var y = +$('bsY').value, m = +$('bsM').value;
+    var months = BS.months(y);
+    var total = months ? months[m - 1] : 32;
+    var s = $('bsD'), keep = +s.value || 1;
+    s.innerHTML = '';
+    for (var d = 1; d <= total; d++) {
+      var o = document.createElement('option');
+      o.value = d; o.textContent = d;
+      if (d === keep) o.selected = true;
+      s.appendChild(o);
+    }
+    $('bsInfo').textContent = BS.MONTHS[m - 1] + ' ' + y + ' has ' + total + ' days.';
+  }
+  $('bsY').onchange = fillDays;
+  $('bsM').onchange = fillDays;
+  fillDays();
+
+  /* ---------------- tabs ---------------- */
+  function tab(isAd) {
+    $('tabAd').className = isAd ? 'on' : '';
+    $('tabBs').className = isAd ? '' : 'on';
+    $('paneAd').classList.toggle('hidden', !isAd);
+    $('paneBs').classList.toggle('hidden', isAd);
+    $('msg').textContent = '';
+  }
+  $('tabAd').onclick = function () { tab(true); };
+  $('tabBs').onclick = function () { tab(false); };
+
+  /* ---------------- convert AD -> BS ---------------- */
+  function show(adUtc, bsObj) {
+    $('outBs').textContent = BS.bsLabel(bsObj, false);
+    $('outBsNe').textContent = BS.bsLabel(bsObj, true);
+    $('outAd').textContent = BS.adLabel(adUtc);
+    var d = new Date(adUtc);
+    $('outDay').textContent = BS.DAYS[d.getUTCDay()] + ' · ' + BS.iso(adUtc);
+    $('results').style.display = '';
+    $('msg').textContent = '';
+    $('msg').className = 'out';
+  }
+
+  function adToBs() {
+    var v = $('adDate').value;
+    if (!v) { warn('Pick an English date first.'); return; }
+    var parts = v.split('-').map(Number);
+    var dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+    var bs = BS.adToBs(dt);
+    if (!bs) { warn('That date is outside the supported range (BS ' + range[0] + '–' + range[1] + ').'); return; }
+    show(dt, bs);
+  }
+
+  function bsToAd() {
+    var y = +$('bsY').value, m = +$('bsM').value, d = +$('bsD').value;
+    var dt = BS.bsToAd(y, m, d);
+    if (!dt) { warn('That BS date is not valid — check the day for that month.'); return; }
+    show(dt, { year: y, month: m, day: d });
+  }
+
+  function warn(t) {
+    $('msg').textContent = t;
+    $('msg').className = 'out bad';
+    $('results').style.display = 'none';
+  }
+
+  $('convAd').onclick = adToBs;
+  $('convBs').onclick = bsToAd;
+  $('adDate').addEventListener('keydown', function (e) { if (e.key === 'Enter') adToBs(); });
+
+  function setToday() {
+    var now = new Date();
+    $('adDate').value = now.getFullYear() + '-' + SAAGAR.pad(now.getMonth() + 1) + '-' + SAAGAR.pad(now.getDate());
+    adToBs();
+  }
+  $('todayBtn').onclick = setToday;
+
+  /* default: today */
+  setToday();
+  tab(true);
+})();
+</script>
+</body>
+</html>

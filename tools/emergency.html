@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emergency Numbers (Nepal) — tap to call | SAAGAR Tools</title>
+<meta name="description" content="Nepal emergency helplines — police, ambulance, fire, traffic, child and women helplines — with one-tap calling.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/emergency.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .codes{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:13px;}
+  .call{display:block; background:linear-gradient(150deg,#fff,#fdf2f2); border:1.5px solid #f0cdcd;
+    border-radius:15px; padding:16px; text-align:center; transition:.16s;}
+  .call:hover{transform:translateY(-4px); box-shadow:var(--sh-2); border-color:#d99;}
+  .call .num{font-size:33px; font-weight:900; color:#b91c1c; letter-spacing:1px; line-height:1.1;}
+  .call .lbl{font-size:13px; font-weight:800; color:var(--navy-2); margin-top:5px;}
+  .call .who{font-size:11.5px; color:var(--dim); margin-top:3px;}
+  .warn{background:#fff8e6; border:1px solid #f0e0b0; color:#7a5b10; border-radius:12px; padding:13px 15px; font-size:13.5px; font-weight:600;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Emergency Numbers</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><path d="M12 3 L21 19 L3 19 Z"/><path d="M12 10 L12 14"/><circle cx="12" cy="16.6" r=".6" fill="currentColor" stroke="none"/></svg></span>Emergency Numbers</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:860px;">
+    <div class="card">
+      <h2><span class="em">📞</span> National short codes</h2>
+      <div class="codes" id="codes"></div>
+      <p class="muted mt">These short codes work from any Nepali mobile or landline without an area code.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">ℹ️</span> What to say when you call</h2>
+      <ol style="padding-left:20px; font-size:14px; line-height:1.9;">
+        <li>Say <b>where you are</b> first — district, ward, and the nearest landmark or chowk. That is the most useful thing you can give them.</li>
+        <li>Say <b>what happened</b>: accident, fire, medical emergency, crime in progress.</li>
+        <li>Say <b>how many people</b> are hurt and whether anyone is trapped.</li>
+        <li>Give a <b>callback number</b> and stay reachable.</li>
+        <li>Do not hang up until they tell you to.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="warn">
+        <b>Numbers can change.</b> These are the widely published national helplines, but operators and offices do update them. For anything official, cross-check with the Nepal Police, the Ministry of Health or your local ward office. In a real emergency, if one number does not answer, try the others — and ask a neighbour or local shop for the nearest police post.
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  /* only the well-known national codes — no invented numbers */
+  var NUMBERS = [
+    { n: '100', l: 'Nepal Police', w: 'Crime, accident, any emergency' },
+    { n: '101', l: 'Fire Brigade', w: 'Fire, rescue' },
+    { n: '102', l: 'Ambulance', w: 'Medical emergency transport' },
+    { n: '103', l: 'Traffic Police', w: 'Road accidents and traffic issues' },
+    { n: '1098', l: 'Child Helpline', w: 'Children in danger or distress' },
+    { n: '1145', l: 'Women Helpline', w: 'Violence and safety support for women' },
+    { n: '1166', l: 'Mental Health Helpline', w: 'Suicide prevention and counselling' }
+  ];
+
+  var w = document.getElementById('codes');
+  NUMBERS.forEach(function (x) {
+    var a = document.createElement('a');
+    a.className = 'call';
+    a.href = 'tel:' + x.n;
+    a.innerHTML = '<div class="num">' + x.n + '</div><div class="lbl">' + x.l + '</div><div class="who">' + x.w + '</div>';
+    w.appendChild(a);
+  });
+})();
+</script>
+</body>
+</html>

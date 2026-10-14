@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GPA Calculator — NEB and university grade points | SAAGAR Tools</title>
+<meta name="description" content="Calculate GPA and percentage from your marks or letter grades, with credit hours. Uses the NEB 4.0 grading scale.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/gpa.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .subjrow,.subjrow-head{display:grid; grid-template-columns:2fr 1fr 1.2fr auto; gap:9px; align-items:end; margin-bottom:9px;}
+  .subjrow-head{align-items:center; margin-bottom:6px;}
+  @media(max-width:640px){
+    .subjrow,.subjrow-head{grid-template-columns:1fr 1fr;}
+    .subjrow-head{display:flex; justify-content:space-between; gap:10px; font-size:9.8px; letter-spacing:.3px;}
+    .subjrow-head span:last-child{display:none;}
+    .subjrow .rm{grid-column:span 2;}
+  }
+  .rm{background:#fdf0f0; border:1.5px solid #f3c4c4; color:#a11f1f; border-radius:10px; width:38px; height:38px; font-weight:900; font-size:16px;}
+  .rm:hover{background:#a11f1f; color:#fff;}
+  .gpaBig{text-align:center; padding:16px 8px; background:linear-gradient(150deg,#fff,#eef4fb); border:1px solid var(--line); border-radius:16px; margin-bottom:14px;}
+  .gpaBig b{font-size:clamp(32px,7vw,48px); font-weight:900; color:var(--navy); display:block; line-height:1.1;}
+  .gpaBig span{font-size:13px; font-weight:700; color:var(--dim);}
+  .scale{display:flex; gap:5px; flex-wrap:wrap; margin-top:10px;}
+  .scale i{font-size:11.5px; font-style:normal; font-weight:800; background:var(--bg-2); border:1px solid var(--line);
+    border-radius:8px; padding:3px 8px; color:var(--navy);}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / GPA Calculator</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><path d="M2 9 L12 4 L22 9 L12 14 Z"/><path d="M6 11 L6 16 C6 18 18 18 18 16 L18 11"/><path d="M22 9 L22 15"/></svg></span>GPA Calculator</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:760px;">
+    <div class="card">
+      <h2><span class="em">📋</span> Your subjects</h2>
+      <div class="modes chips" style="margin-bottom:14px;">
+        <button class="chip on" id="modeMarks" type="button">Enter marks</button>
+        <button class="chip" id="modeGrade" type="button">Enter grades</button>
+      </div>
+      <div class="subjrow-head muted" style="font-size:11.5px; font-weight:800; letter-spacing:.4px; text-transform:uppercase;">
+        <span>Subject</span><span id="hCredit">Credit</span><span id="hScore">Marks / Full</span><span></span>
+      </div>
+      <div id="rows"></div>
+      <div class="row mt">
+        <button class="btn soft" id="addRow" type="button" style="flex:0 0 auto;">＋ Add subject</button>
+        <button class="btn" id="calc" type="button" style="flex:0 0 auto;">Calculate GPA</button>
+      </div>
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card" id="resultCard" style="display:none;">
+      <div class="gpaBig">
+        <b id="gpa">—</b>
+        <span id="gpaSub"></span>
+      </div>
+      <div class="grid3">
+        <div class="f"><b id="pct">—</b><span style="display:block;font-size:11px;font-weight:800;color:var(--dim);">Percentage</span></div>
+        <div class="f"><b id="credits">—</b><span style="display:block;font-size:11px;font-weight:800;color:var(--dim);">Total credits</span></div>
+        <div class="f"><b id="division">—</b><span style="display:block;font-size:11px;font-weight:800;color:var(--dim);">Division</span></div>
+      </div>
+      <div class="scale" id="scale"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">🇳🇵</span> NEB grading scale</h2>
+      <table class="tbl">
+        <thead><tr><th>Grade</th><th>Marks</th><th>Grade point</th></tr></thead>
+        <tbody>
+          <tr><td>A+</td><td>90 – 100</td><td>4.0</td></tr>
+          <tr><td>A</td><td>80 – 89</td><td>3.6</td></tr>
+          <tr><td>B+</td><td>70 – 79</td><td>3.2</td></tr>
+          <tr><td>B</td><td>60 – 69</td><td>2.8</td></tr>
+          <tr><td>C+</td><td>50 – 59</td><td>2.4</td></tr>
+          <tr><td>C</td><td>40 – 49</td><td>2.0</td></tr>
+          <tr><td>D+</td><td>30 – 39</td><td>1.6</td></tr>
+          <tr><td>D</td><td>20 – 29</td><td>1.2</td></tr>
+        </tbody>
+      </table>
+      <p class="muted mt">Universities sometimes weight semesters differently — if your transcript gives credit hours, enter them and this stays accurate.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var mode = 'marks';
+
+  var GRADES = [
+    { g: 'A+', min: 90, p: 4.0 }, { g: 'A', min: 80, p: 3.6 }, { g: 'B+', min: 70, p: 3.2 },
+    { g: 'B', min: 60, p: 2.8 }, { g: 'C+', min: 50, p: 2.4 }, { g: 'C', min: 40, p: 2.0 },
+    { g: 'D+', min: 30, p: 1.6 }, { g: 'D', min: 20, p: 1.2 }, { g: 'E', min: 0, p: 0.8 }
+  ];
+
+  function gradeFromPct(p) {
+    for (var i = 0; i < GRADES.length; i++) if (p >= GRADES[i].min) return GRADES[i];
+    return GRADES[GRADES.length - 1];
+  }
+
+  function addRow(name, credit, a, b) {
+    var d = document.createElement('div');
+    d.className = 'subjrow';
+    d.innerHTML =
+      '<input type="text" class="s-name" placeholder="Subject ' + (document.querySelectorAll('.subjrow').length) + '" value="' + (name || '') + '">' +
+      '<input type="number" class="s-credit" step="0.5" min="0" placeholder="4" value="' + (credit != null ? credit : 4) + '">' +
+      (mode === 'marks'
+        ? '<div style="display:flex;gap:6px;"><input type="number" class="s-obt" step="any" placeholder="85" value="' + (a != null ? a : '') + '"><input type="number" class="s-full" step="any" placeholder="100" value="' + (b != null ? b : 100) + '"></div>'
+        : '<select class="s-grade">' + GRADES.map(function (x) { return '<option value="' + x.p + '">' + x.g + ' (' + x.p + ')</option>'; }).join('') + '</select>') +
+      '<button class="rm" type="button" title="Remove">×</button>';
+    d.querySelector('.rm').onclick = function () { d.remove(); };
+    $('rows').appendChild(d);
+  }
+
+  function setMode(m) {
+    mode = m;
+    $('modeMarks').className = 'chip' + (m === 'marks' ? ' on' : '');
+    $('modeGrade').className = 'chip' + (m === 'grade' ? ' on' : '');
+    $('hScore').textContent = m === 'marks' ? 'Marks / Full' : 'Grade';
+    var names = [];
+    document.querySelectorAll('.subjrow').forEach(function (r) {
+      var n = r.querySelector('.s-name'), c = r.querySelector('.s-credit');
+      if (!n || !c) return;
+      names.push([n.value, c.value]);
+    });
+    $('rows').innerHTML = '';
+    if (!names.length) names = [['', 4], ['', 3], ['', 3]];
+    names.forEach(function (n) { addRow(n[0], n[1]); });
+  }
+
+  function calc() {
+    var rows = document.querySelectorAll('.subjrow');
+    if (!rows.length) { $('msg').textContent = 'Add a subject first.'; $('msg').className = 'out bad'; return; }
+    var totalCredits = 0, weighted = 0, sumPct = 0, count = 0;
+    var bad = false;
+
+    Array.prototype.forEach.call(rows, function (r) {
+      var credit = parseFloat(r.querySelector('.s-credit').value);
+      if (!isFinite(credit) || credit <= 0) credit = 1;
+      var gp = 0;
+      if (mode === 'marks') {
+        var obt = parseFloat(r.querySelector('.s-obt').value);
+        var full = parseFloat(r.querySelector('.s-full').value);
+        if (!isFinite(obt) || !isFinite(full) || full <= 0) { bad = true; return; }
+        var pct = Math.min(100, obt / full * 100);
+        gp = gradeFromPct(pct).p;
+        sumPct += pct; count++;
+      } else {
+        gp = parseFloat(r.querySelector('.s-grade').value);
+        sumPct += (function () {
+          for (var i = 0; i < GRADES.length; i++) if (Math.abs(GRADES[i].p - gp) < 0.001) return GRADES[i].min + 5;
+          return 0;
+        })();
+        count++;
+      }
+      totalCredits += credit;
+      weighted += gp * credit;
+    });
+
+    if (!totalCredits) {
+      $('msg').textContent = 'Fill in at least one subject.';
+      $('msg').className = 'out bad';
+      $('resultCard').style.display = 'none';
+      return;
+    }
+    var gpa = weighted / totalCredits;
+    var pct = sumPct / count;
+
+    $('gpa').textContent = gpa.toFixed(2) + ' GPA';
+    $('gpaSub').textContent = 'weighted across ' + totalCredits + ' credit hours';
+    $('pct').textContent = pct.toFixed(1) + '%';
+    $('credits').textContent = totalCredits;
+    $('division').textContent = gpa >= 3.6 ? 'Distinction' : gpa >= 3.2 ? 'First' : gpa >= 2.4 ? 'Second' : gpa >= 1.6 ? 'Third' : 'Needs work';
+
+    /* per-subject grade list */
+    var sc = $('scale');
+    sc.innerHTML = '';
+    Array.prototype.forEach.call(rows, function (r) {
+      var credit = parseFloat(r.querySelector('.s-credit').value) || 1;
+      var gp, label;
+      if (mode === 'marks') {
+        var obt = parseFloat(r.querySelector('.s-obt').value), full = parseFloat(r.querySelector('.s-full').value);
+        if (!isFinite(obt) || !isFinite(full) || full <= 0) return;
+        var gr = gradeFromPct(Math.min(100, obt / full * 100));
+        gp = gr.p; label = gr.g;
+      } else {
+        gp = parseFloat(r.querySelector('.s-grade').value);
+        label = (GRADES.filter(function (x) { return Math.abs(x.p - gp) < 0.001; })[0] || { g: '?' }).g;
+      }
+      var i = document.createElement('i');
+      i.textContent = (r.querySelector('.s-name').value || 'Subject') + ': ' + label;
+      sc.appendChild(i);
+    });
+
+    $('resultCard').style.display = '';
+    $('msg').textContent = bad ? 'Some rows were incomplete and skipped.' : '';
+    $('msg').className = bad ? 'out bad' : 'out ok';
+  }
+
+  $('addRow').onclick = function () { addRow(); };
+  $('calc').onclick = calc;
+  $('modeMarks').onclick = function () { setMode('marks'); };
+  $('modeGrade').onclick = function () { setMode('grade'); };
+
+  setMode('marks');
+})();
+</script>
+</body>
+</html>

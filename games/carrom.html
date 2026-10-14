@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrom — real physics board, vs bot or a friend | SAAGAR Games</title>
+<meta name="description" content="Play Carrom with true coin physics: aim the striker, break the pack, pot the queen and clear your nine coins. Against a bot that lines up shots, or online with a friend.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/games/carrom.html">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/clay.css">
+<style>
+  /* clay spec: warm wooden frame (#b45309→#78350f) with clay shading around the cream board */
+  .cwrap{position:relative; padding:14px; border-radius:32px;
+    background:linear-gradient(150deg,#b45309,#78350f);
+    box-shadow:var(--sh-clay);}
+  .cwrap::before{content:""; position:absolute; inset:14px; border-radius:12px; pointer-events:none; z-index:2;
+    background:linear-gradient(138deg,rgba(255,255,255,.3),rgba(255,255,255,0) 40%,rgba(255,255,255,.08) 72%);}
+  .cwrap::after{content:""; position:absolute; inset:7px; border-radius:24px; pointer-events:none;
+    box-shadow:inset 0 0 0 1.5px rgba(255,239,194,.5), inset 0 3px 10px rgba(255,255,255,.2);}
+  #cv{display:block; margin:0 auto; border-radius:12px; cursor:crosshair; touch-action:none;
+    box-shadow:0 10px 26px rgba(0,0,0,.45);}
+  .sbar{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:15px 0 6px;}
+  .side{display:flex; align-items:center; gap:8px; background:var(--card); border:none;
+    border-radius:999px; padding:8px 16px; font-size:13px; font-weight:850; color:var(--navy-ink); box-shadow:var(--sh-clay);}
+  .side.on{box-shadow:0 0 0 3px rgba(255,214,107,.9), var(--sh-clay); transform:translateY(-2px);}
+  .side .c{width:15px; height:15px; border-radius:50%; box-shadow:inset 0 -2px 3px rgba(0,0,0,.35);}
+  .c.w{background:radial-gradient(circle at 35% 30%,#fff,#ddd4bf);}
+  .c.b{background:radial-gradient(circle at 35% 30%,#6b5344,#241811);}
+  .side b{font-size:15px; }
+  .side small{display:block; font-size:10.5px; color:var(--dim); font-weight:800; text-transform:uppercase; letter-spacing:.5px;}
+  .pw{height:16px; border-radius:99px; background:var(--bg-2); box-shadow:var(--sh-clay-press); overflow:hidden; margin:10px auto 0; max-width:320px;}
+  .pw > i{display:block; height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,#5cc585,#ffd66b,#e87a8c); transition:width .05s;}
+  .pw > i{display:block; height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,#3fae6a,#e0a12a,#dc2626); transition:width .05s;}
+  .msg{text-align:center; font-size:14.5px; font-weight:800; color:var(--navy-2); min-height:26px; margin-top:10px;}
+  .tip{text-align:center; font-size:12.5px; color:var(--dim); margin-top:2px;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="games">
+
+<div id="hdr"></div>
+<div class="clay-shell" style="display:none"><div class="row gap">
+  <a class="chip" style="font-size:13px;pointer-events:none">SAAGAR</a>
+  <a class="chip" style="font-size:13px">Log in</a>
+  <a class="chip" style="font-size:13px;color:#a35d2b;background:var(--clay-butter);border:1px solid var(--clay-lemon);font-weight:900">Play now →</a>
+</div></div>
+<div id="ftr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../games.html">Games</a> / Carrom</div>
+    <h1><span class="lg"><img src="../assets/clay-logos/games/carrom.svg" width="56" height="56" alt="" style="vertical-align:top;margin-right:8px"></span>Carrom</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:660px;">
+    <div id="lobby"></div>
+
+    <div id="stage" class="hidden">
+      <div class="card">
+        <h2><span class="em"><img src="../assets/clay-logos/games/carrom.svg" width="44" height="44" alt="" style="vertical-align:middle;margin-right:6px;border-radius:12px"></svg></span> <span id="modeLabel">Carrom</span></h2>
+        <div class="cwrap"><canvas id="cv"></canvas></div>
+        <div class="sbar" id="sbar"></div>
+        <div class="pw"><i id="pwbar"></i></div>
+        <div class="msg" id="msg">Drag the striker along the base line, then drag from it to aim.</div>
+        <p class="tip" id="tip">Flick the striker into your own coins. Pot one and you shoot again.</p>
+        <div class="row mt" style="justify-content:center;">
+          <button class="btn shape-notch ghost sm" id="again" style="flex:0 0 auto;">New game</button>
+          <button class="btn shape-pill ghost sm" id="back" style="flex:0 0 auto;">Change mode</button>
+        </div>
+      </div>
+      <p class="muted center mt" id="netNote"></p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/peerjs.min.js"></script>
+<script src="../assets/app.js"></script>
+<script src="../assets/net.js"></script>
+<script src="../assets/lobby.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var cv = $('cv'), cx = cv.getContext('2d');
+
+  /* ---------------- board metrics, all in centimetres ---------------- */
+  var BOARD = 74, FRAME = 8, TOTAL = BOARD + FRAME * 2;
+  var COIN_R = 1.59, STRIKER_R = 2.06, POCKET_R = 2.4, INSET = 5.0;
+  var BASE_Y = FRAME + BOARD - 10;
+  var SMIN = FRAME + 11, SMAX = FRAME + BOARD - 11;
+  var CENTRE = FRAME + BOARD / 2;
+  var SCALE = 6, PAD = 0;
+
+  var POCKETS = [
+    [FRAME + INSET, FRAME + INSET],
+    [FRAME + BOARD - INSET, FRAME + INSET],
+    [FRAME + INSET, FRAME + BOARD - INSET],
+    [FRAME + BOARD - INSET, FRAME + BOARD - INSET]
+  ];
+
+  function X(v) { return PAD + v * SCALE; }
+  function S(v) { return v * SCALE; }
+
+  /* ---------------- state ---------------- */
+  var G = null, cfg = { bot: null, online: false, isHost: false, room: null, side: 0 };
+  var aim = { on: false, mode: '', x: 0, y: 0 };
+  var rafId = null, lastNet = 0;
+
+  function piece(o) {
+    return { x: o.x, y: o.y, vx: 0, vy: 0, r: o.r, m: o.m, color: o.color, pocketed: false, spin: Math.random() * 6.28 };
+  }
+
+  function fresh() {
+    var list = [];
+    list.push(piece({ x: CENTRE, y: CENTRE, r: COIN_R, m: 1, color: 'q' }));
+    var ring1 = ['b', 'w', 'b', 'w', 'b', 'w'];
+    for (var i = 0; i < 6; i++) {
+      var a = (i * 60 + 90) * Math.PI / 180;
+      list.push(piece({
+        x: CENTRE + Math.cos(a) * COIN_R * 2.05, y: CENTRE + Math.sin(a) * COIN_R * 2.05,
+        r: COIN_R, m: 1, color: ring1[i]
+      }));
+    }
+    var ring2 = ['w', 'b', 'w', 'b', 'w', 'b', 'w', 'b', 'w', 'b', 'w', 'b'];
+    for (var j = 0; j < 12; j++) {
+      var b2 = (j * 30 + 15) * Math.PI / 180;
+      list.push(piece({
+        x: CENTRE + Math.cos(b2) * COIN_R * 3.95, y: CENTRE + Math.sin(b2) * COIN_R * 3.95,
+        r: COIN_R, m: 1, color: ring2[j]
+      }));
+    }
+    list.push(piece({ x: CENTRE, y: BASE_Y, r: STRIKER_R, m: 2.4, color: 's' }));
+    G = {
+      pieces: list, turn: 0, phase: 'aim', pots: [0, 0], over: false, winner: -1,
+      queen: { owner: -1, pending: false }, log: [], shots: 0
+    };
+    resetStriker();
+  }
+
+  function striker() {
+    for (var i = 0; i < G.pieces.length; i++) if (G.pieces[i].color === 's') return G.pieces[i];
+    return null;
+  }
+  function myColor(t) { return t === 0 ? 'w' : 'b'; }
+  function coinsLeft(t) {
+    var c = myColor(t), n = 0;
+    G.pieces.forEach(function (p) { if (p.color === c && !p.pocketed) n++; });
+    return n;
+  }
+  function onBoard(q) {
+    G.pieces.forEach(function (p) { if (p.color === q && !p.pocketed) return 1; });
+    G.pieces.forEach(function (p) { if (p.color === q) p.pocketed = false; });
+    /* nudge back to the centre */
+    var back = G.pieces.filter(function (p) { return p.color === q; });
+    back.forEach(function (p, i) {
+      var a = i * 2.4;
+      p.x = CENTRE + Math.cos(a) * COIN_R * 1.4;
+      p.y = CENTRE + Math.sin(a) * COIN_R * 1.4;
+      p.vx = p.vy = 0;
+    });
+  }
+
+  function resetStriker() {
+    var s = striker();
+    s.vx = s.vy = 0;
+    s.pocketed = false;
+    s.y = BASE_Y;
+    if (s.x < SMIN || s.x > SMAX) s.x = CENTRE;
+  }
+
+  /* ---------------- physics ---------------- */
+  function step(dt) {
+    var arr = G.pieces, i, j, p;
+    for (i = 0; i < arr.length; i++) {
+      p = arr[i];
+      if (p.pocketed) continue;
+      if (!p.vx && !p.vy) continue;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      var k = Math.pow(0.135, dt);
+      p.vx *= k; p.vy *= k;
+      p.spin += (p.vx + p.vy) * dt * 0.3;
+      if (Math.sqrt(p.vx * p.vx + p.vy * p.vy) < 2.4) { p.vx = 0; p.vy = 0; }
+
+      /* pockets */
+      for (j = 0; j < 4; j++) {
+        var d = Math.hypot(p.x - POCKETS[j][0], p.y - POCKETS[j][1]);
+        if (d < POCKET_R) {
+          p.pocketed = true;
+          p.vx = p.vy = 0;
+          G.log.push({ color: p.color, at: j });
+          break;
+        }
+      }
+      if (p.pocketed) continue;
+
+      /* walls */
+      if (p.x - p.r < FRAME) { p.x = FRAME + p.r; p.vx = -p.vx * 0.7; }
+      if (p.x + p.r > FRAME + BOARD) { p.x = FRAME + BOARD - p.r; p.vx = -p.vx * 0.7; }
+      if (p.y - p.r < FRAME) { p.y = FRAME + p.r; p.vy = -p.vy * 0.7; }
+      if (p.y + p.r > FRAME + BOARD) { p.y = FRAME + BOARD - p.r; p.vy = -p.vy * 0.7; }
+    }
+
+    /* collisions */
+    for (i = 0; i < arr.length; i++) {
+      var a = arr[i];
+      if (a.pocketed) continue;
+      for (j = i + 1; j < arr.length; j++) {
+        var b = arr[j];
+        if (b.pocketed) continue;
+        var dx = b.x - a.x, dy = b.y - a.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var min = a.r + b.r;
+        if (dist >= min || dist === 0) continue;
+        var nx = dx / dist, ny = dy / dist;
+        var overlap = min - dist, tm = a.m + b.m;
+        a.x -= nx * overlap * (b.m / tm); a.y -= ny * overlap * (b.m / tm);
+        b.x += nx * overlap * (a.m / tm); b.y += ny * overlap * (a.m / tm);
+        var rvx = b.vx - a.vx, rvy = b.vy - a.vy;
+        var vn = rvx * nx + rvy * ny;
+        if (vn > 0) continue;
+        var imp = -(1 + 0.93) * vn / (1 / a.m + 1 / b.m);
+        a.vx -= imp * nx / a.m; a.vy -= imp * ny / a.m;
+        b.vx += imp * nx / b.m; b.vy += imp * ny / b.m;
+      }
+    }
+  }
+
+  function moving() {
+    for (var i = 0; i < G.pieces.length; i++) {
+      var p = G.pieces[i];
+      if (!p.pocketed && (p.vx || p.vy)) return true;
+    }
+    return false;
+  }
+
+  /* ---------------- drawing ---------------- */
+  function resize() {
+    var host = cv.parentElement;
+    var size = Math.min(host.clientWidth - 6, 640);
+    if (size < 220) size = 220;
+    SCALE = size / TOTAL;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(size * dpr);
+    cv.height = Math.round(size * dpr);
+    cv.style.width = Math.round(size) + 'px';
+    cv.style.height = Math.round(size) + 'px';
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    PAD = 0;
+    draw();
+  }
+
+  function rr(x, y, w, h, r) {
+    cx.beginPath();
+    cx.moveTo(x + r, y);
+    cx.arcTo(x + w, y, x + w, y + h, r);
+    cx.arcTo(x + w, y + h, x, y + h, r);
+    cx.arcTo(x, y + h, x, y, r);
+    cx.arcTo(x, y, x + w, y, r);
+    cx.closePath();
+  }
+
+  function drawBoard() {
+    var W = S(TOTAL);
+    var wood = cx.createLinearGradient(0, 0, W, W);
+    wood.addColorStop(0, '#6b4426');
+    wood.addColorStop(0.45, '#4d2f19');
+    wood.addColorStop(1, '#301b0e');
+    cx.fillStyle = wood;
+    rr(0, 0, W, W, S(1.2));
+    cx.fill();
+
+    /* wood grain streaks on the frame */
+    cx.save();
+    rr(0, 0, W, W, S(1.2));
+    cx.clip();
+    for (var gi = 0; gi < 26; gi++) {
+      var gy = (gi / 26) * W + Math.sin(gi * 2.7) * S(0.6);
+      cx.strokeStyle = gi % 2 ? 'rgba(0,0,0,.10)' : 'rgba(255,220,170,.05)';
+      cx.lineWidth = Math.max(0.6, S(0.1 + (gi % 3) * 0.05));
+      cx.beginPath();
+      cx.moveTo(0, gy);
+      cx.bezierCurveTo(W * 0.3, gy + S(0.8), W * 0.7, gy - S(0.8), W, gy + Math.sin(gi) * S(0.5));
+      cx.stroke();
+    }
+    cx.restore();
+    /* glossy top-left sheen on the frame */
+    var sheen = cx.createLinearGradient(0, 0, W * 0.7, W * 0.7);
+    sheen.addColorStop(0, 'rgba(255,255,255,.10)');
+    sheen.addColorStop(0.5, 'rgba(255,255,255,.02)');
+    sheen.addColorStop(1, 'rgba(255,255,255,0)');
+    cx.fillStyle = sheen;
+    rr(0, 0, W, W, S(1.2));
+    cx.fill();
+
+    var surf = cx.createRadialGradient(W / 2, W / 2, S(10), W / 2, W / 2, S(54));
+    surf.addColorStop(0, '#f6e7c6');
+    surf.addColorStop(1, '#e0c69a');
+    cx.fillStyle = surf;
+    rr(X(FRAME), X(FRAME), S(BOARD), S(BOARD), S(0.8));
+    cx.fill();
+    /* inner bevel: play surface sits below the frame */
+    var bev = cx.createRadialGradient(W / 2, W / 2, S(30), W / 2, W / 2, S(60));
+    bev.addColorStop(0, 'rgba(0,0,0,0)');
+    bev.addColorStop(1, 'rgba(40,20,8,.22)');
+    cx.fillStyle = bev;
+    rr(X(FRAME), X(FRAME), S(BOARD), S(BOARD), S(0.8));
+    cx.fill();
+    cx.strokeStyle = 'rgba(70,40,18,.55)';
+    cx.lineWidth = Math.max(1.4, S(0.32));
+    cx.stroke();
+
+    /* corner arcs */
+    cx.strokeStyle = 'rgba(150,40,32,.75)';
+    cx.lineWidth = Math.max(1.1, S(0.22));
+    POCKETS.forEach(function (p) {
+      cx.beginPath();
+      cx.arc(X(p[0]), X(p[1]), S(9.5), 0, 6.2832);
+      cx.stroke();
+      cx.beginPath();
+      cx.arc(X(p[0]), X(p[1]), S(11), 0, 6.2832);
+      cx.stroke();
+    });
+
+    /* base lines with red-ended circles (reference style) */
+    [FRAME + 10, FRAME + BOARD - 10].forEach(function (y) {
+      cx.strokeStyle = 'rgba(150,40,32,.8)';
+      cx.lineWidth = Math.max(1, S(0.2));
+      cx.beginPath();
+      cx.moveTo(X(FRAME + 11), X(y - 1.4));
+      cx.lineTo(X(FRAME + BOARD - 11), X(y - 1.4));
+      cx.moveTo(X(FRAME + 11), X(y + 1.4));
+      cx.lineTo(X(FRAME + BOARD - 11), X(y + 1.4));
+      cx.stroke();
+      [FRAME + 11, FRAME + BOARD - 11].forEach(function (bx) {
+        cx.beginPath();
+        cx.arc(X(bx), X(y), S(4.2), 0, 6.2832);
+        cx.stroke();
+        cx.fillStyle = '#c0392b';
+        cx.beginPath();
+        cx.arc(X(bx), X(y), S(2.1), 0, 6.2832);
+        cx.fill();
+        cx.strokeStyle = 'rgba(90,42,18,.7)';
+        cx.lineWidth = Math.max(0.8, S(0.12));
+        cx.stroke();
+      });
+    });
+
+    /* diagonal arrow markings from each corner (reference detail) */
+    [[FRAME + 7.5, FRAME + 7.5, 1, 1], [FRAME + BOARD - 7.5, FRAME + 7.5, -1, 1],
+     [FRAME + 7.5, FRAME + BOARD - 7.5, 1, -1], [FRAME + BOARD - 7.5, FRAME + BOARD - 7.5, -1, -1]
+    ].forEach(function (cn) {
+      var ax = X(cn[0]), ay = X(cn[1]), dx = cn[2], dy = cn[3], L = S(13);
+      cx.strokeStyle = 'rgba(90,42,18,.75)';
+      cx.lineWidth = Math.max(1, S(0.24));
+      cx.beginPath();
+      cx.moveTo(ax, ay);
+      cx.lineTo(ax + dx * L, ay + dy * L);
+      cx.stroke();
+      /* arrowhead */
+      cx.beginPath();
+      cx.moveTo(ax + dx * L, ay + dy * L);
+      cx.lineTo(ax + dx * (L - S(2.2)) - dy * S(1.1), ay + dy * (L - S(2.2)) - dx * S(1.1));
+      cx.lineTo(ax + dx * (L - S(2.2)) + dy * S(1.1), ay + dy * (L - S(2.2)) + dx * S(1.1));
+      cx.closePath();
+      cx.fillStyle = 'rgba(90,42,18,.75)';
+      cx.fill();
+      /* corner arc */
+      cx.strokeStyle = 'rgba(90,42,18,.6)';
+      cx.lineWidth = Math.max(0.9, S(0.2));
+      cx.beginPath();
+      cx.arc(ax, ay, S(17), cn[2] > 0 ? (cn[3] > 0 ? 0 : -Math.PI / 2) : (cn[3] > 0 ? Math.PI / 2 : Math.PI),
+        cn[2] > 0 ? (cn[3] > 0 ? Math.PI / 2 : 0) : (cn[3] > 0 ? Math.PI : Math.PI / 2));
+      cx.stroke();
+    });
+
+    /* centre circle + pattern */
+    cx.strokeStyle = 'rgba(150,40,32,.8)';
+    cx.lineWidth = Math.max(1.2, S(0.24));
+    cx.beginPath();
+    cx.arc(X(CENTRE), X(CENTRE), S(8.5), 0, 6.2832);
+    cx.stroke();
+    cx.beginPath();
+    cx.arc(X(CENTRE), X(CENTRE), S(2.4), 0, 6.2832);
+    cx.stroke();
+    for (var i = 0; i < 8; i++) {
+      var a = i * Math.PI / 4;
+      cx.beginPath();
+      cx.arc(X(CENTRE + Math.cos(a) * 5.4), X(CENTRE + Math.sin(a) * 5.4), S(2.1), 0, 6.2832);
+      cx.stroke();
+    }
+
+    /* pockets */
+    POCKETS.forEach(function (p) {
+      var g = cx.createRadialGradient(X(p[0]) - S(0.8), X(p[1]) - S(0.8), S(0.4), X(p[0]), X(p[1]), S(POCKET_R));
+      g.addColorStop(0, '#000');
+      g.addColorStop(0.75, '#150d07');
+      g.addColorStop(1, '#3a2412');
+      cx.fillStyle = g;
+      cx.beginPath();
+      cx.arc(X(p[0]), X(p[1]), S(POCKET_R), 0, 6.2832);
+      cx.fill();
+      cx.strokeStyle = 'rgba(255,235,200,.35)';
+      cx.lineWidth = Math.max(1, S(0.24));
+      cx.stroke();
+    });
+  }
+
+  function drawCoin(p) {
+    var x = X(p.x), y = X(p.y), r = S(p.r);
+    if (p.color === 's') {
+      /* MASTER COIN — the golden striker from the reference board */
+      cx.beginPath();
+      cx.arc(x, y + r * 0.16, r, 0, 6.2832);
+      cx.fillStyle = 'rgba(0,0,0,.28)';
+      cx.fill();
+      var gs = cx.createRadialGradient(x - r * 0.35, y - r * 0.42, r * 0.1, x, y, r);
+      gs.addColorStop(0, '#fdf3cf');
+      gs.addColorStop(0.45, '#e9c46a');
+      gs.addColorStop(0.8, '#c99b3f');
+      gs.addColorStop(1, '#9a7526');
+      cx.beginPath();
+      cx.arc(x, y, r, 0, 6.2832);
+      cx.fillStyle = gs;
+      cx.fill();
+      cx.strokeStyle = 'rgba(120,86,20,.8)';
+      cx.lineWidth = Math.max(1, S(0.16));
+      cx.stroke();
+      /* inner ring + centre dot, like the reference striker */
+      cx.beginPath();
+      cx.arc(x, y, r * 0.62, 0, 6.2832);
+      cx.strokeStyle = 'rgba(154,117,38,.85)';
+      cx.lineWidth = Math.max(1, S(0.16));
+      cx.stroke();
+      cx.beginPath();
+      cx.arc(x, y, r * 0.3, 0, 6.2832);
+      cx.fillStyle = '#f7dd8f';
+      cx.fill();
+      cx.strokeStyle = 'rgba(154,117,38,.8)';
+      cx.lineWidth = Math.max(0.8, S(0.1));
+      cx.stroke();
+      return;
+    }
+    cx.beginPath();
+    cx.arc(x, y + r * 0.16, r, 0, 6.2832);
+    cx.fillStyle = 'rgba(0,0,0,.26)';
+    cx.fill();
+
+    var stops;
+    if (p.color === 'w') stops = ['#fffdf6', '#f0e6d0', '#c9b995'];
+    else if (p.color === 'b') stops = ['#7d6350', '#4a3124', '#1d120b'];
+    else stops = ['#ff8b7a', '#d62b1f', '#7d1208'];
+    var g = cx.createRadialGradient(x - r * 0.32, y - r * 0.36, r * 0.1, x, y, r);
+    g.addColorStop(0, stops[0]);
+    g.addColorStop(0.55, stops[1]);
+    g.addColorStop(1, stops[2]);
+    cx.beginPath();
+    cx.arc(x, y, r, 0, 6.2832);
+    cx.fillStyle = g;
+    cx.fill();
+    cx.lineWidth = Math.max(1, S(0.11));
+    cx.strokeStyle = p.color === 'w' ? 'rgba(150,130,90,.75)' : (p.color === 'b' ? 'rgba(0,0,0,.7)' : 'rgba(90,10,5,.7)');
+    cx.stroke();
+    cx.beginPath();
+    cx.arc(x, y, r * 0.56, 0, 6.2832);
+    cx.strokeStyle = p.color === 'w' ? 'rgba(180,160,120,.6)' : 'rgba(255,255,255,.16)';
+    cx.lineWidth = Math.max(0.8, S(0.07));
+    cx.stroke();
+  }
+
+  function drawAim() {
+    if (G.phase !== 'aim' || G.over) return;
+    var s = striker();
+    if (!s || s.pocketed) return;
+    /* base line track */
+    cx.strokeStyle = 'rgba(255,255,255,.5)';
+    cx.lineWidth = Math.max(1, S(0.2));
+    cx.setLineDash([S(0.8), S(0.8)]);
+    cx.beginPath();
+    cx.moveTo(X(SMIN), X(BASE_Y));
+    cx.lineTo(X(SMAX), X(BASE_Y));
+    cx.stroke();
+    cx.setLineDash([]);
+
+    if (!aim.on || aim.mode !== 'aim') return;
+    var ang = Math.atan2(aim.y - s.y, aim.x - s.x);
+    var len = Math.min(Math.hypot(aim.x - s.x, aim.y - s.y), 46);
+    cx.strokeStyle = 'rgba(220,38,38,.85)';
+    cx.lineWidth = Math.max(1.4, S(0.3));
+    cx.beginPath();
+    cx.moveTo(X(s.x), X(s.y));
+    cx.lineTo(X(s.x + Math.cos(ang) * len), X(s.y + Math.sin(ang) * len));
+    cx.stroke();
+    /* guide beyond the strike point */
+    cx.setLineDash([S(1.1), S(1.1)]);
+    cx.strokeStyle = 'rgba(220,38,38,.45)';
+    cx.beginPath();
+    cx.moveTo(X(s.x + Math.cos(ang) * len), X(s.y + Math.sin(ang) * len));
+    cx.lineTo(X(s.x + Math.cos(ang) * (len + 26)), X(s.y + Math.sin(ang) * (len + 26)));
+    cx.stroke();
+    cx.setLineDash([]);
+  }
+
+  function draw() {
+    if (!G) return;
+    drawBoard();
+    G.pieces.forEach(function (p) { if (!p.pocketed && p.color !== 's') drawCoin(p); });
+    var s = striker();
+    if (s && !s.pocketed && G.phase === 'aim') drawCoin(s);
+    if (s && !s.pocketed && G.phase === 'run') drawCoin(s);
+    drawAim();
+  }
+
+  /* ---------------- hud ---------------- */
+  function hud() {
+    var bar = $('sbar');
+    var NAMES = [cfg.online ? (cfg.isHost ? 'You' : 'Friend') : 'You', cfg.online ? (cfg.isHost ? 'Friend' : 'You') : 'Bot (' + (cfg.bot || 'medium') + ')'];
+    bar.innerHTML = '';
+    [0, 1].forEach(function (t) {
+      var d = document.createElement('div');
+      d.className = 'side' + (G.turn === t && !G.over ? ' on' : '');
+      var q = (G.queen.owner === t) ? ' · 👑' : '';
+      d.innerHTML = '<span class="c ' + myColor(t) + '"></span><span>' + NAMES[t] +
+        (cfg.online ? ' <small>' + (myColor(t) === 'w' ? 'White' : 'Black') + '</small>' : '') +
+        '<b>' + (9 - coinsLeft(t)) + '/9</b>' + q + '</span>';
+      bar.appendChild(d);
+    });
+  }
+
+  function say(t) { $('msg').textContent = t; }
+
+  function refreshControls() {
+    var mine = cfg.online ? G.turn === cfg.side : G.turn === 0;
+    $('pwbar').style.width = '0%';
+    if (G.over) return;
+    if (!mine) $('pwbar').style.width = '0%';
+  }
+
+  /* ---------------- shooting ---------------- */
+  function shoot(ang, power) {
+    if (G.phase !== 'aim' || G.over) return;
+    var s = striker();
+    if (!s) return;
+    G.shots++;
+    G.log = [];
+    power = Math.max(6, Math.min(100, power));
+    var speed = 90 + power * 6.4;
+    s.vx = Math.cos(ang) * speed;
+    s.vy = Math.sin(ang) * speed;
+    G.phase = 'run';
+    $('pwbar').style.width = power + '%';
+    rafId = requestAnimationFrame(runFrame);
+  }
+
+  function runFrame() {
+    if (!G || G.phase !== 'run') return;
+    for (var i = 0; i < 8; i++) step(1 / 480);
+    draw();
+    if (cfg.online && cfg.isHost) {
+      var now = Date.now();
+      if (now - lastNet > 70) { lastNet = now; netState(); }
+    }
+    if (moving()) { rafId = requestAnimationFrame(runFrame); }
+    else { setTimeout(resolveShot, 90); }
+  }
+
+  function resolveShot() {
+    if (!G || G.over || G.phase !== 'run') return;   /* a shot resolves exactly once */
+    var me = G.turn, opp = 1 - me, mine = myColor(me);
+    var own = 0, foe = 0, queen = false, strikerIn = false;
+    G.log.forEach(function (e) {
+      if (e.color === 's') strikerIn = true;
+      else if (e.color === mine) own++;
+      else if (e.color === 'q') queen = true;
+      else foe++;
+    });
+
+    if (strikerIn) own = Math.max(0, own - 1);   /* foul costs you a coin */
+    if (own > 0) G.pots[me] += own;
+    if (foe > 0) G.pots[opp] += foe;
+
+    var msgs = [];
+    if (own > 0) msgs.push('+' + own + ' coin' + (own > 1 ? 's' : ''));
+    if (foe > 0) msgs.push('+' + foe + ' for the other side');
+
+    /* queen */
+    if (queen) {
+      if (own > 0) { G.queen.owner = me; msgs.push('queen covered 👑'); }
+      else { G.queen.pending = true; msgs.push('queen down — cover it with your own coin'); }
+    } else if (G.queen.pending) {
+      if (own > 0) { G.queen.owner = me; G.queen.pending = false; msgs.push('queen covered 👑'); }
+      else if (strikerIn || own === 0) {
+        G.queen.pending = false;
+        /* give the queen back to the centre */
+        var qp = null;
+        G.pieces.forEach(function (p) { if (p.color === 'q') qp = p; });
+        if (qp) {
+          qp.pocketed = false; qp.x = CENTRE; qp.y = CENTRE; qp.vx = qp.vy = 0;
+          var pushed = false;
+          G.pieces.forEach(function (p) {
+            if (p === qp || p.pocketed || p.color === 's') return;
+            var d = Math.hypot(p.x - CENTRE, p.y - CENTRE);
+            if (d < COIN_R * 1.9) { p.x += COIN_R * 2.1; pushed = true; }
+          });
+          msgs.push('queen not covered — back to the centre');
+        }
+      }
+    }
+
+    if (strikerIn) {
+      msgs.push('striker potted — foul');
+      var lost = G.pieces.filter(function (p) { return p.color === mine && p.pocketed; })[0];
+      if (lost) {
+        lost.pocketed = false; lost.x = CENTRE - COIN_R * 1.6; lost.y = CENTRE + COIN_R * 1.6;
+        lost.vx = lost.vy = 0;
+        if (G.pots[me] > 0) G.pots[me]--;
+      }
+    }
+
+    resetStriker();
+
+    if (coinsLeft(me) === 0) {
+      G.over = true; G.winner = me;
+      say('🏆 ' + (cfg.online ? (me === cfg.side ? 'You win the board!' : 'Your friend clears the board.') : (me === 0 ? 'You win the board! 🏆' : 'The bot clears the board.')));
+      hud(); draw(); netState(true); return;
+    }
+
+    var again = own > 0 && !strikerIn;
+    if (!again) G.turn = opp;
+    G.phase = 'aim';
+    hud(); draw(); refreshControls(); netState(true);
+
+    if (msgs.length) say(msgs.join(' · ') + (again ? ' — shoot again' : ''));
+    else say(again ? 'Shoot again.' : 'No coin potted — turn passes.');
+    if (!again && foe > 0 && !cfg.online) say('You potted the other side\'s coin — turn passes.');
+
+    /* striker line belongs to whoever is shooting */
+    var s = striker();
+    if (s) s.y = BASE_Y;
+
+    maybeBot();
+  }
+
+  /* ---------------- bot ---------------- */
+  function botShot() {
+    var s = striker();
+    var myC = myColor(G.turn), oppC = myColor(1 - G.turn);
+    var seeds = [];
+    G.pieces.forEach(function (p) {
+      if (p.pocketed || p.color === 's') return;
+      if (p.color === myC) seeds.push({ p: p, v: 12 });
+      else if (p.color === 'q' && G.queen.owner < 0) seeds.push({ p: p, v: 8 });
+      else if (p.color === oppC) seeds.push({ p: p, v: 1 });
+    });
+    if (!seeds.length) { G.turn = 1 - G.turn; G.phase = 'aim'; hud(); maybeBot(); return; }
+
+    var noise = cfg.bot === 'easy' ? 0.20 : (cfg.bot === 'medium' ? 0.075 : 0.018);
+    var best = null;
+
+    seeds.forEach(function (seed) {
+      POCKETS.forEach(function (pk) {
+        var t = seed.p;
+        var dpx = pk[0] - t.x, dpy = pk[1] - t.y;
+        var dlen = Math.hypot(dpx, dpy);
+        if (dlen < 0.5) return;
+        var ux = dpx / dlen, uy = dpy / dlen;
+        /* ghost point behind the coin, opposite the pocket */
+        var gx = t.x - ux * (COIN_R + STRIKER_R), gy = t.y - uy * (COIN_R + STRIKER_R);
+        var aimAng = Math.atan2(gy - (FRAME + BOARD - 10), gx - CENTRE);
+        /* choose the baseline position that lines up best */
+        for (var k = 0; k <= 24; k++) {
+          var sx = SMIN + (SMAX - SMIN) * (k / 24);
+          var ax = Math.atan2(gy - BASE_Y, gx - sx);
+          var toT = Math.hypot(gx - sx, gy - BASE_Y);
+          if (toT < STRIKER_R + COIN_R) continue;
+          /* does it pass close to the ghost point? */
+          var dirx = Math.cos(ax), diry = Math.sin(ax);
+          var proj = (gx - sx) * dirx + (gy - BASE_Y) * diry;
+          if (proj <= 0) continue;
+          var perp = Math.abs(-(gx - sx) * diry + (gy - BASE_Y) * dirx);
+          if (perp > STRIKER_R * 0.55) continue;
+          var clear = true;
+          G.pieces.forEach(function (o) {
+            if (!clear || o.pocketed || o.color === 's' || o === t) return;
+            var po = (o.x - sx) * dirx + (o.y - BASE_Y) * diry;
+            if (po <= 0 || po > proj) return;
+            var pp = Math.abs(-(o.x - sx) * diry + (o.y - BASE_Y) * dirx);
+            if (pp < o.r + STRIKER_R * 0.95) clear = false;
+          });
+          if (!clear) continue;
+          var score = seed.v * 100 - perp * 6 - Math.abs(sx - CENTRE) * 0.15;
+          if (!best || score > best.score) {
+            best = { score: score, sx: sx, ang: ax, power: 46 + (dlen * 0.5) };
+          }
+        }
+      });
+    });
+
+    var sx, ang, power;
+    if (best) {
+      sx = best.sx; ang = best.ang; power = Math.min(96, best.power);
+    } else {
+      /* fall back to a hopeful break */
+      var target = seeds[Math.floor(Math.random() * seeds.length)].p;
+      sx = CENTRE + (Math.random() - 0.5) * 16;
+      ang = Math.atan2(target.y - BASE_Y, target.x - sx);
+      power = 55 + Math.random() * 35;
+    }
+    ang += (Math.random() - 0.5) * noise * (best ? 2 : 4);
+    s.x = Math.max(SMIN, Math.min(SMAX, sx));
+    draw();
+    setTimeout(function () { shoot(ang, power); }, 260);
+  }
+
+  function maybeBot() {
+    if (cfg.online) return;
+    if (G.over) return;
+    if (G.turn === 0) { say('Your shot — drag the striker, then drag out to aim.'); return; }
+    say('Bot is lining up…');
+    setTimeout(function () { if (!G.over && G.phase === 'aim' && G.turn === 1) botShot(); }, 620);
+  }
+
+  /* ---------------- input ---------------- */
+  function toBoard(e) {
+    var r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) / SCALE, y: (e.clientY - r.top) / SCALE };
+  }
+  function canPlay() {
+    if (!G || G.over || G.phase !== 'aim') return false;
+    if (cfg.online) return G.turn === cfg.side;
+    return G.turn === 0;
+  }
+
+  cv.addEventListener('pointerdown', function (e) {
+    if (!canPlay()) return;
+    var p = toBoard(e), s = striker();
+    var dStrike = Math.hypot(p.x - s.x, p.y - s.y);
+    if (dStrike < STRIKER_R * 2.4 || Math.abs(p.y - BASE_Y) < 4.5) {
+      aim.on = true;
+      aim.mode = (dStrike < STRIKER_R * 2.4) ? 'aim' : 'slide';
+      aim.x = p.x; aim.y = p.y;
+      try { cv.setPointerCapture(e.pointerId); } catch (err) { /* synthetic or stale pointer */ }
+      draw();
+    }
+  });
+
+  cv.addEventListener('pointermove', function (e) {
+    if (!aim.on) return;
+    var p = toBoard(e);
+    aim.x = p.x; aim.y = p.y;
+    var s = striker();
+    if (aim.mode === 'slide') {
+      s.x = Math.max(SMIN, Math.min(SMAX, p.x));
+    } else {
+      var len = Math.hypot(p.x - s.x, p.y - s.y);
+      $('pwbar').style.width = Math.min(100, Math.round(len / 46 * 100)) + '%';
+    }
+    draw();
+  });
+
+  cv.addEventListener('pointerup', function (e) {
+    if (!aim.on) return;
+    var wasMode = aim.mode;
+    aim.on = false;
+    var p = toBoard(e);
+    if (wasMode === 'slide') { draw(); $('pwbar').style.width = '0%'; return; }
+    var s = striker();
+    var dx = p.x - s.x, dy = p.y - s.y;
+    var len = Math.hypot(dx, dy);
+    if (len < 3) { draw(); return; }
+    var ang = Math.atan2(dy, dx);
+    var power = Math.min(100, len / 46 * 100);
+    $('pwbar').style.width = power + '%';
+    if (cfg.online && !cfg.isHost) {
+      cfg.room.send({ t: 'shot', sx: s.x, ang: ang, pw: power, seat: cfg.side });
+      G.phase = 'run';
+      return;
+    }
+    shoot(ang, power);
+  });
+
+  cv.addEventListener('pointercancel', function () { aim.on = false; draw(); });
+
+  /* ---------------- net ---------------- */
+  function netState(final) {
+    if (!cfg.online || !cfg.isHost || !cfg.room) return;
+    cfg.room.send({
+      t: 'st',
+      f: final ? 1 : 0,
+      p: G.pieces.map(function (p) { return [Math.round(p.x * 10) / 10, Math.round(p.y * 10) / 10, p.pocketed ? 1 : 0]; }),
+      turn: G.turn, pots: G.pots, owner: G.queen.owner, pending: G.queen.pending,
+      over: G.over, winner: G.winner, log: cfg.online ? (G.log || []).slice(-6) : []
+    });
+  }
+
+  function loadState(m) {
+    if (!G) return;
+    G.pieces.forEach(function (p, i) {
+      var s = m.p[i];
+      if (!s) return;
+      p.x = s[0]; p.y = s[1]; p.pocketed = !!s[2];
+      if (p.pocketed) { p.vx = p.vy = 0; }
+    });
+    G.turn = m.turn; G.pots = m.pots;
+    G.queen.owner = m.owner; G.queen.pending = m.pending;
+    G.over = m.over; G.winner = m.winner;
+    if (m.f) {
+      G.phase = 'aim';
+      hud(); draw(); refreshControls();
+      if (m.over) say('🏆 ' + (m.winner === cfg.side ? 'You win the board!' : 'Your friend clears the board.'));
+      else say(G.turn === cfg.side ? 'Your shot.' : 'Waiting for your friend…');
+    } else {
+      draw();
+    }
+  }
+
+  /* ---------------- modes ---------------- */
+  function showStage(label, note) {
+    $('lobby').classList.add('hidden');
+    $('stage').classList.remove('hidden');
+    $('modeLabel').textContent = label;
+    $('netNote').textContent = note || '';
+    resize(); hud(); draw();
+  }
+
+  function startSolo(opts) {
+    cfg = { bot: opts.bot, online: false, isHost: false, room: null, side: 0 };
+    fresh();
+    showStage(opts.bot ? 'You (white) vs Bot (' + opts.bot + ')' : 'Solo practice — both sides yours',
+      'Drag the striker along the base line to place it, then drag outward from it and let go to shoot.');
+    $('tip').textContent = 'Pot your white coins. Get one in and you shoot again. The red queen needs covering.';
+    if (opts.bot) say('Your shot — drag the striker, then drag out to aim.');
+    hud();
+  }
+
+  function startRoom(room, isHost, o) {
+    o = o || {};
+    var seat = (typeof o.seat === 'number' && o.seat >= 0) ? o.seat : (isHost ? 0 : 1);
+    seat = seat === 0 ? 0 : 1;                 /* carrom is a two-seat board */
+    var iAmHost = seat === 0;
+    cfg = { bot: null, online: true, isHost: iAmHost, room: room, side: seat };
+    fresh();
+    $('netNote').textContent = '';
+    showStage('Room ' + room.code + ' — you are ' + (seat === 0 ? 'White' : 'Black'),
+      'You shoot ' + (seat === 0 ? 'white' : 'black') + ' coins. Every shot you make is mirrored on your friend\'s board.');
+    $('tip').textContent = seat === 0 ? 'You break first. Pot your white coins to shoot again.' : 'Your friend breaks first.';
+    hud();
+    if (iAmHost) setTimeout(function () { netState(true); }, 200);
+  }
+
+  var lobby = window.SAAGAR_LOBBY.create({
+    key: 'carrom',
+    title: '🎯 How do you want to play?',
+    root: $('lobby'),
+    seatChoices: [2],
+    labels: { solo: '▶  Play Carrom', bot: '🤖  Play vs Bot', create: '＋  Create room', join: '🔗  Join room' },
+    onSolo: startSolo,
+    onHostReady: function (room, o) { startRoom(room, true, o); },
+    onGuestReady: function (room, o) { startRoom(room, false, o); },
+    onMessage: function (msg, room, isHost, fromSeat) {
+      if (isHost) {
+        var seat = (typeof fromSeat === 'number' && fromSeat >= 0) ? fromSeat : msg.seat;
+        if (msg.t === 'shot' && seat === G.turn && G.phase === 'aim') {
+          striker().x = Math.max(SMIN, Math.min(SMAX, msg.sx));
+          shoot(msg.ang, msg.pw);
+        }
+        if (msg.t === 'again') { fresh(); hud(); draw(); netState(true); }
+        return;
+      }
+      if (msg.t === 'st') loadState(msg);
+    },
+    onPeerLeave: function () {
+      $('netNote').textContent = 'Your friend disconnected — their seat is off now.';
+      window.SAAGAR.toast('Friend left the board', true);
+    }
+  });
+
+  $('again').onclick = function () {
+    if (cfg.online) {
+      if (cfg.isHost) { fresh(); hud(); draw(); netState(true); }
+      else cfg.room.send({ t: 'again' });
+      return;
+    }
+    var b = cfg.bot; fresh(); hud(); draw();
+    if (b) { say('New board. Your shot.'); } else say('New board.');
+  };
+
+  $('back').onclick = function () {
+    if (cfg.room) { try { cfg.room.close(true); } catch (e) { } }
+    if (rafId) cancelAnimationFrame(rafId);
+    G = null;
+    $('stage').classList.add('hidden');
+    $('lobby').classList.remove('hidden');
+    lobby.menu();
+  };
+
+  window.addEventListener('resize', function () { if (G) resize(); });
+})();
+</script>
+</body>
+</html>

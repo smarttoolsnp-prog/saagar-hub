@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR Code Generator — link, text, WiFi, phone | SAAGAR Tools</title>
+<meta name="description" content="Create QR codes for links, text, phone numbers, WiFi and email. Download as PNG or SVG, free and offline.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/qr.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .work{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
+  @media(max-width:760px){ .work{grid-template-columns:1fr;} }
+  .qrbox{background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px; text-align:center; box-shadow:var(--sh);}
+  .qrbox img,.qrbox svg{max-width:100%; height:auto; margin:0 auto;}
+  .tabs{display:flex; gap:5px; flex-wrap:wrap; margin-bottom:14px;}
+  .tabs button{border:1px solid var(--line-2); background:#fff; border-radius:999px; padding:7px 14px; font-size:12.5px; font-weight:750; color:var(--dim);}
+  .tabs button.on{background:var(--navy); color:#fff; border-color:var(--navy);}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / QR Generator</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18 L13 18"/></svg></span>QR Code Generator</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:860px;">
+    <div class="card">
+      <div class="tabs" id="tabs">
+        <button type="button" data-t="link" class="on">🔗 Link</button>
+        <button type="button" data-t="text">📝 Text</button>
+        <button type="button" data-t="phone">📞 Phone</button>
+        <button type="button" data-t="wifi">📶 WiFi</button>
+        <button type="button" data-t="email">✉️ Email</button>
+      </div>
+
+      <div class="work">
+        <div>
+          <div id="fields"></div>
+          <div class="grid2 mt">
+            <div class="field">
+              <label for="size">Size (pixels)</label>
+              <select id="size">
+                <option value="300">300 × 300</option>
+                <option value="420" selected>420 × 420</option>
+                <option value="640">640 × 640</option>
+                <option value="900">900 × 900 (print)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ec">Error correction</label>
+              <select id="ec">
+                <option value="L">L — smallest</option>
+                <option value="M" selected>M — balanced</option>
+                <option value="Q">Q — robust</option>
+                <option value="H">H — survives damage</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fg">Colour</label>
+              <select id="fg">
+                <option value="#000000" selected>Black</option>
+                <option value="#12335a">Navy</option>
+                <option value="#0f5132">Dark green</option>
+                <option value="#7a1f1f">Dark red</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="bg">Background</label>
+              <select id="bg">
+                <option value="#ffffff" selected>White</option>
+                <option value="#f2f8ff">Pale blue</option>
+                <option value="#fff8e6">Cream</option>
+              </select>
+            </div>
+          </div>
+          <div class="row mt">
+            <button class="btn" id="png" type="button" style="flex:0 0 auto;">⬇ PNG</button>
+            <button class="btn soft" id="svg" type="button" style="flex:0 0 auto;">⬇ SVG (vector)</button>
+            <button class="btn ghost" id="copyImg" type="button" style="flex:0 0 auto;">Copy image</button>
+          </div>
+          <div class="out" id="msg" role="status"></div>
+        </div>
+
+        <div class="qrbox" id="qrbox">
+          <div id="qrHolder"></div>
+          <p class="muted mt-s" id="encoded"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">💡</span> Good to know</h2>
+      <ul style="padding-left:20px; font-size:14px; line-height:1.85;">
+        <li>Use the <b>SVG</b> download for anything printed — it stays sharp at any size.</li>
+        <li>Higher error correction makes the code denser but more tolerant of a smudge or a logo on top.</li>
+        <li>Keep dark modules on a light background — inverting the colours confuses many scanners.</li>
+        <li>Nothing is uploaded; the code is generated locally so it works offline.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script src="../assets/qrcode.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var type = 'link', current = null, currentData = '';
+
+  var FIELDS = {
+    link: [{ id: 'url', label: 'Web address', ph: 'https://sagardahal123.com.np', val: 'https://sagardahal123.com.np' }],
+    text: [{ id: 'txt', label: 'Your text', ph: 'Any message you like', area: true }],
+    phone: [{ id: 'ph', label: 'Phone number', ph: '+97798XXXXXXXX' },
+            { id: 'name', label: 'Name (optional, shown on the phone)', ph: 'Sagar Dahal' }],
+    wifi: [{ id: 'ssid', label: 'Network name (SSID)', ph: 'MyHomeWiFi' },
+           { id: 'pass', label: 'Password', ph: 'password' },
+           { id: 'enc', label: 'Security', select: [['WPA', 'WPA / WPA2'], ['WEP', 'WEP'], ['nopass', 'Open network']] },
+           { id: 'hidden', label: 'Hidden network?', select: [['false', 'No'], ['true', 'Yes']] }],
+    email: [{ id: 'to', label: 'Email address', ph: 'someone@example.com' },
+            { id: 'sub', label: 'Subject (optional)', ph: 'Hello' }]
+  };
+
+  function buildFields() {
+    var host = $('fields');
+    host.innerHTML = '';
+    FIELDS[type].forEach(function (f) {
+      var d = document.createElement('div');
+      d.className = 'field';
+      d.style.marginBottom = '10px';
+      var inner;
+      if (f.area) inner = '<textarea id="f_' + f.id + '" rows="3" placeholder="' + f.ph + '"></textarea>';
+      else if (f.select) inner = '<select id="f_' + f.id + '">' + f.select.map(function (o) { return '<option value="' + o[0] + '">' + o[1] + '</option>'; }).join('') + '</select>';
+      else inner = '<input type="text" id="f_' + f.id + '" placeholder="' + f.ph + '">';
+      d.innerHTML = '<label for="f_' + f.id + '">' + f.label + '</label>' + inner;
+      host.appendChild(d);
+      if (f.val != null) {
+        var el = document.getElementById('f_' + f.id);
+        if (el) el.value = f.val;
+      }
+      var input = document.getElementById('f_' + f.id);
+      if (input) input.addEventListener('input', render);
+      if (input && input.tagName === 'SELECT') input.addEventListener('change', render);
+    });
+    render();
+  }
+
+  function value(id) {
+    var e = document.getElementById('f_' + id);
+    return e ? e.value : '';
+  }
+
+  function payload() {
+    if (type === 'link') {
+      var u = value('url').trim();
+      if (!u) return '';
+      if (!/^[a-z]+:\/\//i.test(u) && !/^mailto:|^tel:/i.test(u)) u = 'https://' + u;
+      return u;
+    }
+    if (type === 'text') return value('txt');
+    if (type === 'phone') {
+      var n = value('ph').replace(/\s+/g, '');
+      return n ? 'tel:' + n : '';
+    }
+    if (type === 'wifi') {
+      var s = value('ssid');
+      if (!s) return '';
+      var enc = value('enc') || 'WPA';
+      var esc = function (x) { return String(x).replace(/([\\;,":])/g, '\\$1'); };
+      return 'WIFI:T:' + enc + ';S:' + esc(s) + ';' + (enc !== 'nopass' ? 'P:' + esc(value('pass')) + ';' : '') +
+        (value('hidden') === 'true' ? 'H:true;' : '') + ';';
+    }
+    if (type === 'email') {
+      var to = value('to').trim();
+      if (!to) return '';
+      var sub = value('sub').trim();
+      return 'mailto:' + to + (sub ? '?subject=' + encodeURIComponent(sub) : '');
+    }
+    return '';
+  }
+
+  function render() {
+    var data = payload();
+    currentData = data;
+    var holder = $('qrHolder');
+    holder.innerHTML = '';
+    $('encoded').textContent = '';
+    if (!data) {
+      holder.innerHTML = '<p class="muted" style="padding:60px 10px;">Fill in the field to see your QR code.</p>';
+      current = null;
+      return;
+    }
+    try {
+      var qr = qrcode(0, $('ec').value);   /* 0 = pick the smallest version that fits */
+      qr.addData(data);
+      qr.make();
+      var svg = qr.createSvgTag({ cellSize: 8, margin: 12, scalable: true });
+      svg = svg.replace(/fill="black"/g, 'fill="' + $('fg').value + '"')
+               .replace(/fill="white"/g, 'fill="' + $('bg').value + '"')
+               .replace(/shape-rendering="crispEdges"/, 'shape-rendering="crispEdges"');
+      holder.innerHTML = svg;
+      var svgEl = holder.querySelector('svg');
+      if (svgEl) { svgEl.setAttribute('width', '100%'); svgEl.removeAttribute('height'); }
+      current = qr;
+      var short = data.length > 60 ? data.slice(0, 60) + '…' : data;
+      $('encoded').textContent = short;
+      $('msg').textContent = '';
+    } catch (e) {
+      holder.innerHTML = '<p class="muted" style="padding:40px 10px;">That is too much data for one QR code — shorten it.</p>';
+      current = null;
+      $('msg').textContent = 'Shorten the text, or use lower error correction.';
+      $('msg').className = 'out bad';
+    }
+  }
+
+  function pngBlob(cb) {
+    if (!current) return;
+    var size = parseInt($('size').value, 10);
+    var count = current.getModuleCount();
+    var margin = Math.round(size * 0.03 / (count + 8));
+    var cell = Math.floor(size / (count + margin * 2));
+    var dim = cell * (count + margin * 2);
+    var c = document.createElement('canvas');
+    c.width = dim; c.height = dim;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = $('bg').value;
+    ctx.fillRect(0, 0, dim, dim);
+    ctx.fillStyle = $('fg').value;
+    for (var r = 0; r < count; r++) {
+      for (var col = 0; col < count; col++) {
+        if (current.isDark(r, col)) {
+          ctx.fillRect((col + margin) * cell, (r + margin) * cell, cell, cell);
+        }
+      }
+    }
+    c.toBlob(cb, 'image/png');
+    return c;
+  }
+
+  $('png').onclick = function () {
+    if (!current) { $('msg').textContent = 'Create a QR code first.'; $('msg').className = 'out bad'; return; }
+    pngBlob(function (b) {
+      SAAGAR.downloadBlob(b, 'saagar-qr.png');
+      $('msg').textContent = 'Saved saagar-qr.png';
+      $('msg').className = 'out ok';
+    });
+  };
+
+  $('svg').onclick = function () {
+    if (!current) { $('msg').textContent = 'Create a QR code first.'; $('msg').className = 'out bad'; return; }
+    var svg = $('qrHolder').querySelector('svg').outerHTML;
+    SAAGAR.downloadBlob(new Blob([svg], { type: 'image/svg+xml' }), 'saagar-qr.svg');
+    $('msg').textContent = 'Saved saagar-qr.svg — perfect for printing.';
+    $('msg').className = 'out ok';
+  };
+
+  $('copyImg').onclick = function () {
+    if (!current) { $('msg').textContent = 'Create a QR code first.'; $('msg').className = 'out bad'; return; }
+    var c = pngBlob(function () { });
+    if (!c) return;
+    if (navigator.clipboard && window.ClipboardItem) {
+      c.toBlob(function (b) {
+        navigator.clipboard.write([new ClipboardItem({ 'image/png': b })])
+          .then(function () { SAAGAR.toast('QR image copied'); },
+                function () { SAAGAR.toast('Copy not allowed — use the PNG button', true); });
+      }, 'image/png');
+    } else {
+      SAAGAR.toast('This browser cannot copy images — use Download PNG', true);
+    }
+  };
+
+  Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) {
+    b.onclick = function () {
+      type = b.getAttribute('data-t');
+      Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (x) { x.className = ''; });
+      b.className = 'on';
+      buildFields();
+    };
+  });
+  ['size','ec','fg','bg'].forEach(function (id) { $(id).addEventListener('change', render); });
+
+  buildFields();
+})();
+</script>
+</body>
+</html>

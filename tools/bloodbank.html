@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blood Groups — who can give to whom, and donating | SAAGAR Tools</title>
+<meta name="description" content="Blood group compatibility chart, donation rules and eligibility, plus how to find a blood bank in Nepal quickly.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/bloodbank.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .compat{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:11px; margin-bottom:6px;}
+  .bg{background:#fff; border:1.5px solid var(--line-2); border-radius:13px; padding:13px; cursor:pointer; transition:.16s;}
+  .bg:hover{border-color:#b91c1c; transform:translateY(-3px); box-shadow:var(--sh);}
+  .bg.on{border-color:#b91c1c; background:#fdf2f2;}
+  .bg b{font-size:20px; font-weight:900; color:#b91c1c; display:block;}
+  .bg span{font-size:11.5px; color:var(--dim); font-weight:700;}
+  .pair{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;}
+  @media(max-width:620px){ .pair{grid-template-columns:1fr;} }
+  .pbox{background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:13px 15px;}
+  .pbox h4{font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--faint); margin-bottom:7px;}
+  .pbox .list{font-size:14.5px; font-weight:800; color:var(--navy-2); line-height:1.7;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Blood Groups</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><path d="M12 3 C12 3 5 11 5 15 A7 7 0 0 0 19 15 C19 11 12 3 12 3 Z"/></svg></span>Blood Groups &amp; Donation</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:820px;">
+    <div class="card">
+      <h2><span class="em">🔎</span> Pick your blood group</h2>
+      <div class="compat" id="compat"></div>
+      <div class="pair">
+        <div class="pbox">
+          <h4>You can donate to</h4>
+          <div class="list" id="toList">—</div>
+        </div>
+        <div class="pbox">
+          <h4>You can receive from</h4>
+          <div class="list" id="fromList">—</div>
+        </div>
+      </div>
+      <p class="muted mt" id="note"></p>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">📋</span> Who can donate blood</h2>
+      <ul style="padding-left:20px; font-size:14px; line-height:1.9;">
+        <li>Age <b>18 to 60</b>, and generally in good health.</li>
+        <li>Weight of at least <b>50 kg</b> for men and roughly 45–50 kg for women.</li>
+        <li>At least <b>3 months</b> since your last donation (men often can give every 3 months, women every 4).</li>
+        <li>Haemoglobin in the normal range — the technician checks this with a quick finger-prick test.</li>
+        <li>No fever, cold, infection or antibiotics in the last week; no tattoo or piercing in the last 6 months.</li>
+      </ul>
+      <p class="muted mt">A healthy adult has around 5 litres of blood and a donation takes about 350–450 ml. Your body replaces the plasma within a day or two and the red cells over a few weeks.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">🇳🇵</span> Finding a blood bank in Nepal</h2>
+      <p style="font-size:14px; line-height:1.85;">The quickest route in an emergency is almost always a phone call, not a search. Try, in this order:</p>
+      <ol style="padding-left:20px; font-size:14px; line-height:1.9;">
+        <li><b>Ask the hospital where the patient is admitted.</b> Most hospitals with a blood bank will arrange units internally and call donors for you.</li>
+        <li><b>Contact Nepal Red Cross Society</b> — they run the largest network of blood banks across the districts. Search “Nepal Red Cross blood bank + your district” for the current number.</li>
+        <li><b>Post in a local blood-donor group.</b> District-level Facebook groups and “Blood Donors Nepal” style communities respond fast, and donors often come to the hospital directly.</li>
+        <li><b>Check with the nearest teaching hospital</b> (for example the larger hospitals in Kathmandu, Pokhara, Chitwan and Biratnagar) — they usually have the widest stock of rarer groups.</li>
+      </ol>
+      <p class="muted mt">Keeping a small card with your own blood group, allergies and an emergency contact in your wallet genuinely helps when you cannot speak for yourself.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+
+  /* donor -> recipients */
+  var DONATE = {
+    'O-':  ['O-','O+','A-','A+','B-','B+','AB-','AB+'],
+    'O+':  ['O+','A+','B+','AB+'],
+    'A-':  ['A-','A+','AB-','AB+'],
+    'A+':  ['A+','AB+'],
+    'B-':  ['B-','B+','AB-','AB+'],
+    'B+':  ['B+','AB+'],
+    'AB-': ['AB-','AB+'],
+    'AB+': ['AB+']
+  };
+  function receiveFrom(group) {
+    return Object.keys(DONATE).filter(function (d) { return DONATE[d].indexOf(group) > -1; });
+  }
+
+  var cur = 'O+';
+  function draw() {
+    var w = $('compat');
+    w.innerHTML = '';
+    Object.keys(DONATE).forEach(function (g) {
+      var d = document.createElement('div');
+      d.className = 'bg' + (g === cur ? ' on' : '');
+      var isUniversal = g === 'O-', isReceiver = g === 'AB+';
+      d.innerHTML = '<b>' + g + '</b><span>' + (isUniversal ? 'Universal donor' : isReceiver ? 'Universal receiver' : 'Tap to see') + '</span>';
+      d.onclick = function () { cur = g; draw(); };
+      w.appendChild(d);
+    });
+    $('toList').textContent = DONATE[cur].join('  ·  ');
+    $('fromList').textContent = receiveFrom(cur).join('  ·  ');
+    var note = '';
+    if (cur === 'O-') note = 'O negative is the universal donor — it is the group emergency rooms reach for when there is no time to test the patient. It is also one of the rarer groups, so O- donors are especially valuable.';
+    else if (cur === 'AB+') note = 'AB positive is the universal receiver — you can accept red cells from every other group.';
+    else if (cur === 'AB-') note = 'AB negative is the rarest group in most populations, which makes AB- donors hard to replace.';
+    else note = 'For a transfusion the matching is done both ways — your group and the patient\'s are always cross-checked in the lab before any blood is given.';
+    $('note').textContent = note;
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

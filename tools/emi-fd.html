@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMI &amp; Fixed Deposit Calculator | SAAGAR Tools</title>
+<meta name="description" content="Calculate loan EMI with a full repayment schedule, or work out fixed deposit maturity with compound interest.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/emi-fd.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .tabs{display:flex; gap:6px; background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:5px; margin-bottom:18px;}
+  .tabs button{flex:1; border:0; background:transparent; padding:10px; border-radius:9px; font-weight:800; font-size:13.5px; color:var(--dim);}
+  .tabs button.on{background:#fff; color:var(--navy); box-shadow:var(--sh);}
+  .hero{text-align:center; padding:16px 8px; background:linear-gradient(150deg,#fff,#eef4fb); border:1px solid var(--line); border-radius:16px; margin-bottom:14px;}
+  .hero b{font-size:clamp(27px,6vw,40px); font-weight:900; color:var(--navy); display:block; line-height:1.15;}
+  .hero span{font-size:13px; font-weight:700; color:var(--dim);}
+  .mini{display:grid; grid-template-columns:repeat(auto-fill,minmax(145px,1fr)); gap:10px;}
+  .m{background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:11px 13px;}
+  .m b{display:block; font-size:16px; color:var(--navy-2); font-weight:900;}
+  .m span{font-size:11px; font-weight:800; letter-spacing:.4px; color:var(--dim); text-transform:uppercase;}
+  .scroll{max-height:320px; overflow:auto; border:1px solid var(--line); border-radius:12px; margin-top:14px;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / EMI &amp; FD</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><path d="M3 9 L12 4 L21 9"/><path d="M5 9 L5 19 M9.5 9 L9.5 19 M14.5 9 L14.5 19 M19 9 L19 19 M3 19 L21 19 M3 21 L21 21"/></svg></span>EMI &amp; Fixed Deposit</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:760px;">
+    <div class="card">
+      <div class="tabs">
+        <button id="tabEmi" class="on" type="button">Loan EMI</button>
+        <button id="tabFd" type="button">Fixed deposit</button>
+      </div>
+
+      <div id="paneEmi">
+        <div class="grid2">
+          <div class="field"><label for="p">Loan amount (Rs.)</label><input type="number" id="p" value="2500000" step="10000" min="0"></div>
+          <div class="field"><label for="r">Annual interest rate (%)</label><input type="number" id="r" value="10.5" step="0.05" min="0"></div>
+          <div class="field"><label for="n">Tenure (years)</label><input type="number" id="n" value="10" step="1" min="0.5"></div>
+        </div>
+        <button class="btn block mt" id="goEmi" type="button">Calculate EMI</button>
+      </div>
+
+      <div id="paneFd" class="hidden">
+        <div class="grid2">
+          <div class="field"><label for="fdP">Deposit amount (Rs.)</label><input type="number" id="fdP" value="500000" step="10000" min="0"></div>
+          <div class="field"><label for="fdR">Annual interest rate (%)</label><input type="number" id="fdR" value="9" step="0.05" min="0"></div>
+          <div class="field"><label for="fdY">Years</label><input type="number" id="fdY" value="5" step="1" min="0.25"></div>
+          <div class="field"><label for="fdC">Compounding</label>
+            <select id="fdC">
+              <option value="1">Yearly</option>
+              <option value="2">Half-yearly</option>
+              <option value="4" selected>Quarterly</option>
+              <option value="12">Monthly</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn block mt" id="goFd" type="button">Calculate maturity</button>
+      </div>
+
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card" id="res" style="display:none;">
+      <div class="hero"><b id="big">—</b><span id="bigSub"></span></div>
+      <div class="mini" id="minis"></div>
+      <div class="scroll" id="tblWrap" style="display:none;">
+        <table class="tbl" id="tbl"><thead><tr><th>Year</th><th>Principal paid</th><th>Interest paid</th><th>Balance</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  function rs(n) { return 'Rs. ' + Math.round(n).toLocaleString('en-IN'); }
+
+  function tab(emi) {
+    $('tabEmi').className = emi ? 'on' : '';
+    $('tabFd').className = emi ? '' : 'on';
+    $('paneEmi').classList.toggle('hidden', !emi);
+    $('paneFd').classList.toggle('hidden', emi);
+    $('res').style.display = 'none';
+    $('msg').textContent = '';
+  }
+  $('tabEmi').onclick = function () { tab(true); };
+  $('tabFd').onclick = function () { tab(false); };
+
+  function mini(label, value) {
+    return '<div class="m"><b>' + value + '</b><span>' + label + '</span></div>';
+  }
+
+  /* ---------------- EMI ---------------- */
+  function emi() {
+    var P = parseFloat($('p').value) || 0;
+    var rate = parseFloat($('r').value) || 0;
+    var years = parseFloat($('n').value) || 0;
+    if (P <= 0 || years <= 0) { msg('Enter a loan amount and tenure.', true); return; }
+
+    var months = Math.round(years * 12);
+    var i = rate / 12 / 100;
+    var pay = i === 0 ? P / months : P * i * Math.pow(1 + i, months) / (Math.pow(1 + i, months) - 1);
+    var total = pay * months;
+    var interest = total - P;
+
+    $('big').textContent = rs(pay);
+    $('bigSub').textContent = 'monthly instalment for ' + months + ' months';
+    $('minis').innerHTML =
+      mini('Total payable', rs(total)) +
+      mini('Total interest', rs(interest)) +
+      mini('Interest share', (interest / total * 100).toFixed(1) + '%') +
+      mini('Principal', rs(P)) +
+      mini('Rate', rate + '% p.a.') +
+      mini('Tenure', months + ' months');
+
+    /* year-wise split */
+    var tbody = $('tbl').querySelector('tbody');
+    tbody.innerHTML = '';
+    var balance = P, yearNo = 1;
+    for (var y = 0; y < Math.ceil(months / 12); y++) {
+      var pPaid = 0, iPaid = 0;
+      for (var m = 0; m < 12 && (y * 12 + m) < months; m++) {
+        var int = balance * i;
+        var prin = pay - int;
+        if (prin > balance) { prin = balance; }
+        balance -= prin;
+        pPaid += prin; iPaid += int;
+      }
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (y + 1) + '</td><td>' + rs(pPaid) + '</td><td>' + rs(iPaid) + '</td><td>' + rs(Math.max(0, balance)) + '</td>';
+      tbody.appendChild(tr);
+      yearNo++;
+    }
+    $('tblWrap').style.display = '';
+    $('res').style.display = '';
+    msg('');
+  }
+
+  /* ---------------- FD ---------------- */
+  function fd() {
+    var P = parseFloat($('fdP').value) || 0;
+    var rate = parseFloat($('fdR').value) || 0;
+    var years = parseFloat($('fdY').value) || 0;
+    var n = parseFloat($('fdC').value) || 1;
+    if (P <= 0 || years <= 0) { msg('Enter a deposit amount and period.', true); return; }
+
+    var r = rate / 100;
+    var maturity = P * Math.pow(1 + r / n, n * years);
+    var interest = maturity - P;
+    var simple = P * r * years;
+
+    $('big').textContent = rs(maturity);
+    $('bigSub').textContent = 'maturity value after ' + years + ' years';
+    $('minis').innerHTML =
+      mini('Interest earned', rs(interest)) +
+      mini('Deposit', rs(P)) +
+      mini('Growth', (interest / P * 100).toFixed(1) + '%') +
+      mini('Effective yearly', ((Math.pow(1 + r / n, n) - 1) * 100).toFixed(2) + '%') +
+      mini('If simple interest', rs(simple)) +
+      mini('Compounded', n + '×/year');
+
+    /* year-wise growth */
+    var tbody = $('tbl').querySelector('tbody');
+    tbody.innerHTML = '';
+    var bal = P;
+    var wholeYears = Math.ceil(years);
+    for (var y = 1; y <= wholeYears; y++) {
+      var yearsThisStep = Math.min(1, years - (y - 1));
+      if (yearsThisStep <= 0) break;
+      var grown = bal * Math.pow(1 + r / n, n * yearsThisStep);
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + y + '</td><td>' + rs(bal) + '</td><td>' + rs(grown - bal) + '</td><td>' + rs(grown) + '</td>';
+      tbody.appendChild(tr);
+      bal = grown;
+    }
+    $('tblWrap').style.display = '';
+    $('res').style.display = '';
+    msg('');
+  }
+
+  function msg(t, bad) {
+    $('msg').textContent = t || '';
+    $('msg').className = bad ? 'out bad' : 'out';
+  }
+
+  $('goEmi').onclick = emi;
+  $('goFd').onclick = fd;
+  ['p','r','n'].forEach(function (id) { $(id).addEventListener('change', emi); });
+  ['fdP','fdR','fdY','fdC'].forEach(function (id) { $(id).addEventListener('change', fd); });
+  emi();
+})();
+</script>
+</body>
+</html>

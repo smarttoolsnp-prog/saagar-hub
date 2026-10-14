@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Land Unit Converter — ropani, aana, bigha, kattha | SAAGAR Tools</title>
+<meta name="description" content="Convert Nepali land units: ropani, aana, paisa, dam, bigha, kattha, dhur, square feet, square metres and hectares.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/land-units.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .hero{text-align:center; padding:15px 8px; background:linear-gradient(150deg,#fff,#eef7f0);
+    border:1px solid var(--line); border-radius:16px; margin-bottom:14px;}
+  .hero b{font-size:clamp(25px,5.4vw,37px); font-weight:900; color:#186340; display:block; line-height:1.15;}
+  .hero span{font-size:13px; font-weight:700; color:var(--dim);}
+  .mini{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px;}
+  .m{background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:10px 12px;}
+  .m b{display:block; font-size:15px; color:var(--navy-2); font-weight:900;}
+  .m span{font-size:11px; font-weight:800; letter-spacing:.4px; color:var(--dim); text-transform:uppercase;}
+  .system{margin-top:8px; font-size:12px; color:var(--faint); font-weight:800; letter-spacing:.5px; text-transform:uppercase;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Land Units</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><path d="M3 6 L9 4 L15 6 L21 4 L21 18 L15 20 L9 18 L3 20 Z"/><path d="M9 4 L9 18 M15 6 L15 20"/></svg></span>️ Land Unit Converter</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:760px;">
+    <div class="card">
+      <h2><span class="em">🔄</span> Convert</h2>
+      <div class="row">
+        <div class="field" style="flex:1;"><label for="amt">Area</label><input type="number" id="amt" value="1" step="any" min="0"></div>
+        <div class="field" style="flex:2;"><label for="unit">Unit</label><select id="unit"></select></div>
+        <button class="btn" id="go" type="button" style="flex:0 0 auto;">Convert</button>
+      </div>
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card" id="res" style="display:none;">
+      <div class="hero"><b id="sqm">—</b><span id="sqmSub"></span></div>
+      <div class="system">Hills system (ropani · aana · paisa · dam)</div>
+      <div class="mini" id="hills"></div>
+      <div class="system">Terai system (bigha · kattha · dhur)</div>
+      <div class="mini" id="terai"></div>
+      <div class="system">Modern units</div>
+      <div class="mini" id="modern"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">📌</span> The relationships</h2>
+      <table class="tbl">
+        <thead><tr><th>System</th><th>Relation</th><th>In square metres</th></tr></thead>
+        <tbody>
+          <tr><td>Hills</td><td>1 ropani = 16 aana</td><td>508.74 m²</td></tr>
+          <tr><td>Hills</td><td>1 aana = 4 paisa</td><td>31.80 m²</td></tr>
+          <tr><td>Hills</td><td>1 paisa = 4 dam</td><td>7.95 m²</td></tr>
+          <tr><td>Terai</td><td>1 bigha = 20 kattha</td><td>6772.63 m²</td></tr>
+          <tr><td>Terai</td><td>1 kattha = 16 dhur</td><td>338.63 m²</td></tr>
+          <tr><td>Both</td><td>1 ropani ≈ 13.31 aana · 1 bigha ≈ 13.31 ropani</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <p class="muted mt">When you buy land, the deed (rajinama/lalpurja) usually states area in the local system — hills use ropani, Terai uses bigha. Convert to square feet for builders and to square metres for official forms.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+
+  /* 1 aana = 31.79611 sq m ; 1 kattha = 338.6315 sq m (government standard) */
+  var AANA = 31.79611, KATTHA = 338.6315, SQM_PER_FT = 0.09290304;
+
+  var UNITS = {
+    'Ropani': AANA * 16,
+    'Aana': AANA,
+    'Paisa': AANA / 4,
+    'Dam': AANA / 16,
+    'Bigha': KATTHA * 20,
+    'Kattha': KATTHA,
+    'Dhur': KATTHA / 16,
+    'Square feet (ft²)': SQM_PER_FT,
+    'Square metres (m²)': 1,
+    'Hectare': 10000,
+    'Acre': 4046.8564224,
+    'Square yard': 0.83612736
+  };
+
+  (function fill() {
+    var s = $('unit');
+    Object.keys(UNITS).forEach(function (k) {
+      var o = document.createElement('option');
+      o.value = k; o.textContent = k;
+      if (k === 'Ropani') o.selected = true;
+      s.appendChild(o);
+    });
+  })();
+
+  function n(v, dec) {
+    return v.toLocaleString('en-IN', { maximumFractionDigits: dec === undefined ? 4 : dec });
+  }
+  function card(label, value) {
+    return '<div class="m"><b>' + value + '</b><span>' + label + '</span></div>';
+  }
+
+  function convert() {
+    var a = parseFloat($('amt').value);
+    if (!isFinite(a) || a < 0) { $('msg').textContent = 'Enter a valid area.'; $('msg').className = 'out bad'; $('res').style.display = 'none'; return; }
+    var unit = $('unit').value;
+    var sqm = a * UNITS[unit];
+
+    $('sqm').textContent = n(sqm, 2) + ' m²';
+    $('sqmSub').textContent = a + ' ' + unit + '  ·  ' + n(sqm / SQM_PER_FT, 1) + ' sq ft';
+
+    $('hills').innerHTML =
+      card('Ropani', n(sqm / UNITS['Ropani'])) + card('Aana', n(sqm / AANA)) +
+      card('Paisa', n(sqm / UNITS['Paisa'])) + card('Dam', n(sqm / UNITS['Dam']));
+
+    $('terai').innerHTML =
+      card('Bigha', n(sqm / UNITS['Bigha'])) + card('Kattha', n(sqm / KATTHA)) +
+      card('Dhur', n(sqm / UNITS['Dhur']));
+
+    $('modern').innerHTML =
+      card('Square feet', n(sqm / SQM_PER_FT, 1)) + card('Square metres', n(sqm, 2)) +
+      card('Hectare', n(sqm / 10000, 6)) + card('Acre', n(sqm / 4046.8564224, 6));
+
+    $('res').style.display = '';
+    $('msg').textContent = '';
+    $('msg').className = 'out';
+  }
+
+  $('go').onclick = convert;
+  $('amt').addEventListener('input', convert);
+  $('unit').addEventListener('change', convert);
+  convert();
+})();
+</script>
+</body>
+</html>

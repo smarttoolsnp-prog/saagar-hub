@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Percentage Calculator — of, change, discount, marks | SAAGAR Tools</title>
+<meta name="description" content="Percentage calculator: X percent of Y, X is what percent of Y, percentage increase and decrease, discounts and exam marks.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/percentage.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .modes{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;}
+  .modes button{border:1px solid var(--line-2); background:#fff; border-radius:999px; padding:7px 15px;
+    font-size:13px; font-weight:750; color:var(--dim);}
+  .modes button.on{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .answer{font-size:clamp(24px,5vw,36px); font-weight:900; color:var(--navy); text-align:center; padding:14px 0 4px;}
+  .formula{text-align:center; font-family:var(--mono); font-size:12.5px; color:var(--faint); margin-top:4px;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Percentage</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><path d="M5 19 L19 5"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg></span>Percentage Calculator</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:660px;">
+
+    <div class="card">
+      <div class="modes" id="modes"></div>
+      <div id="inputs"></div>
+      <div class="answer" id="ans">—</div>
+      <div class="formula" id="fml"></div>
+      <button class="btn block mt" id="go" type="button">Calculate</button>
+      <div class="out" id="extra"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">📘</span> The formulas, in plain words</h2>
+      <table class="tbl">
+        <thead><tr><th>Question</th><th>Formula</th></tr></thead>
+        <tbody>
+          <tr><td>What is P% of N?</td><td class="mono">P ÷ 100 × N</td></tr>
+          <tr><td>X is what percent of Y?</td><td class="mono">X ÷ Y × 100</td></tr>
+          <tr><td>Change from A to B</td><td class="mono">(B − A) ÷ A × 100</td></tr>
+          <tr><td>Price after discount</td><td class="mono">Price × (1 − D ÷ 100)</td></tr>
+          <tr><td>Marks as percent</td><td class="mono">Obtained ÷ Full × 100</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+
+  var MODES = [
+    { id: 'of', label: 'P% of N', fields: [['p', 'Percentage (P)', '%'], ['n', 'Of number (N)', '']] },
+    { id: 'what', label: 'X is what % of Y', fields: [['x', 'Value (X)', ''], ['y', 'Total (Y)', '']] },
+    { id: 'change', label: 'Increase / decrease', fields: [['a', 'Old value (A)', ''], ['b', 'New value (B)', '']] },
+    { id: 'disc', label: 'Discount price', fields: [['price', 'Price', ''], ['d', 'Discount (D)', '%']] },
+    { id: 'marks', label: 'Marks %', fields: [['obt', 'Marks obtained', ''], ['full', 'Full marks', '']] }
+  ];
+  var cur = 'of';
+
+  function build() {
+    var m = $('modes');
+    m.innerHTML = '';
+    MODES.forEach(function (mo) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = mo.label;
+      if (mo.id === cur) b.className = 'on';
+      b.onclick = function () { cur = mo.id; build(); calc(); };
+      m.appendChild(b);
+    });
+    var def = MODES.filter(function (x) { return x.id === cur; })[0];
+    var c = $('inputs');
+    c.innerHTML = '';
+    def.fields.forEach(function (f) {
+      var d = document.createElement('div');
+      d.className = 'row';
+      d.style.marginTop = '10px';
+      d.innerHTML = '<div class="field"><label for="f_' + f[0] + '">' + f[1] + '</label>' +
+        '<input type="number" id="f_' + f[0] + '" step="any" placeholder="' + (f[2] ? 'e.g. 15' : 'e.g. 200') + '"></div>';
+      c.appendChild(d);
+    });
+    ['f_p','f_n','f_x','f_y','f_a','f_b','f_price','f_d','f_obt','f_full'].forEach(function (id) {
+      var e = document.getElementById(id);
+      if (e) e.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') calc(); });
+    });
+  }
+
+  function val(id) { var e = document.getElementById(id); return e ? parseFloat(e.value) : NaN; }
+  function num(n, d) {
+    if (!isFinite(n)) return '—';
+    var r = Math.round(n * Math.pow(10, d === undefined ? 2 : d)) / Math.pow(10, d === undefined ? 2 : d);
+    return r.toLocaleString(undefined, { maximumFractionDigits: d === undefined ? 2 : d });
+  }
+
+  function calc() {
+    var a = $('ans'), f = $('fml'), ex = $('extra');
+    a.textContent = '—'; f.textContent = ''; ex.textContent = ''; ex.className = 'out';
+    var p, n, x, y, oldV, newV, price, disc, obt, full, res, text;
+
+    if (cur === 'of') {
+      p = val('f_p'); n = val('f_n');
+      if (!isFinite(p) || !isFinite(n)) return;
+      res = p / 100 * n;
+      a.textContent = num(res);
+      f.textContent = p + ' ÷ 100 × ' + n;
+      text = num(p) + '% of ' + num(n, 6) + ' is ' + num(res) + '.';
+      if (p === 10) text += '  (Moving the decimal point one place left gives the same answer.)';
+    } else if (cur === 'what') {
+      x = val('f_x'); y = val('f_y');
+      if (!isFinite(x) || !isFinite(y) || y === 0) return;
+      res = x / y * 100;
+      a.textContent = num(res) + '%';
+      f.textContent = x + ' ÷ ' + y + ' × 100';
+      text = num(x, 6) + ' is ' + num(res) + '% of ' + num(y, 6) + '.';
+    } else if (cur === 'change') {
+      oldV = val('f_a'); newV = val('f_b');
+      if (!isFinite(oldV) || !isFinite(newV) || oldV === 0) return;
+      res = (newV - oldV) / Math.abs(oldV) * 100;
+      a.textContent = (res >= 0 ? '+' : '') + num(res) + '%';
+      f.textContent = '(' + newV + ' − ' + oldV + ') ÷ ' + oldV + ' × 100';
+      text = res >= 0
+        ? 'An increase of ' + num(Math.abs(res)) + '% — from ' + num(oldV, 6) + ' to ' + num(newV, 6) + '.'
+        : 'A decrease of ' + num(Math.abs(res)) + '% — from ' + num(oldV, 6) + ' to ' + num(newV, 6) + '.';
+    } else if (cur === 'disc') {
+      price = val('f_price'); disc = val('f_d');
+      if (!isFinite(price) || !isFinite(disc)) return;
+      var save = price * disc / 100;
+      res = price - save;
+      a.textContent = num(res);
+      f.textContent = price + ' × (1 − ' + disc + ' ÷ 100)';
+      text = 'You pay ' + num(res) + ' and save ' + num(save) + ' (' + num(disc) + '% off ' + num(price, 6) + ').';
+    } else {
+      obt = val('f_obt'); full = val('f_full');
+      if (!isFinite(obt) || !isFinite(full) || full === 0) return;
+      res = obt / full * 100;
+      a.textContent = num(res) + '%';
+      f.textContent = obt + ' ÷ ' + full + ' × 100';
+      text = num(res) + '% — ' + num(obt, 6) + ' out of ' + num(full, 6) + '.';
+      if (res >= 90) text += '  Distinction 🏆';
+      else if (res >= 80) text += '  First division.';
+      else if (res >= 60) text += '  Second division.';
+      else if (res >= 40) text += '  Third division.';
+      else text += '  Below the pass line.';
+    }
+    ex.textContent = text;
+  }
+
+  $('go').onclick = calc;
+  build();
+  calc();
+})();
+</script>
+</body>
+</html>

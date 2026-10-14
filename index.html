@@ -3,183 +3,270 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SAAGAR — This Is What You Are Searching For | sagardahal123.com.np</title>
-<meta name="description" content="SAAGAR — Smart Tools, Games, General Knowledge, WOW Facts, Skills, Formulas, Jokes, Quotes and Philosophy. Free, fast and made for Nepal.">
-<meta name="theme-color" content="#0f2c4c">
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<title>SAAGAR — Tools, Games, Skills &amp; Laws</title>
+<meta name="description" content="SAAGAR — 24 tools, 13 games with online rooms and chat, skill guides made for Nepali youth, and Nepal's laws explained in Nepali. All free, in your browser.">
+<meta name="theme-color" content="#171341">
+<meta property="og:title" content="SAAGAR — sagardahal123.com.np">
+<meta property="og:description" content="Every tool, game and knowledge page in one place. Free, fast, runs in your browser.">
+<meta property="og:image" content="assets/saagar-logo.png">
+<link rel="icon" href="assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "SAAGAR",
+  "alternateName": "sagardahal123.com.np",
+  "url": "https://sagardahal123.com.np/",
+  "description": "24 free tools, 13 browser games with online rooms, skill guides for Nepali youth, and Nepal's laws explained in Nepali — all free, all in your browser.",
+  "inLanguage": ["en", "ne"],
+  "publisher": {
+    "@type": "Person",
+    "name": "Sagar Dahal",
+    "url": "https://sagardahal123.com.np/"
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://sagardahal123.com.np/tools.html?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/clay.css">
+<link rel="stylesheet" href="assets/clay.css">
+<link rel="stylesheet" href="assets/clay.css">
 <style>
-  :root{
-    --navy:#1c3d5e; --navy-deep:#122c46; --navy-ink:#0f2c4c;
-    --paper:#f4f8fd; --card:#ffffff;
-    --line:#d7e3f0; --line2:#c3d5e8;
-    --text:#1a2b3c; --dim:#5b7186; --faint:#8ba1b5;
-    --blue:#2f6df6; --gold:#f0a72e; --green:#1fa564; --red:#e05252;
-    --grad:linear-gradient(135deg,#2f6df6,#17b3a3);
-    --radius:18px;
-    --font:"Segoe UI",system-ui,-apple-system,Roboto,"Noto Sans Devanagari",Arial,sans-serif;
+  .hero{
+    position:relative; overflow:hidden; color:var(--navy-ink); padding:46px 0 42px;
+    background:linear-gradient(160deg,#fff6e8 0%,#ffe8d2 45%,#ffdab8 80%,#ffe6ef 100%);
+    border-bottom:none;
+    box-shadow:0 16px 34px rgba(214,138,94,.18), inset 0 4px 6px rgba(255,255,255,.8);
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
-  body{background:var(--paper); color:var(--text); font-family:var(--font); line-height:1.6; -webkit-font-smoothing:antialiased;}
-  img,svg{display:block; max-width:100%;}
-  a{color:inherit; text-decoration:none;}
-  .wrap{max-width:1080px; margin:0 auto; padding:0 22px;}
-
-  /* ---------- header ---------- */
-  header.top{
-    background:var(--navy-ink); color:#fff; position:sticky; top:0; z-index:40;
-    border-bottom:3px solid var(--gold);
+  .hero::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(700px 300px at 86% -20%, rgba(255,214,107,.4), transparent 70%),
+               radial-gradient(560px 280px at 4% 128%, rgba(255,224,236,.6), transparent 70%),
+               radial-gradient(460px 220px at 60% 50%, rgba(205,234,255,.4), transparent 70%);
   }
-  .top-inner{max-width:1080px; margin:0 auto; padding:12px 22px; display:flex; align-items:center; gap:14px;}
-  .brand-badge{width:46px; height:46px; flex-shrink:0;}
-  .brand-name{font-weight:800; letter-spacing:1px; font-size:18px;}
-  .brand-name small{display:block; font-weight:600; font-size:10.5px; letter-spacing:2.4px; color:#bcd2e6; text-transform:uppercase;}
-  .top-links{margin-left:auto; display:flex; gap:4px; align-items:center;}
-  .top-links a{font-size:13.5px; font-weight:600; color:#cfe0ef; padding:8px 12px; border-radius:9px; transition:.18s;}
-  .top-links a:hover{background:rgba(255,255,255,.12); color:#fff;}
-
-  /* ---------- hero ---------- */
-  .hero{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-deep) 100%); color:#fff; padding:46px 0 30px; position:relative; overflow:hidden;}
-  .hero::after{content:""; position:absolute; right:-90px; top:-90px; width:300px; height:300px; border-radius:50%; border:34px solid rgba(255,255,255,.06);}
-  .hero-inner{max-width:1080px; margin:0 auto; padding:0 22px; display:flex; align-items:center; gap:26px; position:relative; z-index:1;}
-  .hero-badge{width:150px; height:150px; flex-shrink:0; filter:drop-shadow(0 12px 26px rgba(0,0,0,.35));}
-  .hero h1{font-size:clamp(26px,4.2vw,44px); font-weight:900; letter-spacing:.5px; line-height:1.15;}
-  .hero p{margin-top:8px; color:#cfe0ef; max-width:600px; font-size:clamp(14px,1.7vw,17px);}
-  .hero .dom{display:inline-block; margin-top:14px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); padding:7px 14px; border-radius:999px; font-size:12.5px; letter-spacing:.6px;}
-
-  /* ---------- grid ---------- */
-  .grid-sec{padding:38px 0 56px;}
-  .sec-head{display:flex; align-items:baseline; gap:12px; margin-bottom:20px; flex-wrap:wrap;}
-  .sec-head h2{font-size:22px; font-weight:800;}
-  .sec-head span{color:var(--faint); font-size:13px;}
-  .tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
-  @media(max-width:860px){.tiles{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:540px){.tiles{grid-template-columns:1fr;}}
-  .tile{
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
-    padding:24px 22px 20px; display:flex; flex-direction:column; gap:8px;
-    box-shadow:0 3px 12px rgba(15,44,76,.05);
-    transition:transform .2s, box-shadow .2s, border-color .2s;
-    position:relative; overflow:hidden;
+  .hero-in{position:relative; z-index:1; max-width:var(--max); margin:0 auto; padding:0 22px;
+    display:flex; flex-direction:column; align-items:center; text-align:center; gap:15px;}
+  .hero-logo{width:92px; border-radius:22px; box-shadow:8px 8px 16px rgba(214,138,94,.28), -8px -8px 16px rgba(255,255,255,.9);}
+  .hero h1{font-size:clamp(30px,6vw,52px); font-weight:900; letter-spacing:4px;}
+  .hero .tag{font-size:12px; font-weight:750; letter-spacing:3.4px; color:#b07c50; text-transform:uppercase;}
+  .search{display:flex; gap:10px; width:100%; max-width:640px; margin-top:6px; align-items:center;}
+  .search .ic-search{width:18px; height:18px; flex-shrink:0; color:#c97e46; transition:color .18s;}
+  .search input{
+    flex:1; min-width:0; padding:15px 18px 15px 16px; border-radius:999px; border:none;
+    background:var(--bg-2); color:var(--navy-ink); font-size:15px;
+    box-shadow:inset 4px 4px 8px rgba(140,105,80,.16), inset -4px -4px 8px rgba(255,255,255,.85);
+    transition:box-shadow .22s, background .22s, transform .18s;
   }
-  .tile::before{content:""; position:absolute; left:0; top:0; right:0; height:4px; background:var(--grad); opacity:.9;}
-  .tile:hover{transform:translateY(-5px); box-shadow:0 16px 34px rgba(15,44,76,.14); border-color:var(--line2);}
-  .tile .ic{width:52px; height:52px; border-radius:14px; display:grid; place-items:center; font-size:26px; color:#fff; margin-bottom:6px;}
-  .tile h3{font-size:18px; font-weight:800;}
-  .tile p{font-size:13.5px; color:var(--dim); flex:1;}
-  .tile .go{font-size:13px; font-weight:700; color:var(--blue); display:inline-flex; align-items:center; gap:6px;}
-  .tile:hover .go{text-decoration:underline;}
+  .search input::placeholder{color:#c5a489;}
+  .search input:focus{outline:none;
+    box-shadow:inset 4px 4px 8px rgba(140,105,80,.16), inset -4px -4px 8px rgba(255,255,255,.85), 0 0 0 4px rgba(255,214,107,.45); transform:translateY(-1px);}
+  .search .btn-search{
+    border:0; border-radius:999px; padding:0 24px; font-weight:850; font-size:14.5px;
+    background:var(--grad); color:#6b4423; cursor:pointer;
+    transition:transform .2s cubic-bezier(.34,1.4,.5,1), box-shadow .2s, background .2s;
+    box-shadow:6px 6px 12px rgba(214,138,94,.3), -6px -6px 12px rgba(255,255,255,.9), inset 0 2px 3px rgba(255,255,255,.65);
+  }
+  .search .btn-search:hover{transform:translateY(-3px); box-shadow:8px 8px 18px rgba(214,138,94,.38), -8px -8px 16px rgba(255,255,255,.95);}
+  .search .btn-search:active{transform:translateY(1px) scale(.98); box-shadow:inset 4px 4px 8px rgba(140,105,80,.16), inset -4px -4px 8px rgba(255,255,255,.8);}
+  .search .btn-google{
+    border:0; border-radius:999px; padding:0 14px; font-weight:750; font-size:12.5px;
+    background:var(--clay-butter); color:#8a6a10; cursor:pointer;
+    transition:.18s; display:inline-flex; align-items:center; gap:6px;
+    box-shadow:3px 3px 7px rgba(214,138,94,.2), -3px -3px 7px rgba(255,255,255,.85);
+  }
+  .search .btn-google:hover{background:var(--clay-lemon); color:#7a5200; transform:translateY(-2px);}
+  .search .btn-google SVG{display:inline-block; vertical-align:middle;}
+  #askOut{width:100%; max-width:640px; display:flex; flex-direction:column; gap:6px; min-height:0;}
+  #askOut a{
+    display:flex; align-items:center; gap:10px; padding:11px 15px; border-radius:14px;
+    background:var(--card); border:none; color:var(--navy-ink);
+    font-size:14px; font-weight:700; box-shadow:var(--sh-clay); transition:transform .2s cubic-bezier(.34,1.4,.5,1), background .2s, box-shadow .2s; text-align:left;
+  }
+  #askOut a:hover{background:#fff9f0; color:var(--navy-ink); transform:translateY(-2px) scale(1.01); box-shadow:var(--sh-2);}
+  #askOut a .n{margin-left:auto; opacity:.8; color:#c97e46;}
+  #askOut .none{font-size:13px; color:#a5714a; padding:6px 4px;}
+  #askOut .google{font-size:12.5px; color:#a5714a; padding:4px 4px; font-weight:600;}
+  #askOut .google button{margin-left:auto; background:var(--clay-butter); border:none; color:#8a6a10; border-radius:999px; padding:4px 11px; font-size:11.5px; font-weight:750; cursor:pointer; transition:.18s; box-shadow:3px 3px 7px rgba(214,138,94,.2), -3px -3px 7px rgba(255,255,255,.85);}
+  #askOut .google button:hover{background:var(--clay-lemon); color:#7a5200;}
 
-  /* tile accent colors */
-  .c-tools .ic{background:var(--grad);} .c-games .ic{background:linear-gradient(135deg,#7c3aed,#a855f7);}
-  .c-gk .ic{background:linear-gradient(135deg,#0ea5e9,#22d3ee);} .c-facts .ic{background:linear-gradient(135deg,#f59e0b,#f97316);}
-  .c-skills .ic{background:linear-gradient(135deg,#059669,#10b981);} .c-formula .ic{background:linear-gradient(135deg,#dc2626,#f43f5e);}
-  .c-jokes .ic{background:linear-gradient(135deg,#d97706,#fbbf24);} .c-quotes .ic{background:linear-gradient(135deg,#2563eb,#38bdf8);}
-  .c-phil .ic{background:linear-gradient(135deg,#4f46e5,#818cf8);}
-
-  /* ---------- footer ---------- */
-  footer{background:var(--navy-ink); color:#b9cddd; padding:26px 0; margin-top:10px;}
-  .foot-inner{max-width:1080px; margin:0 auto; padding:0 22px; display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; font-size:13px;}
-  .foot-inner a{color:#e6eef6; font-weight:600;}
-  .foot-inner a:hover{text-decoration:underline;}
+  .cats{display:grid; grid-template-columns:repeat(auto-fill,minmax(248px,1fr)); gap:15px;}
+  .cat{
+    position:relative; display:flex; align-items:center; gap:14px; padding:18px 18px 18px 16px;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+    box-shadow:var(--sh); overflow:hidden; transition:transform .22s, box-shadow .22s, border-color .22s;
+  }
+  .cat::before{content:""; position:absolute; inset:0 auto 0 0; width:4px; background:var(--grad);}
+  .cat:hover{transform:translateY(-5px); box-shadow:var(--sh-2); border-color:#d8dcf7;}
+  .cat .ci{
+    width:76px; height:76px; flex-shrink:0; display:grid; place-items:center;
+    background:none; border:none; box-shadow:none;
+  }
+  .cat .ci img{width:76px; height:76px; display:block;}
+  .cat .ct{display:flex; flex-direction:column; gap:3px; min-width:0;}
+  .cat .cn{font-size:16.5px; font-weight:880; color:var(--navy-2); letter-spacing:.2px;}
+  .cat .cc{font-size:12.4px; font-weight:750; color:var(--faint);}
+  .cat .ca{margin-left:auto; font-size:17px; font-weight:900; color:var(--navy); opacity:.35; transition:.2s;}
+  .cat:hover .ca{opacity:1; transform:translateX(4px);}
+  .secthead{display:flex; align-items:baseline; gap:10px; margin-bottom:15px;}
+  .secthead h2{font-size:19px; font-weight:900; color:var(--navy-2);}
+  .secthead span{margin-left:auto; font-size:12.5px; font-weight:750; color:var(--faint);}
+  @media(max-width:560px){
+    .search{flex-direction:column;}
+    .search button{padding:13px 0;}
+    .hero{padding:32px 0 30px;}
+    .cats{grid-template-columns:1fr; gap:11px;}
+    .cat{padding:14px;}
+    .cat .ci{width:56px; height:56px;}
+    .cat .ci img{width:56px; height:56px;}
+    .cat .cn{font-size:15.4px;}
+  }
 </style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
 </head>
-<body>
+<body data-root="" data-page="home">
 
-<header class="top">
-  <div class="top-inner">
-    <img class="brand-badge" src="assets/logo.svg" alt="SAAGAR logo">
-    <div class="brand-name">SAAGAR<small>sagardahal123.com.np</small></div>
-    <nav class="top-links">
-      <a href="#hub">Explore</a>
-      <a href="tools.html">Smart Tools</a>
-      <a href="#footer">Contact</a>
-    </nav>
-  </div>
-</header>
+<div id="hdr"></div>
+<div class="clay-shell" style="display:none"><div class="row"><a class="chip" style="font-size:13px;pointer-events:none">SAAGAR</a><a class="chip" style="font-size:13px">Log in</a><a class="chip" style="font-size:13px;color:#a35d2b;background:var(--clay-butter);border:1px solid var(--clay-lemon);font-weight:900">Play now →</a></div></div>
 
 <section class="hero">
-  <div class="hero-inner">
-    <img class="hero-badge" src="assets/logo.svg" alt="SAAGAR — since 2026">
+  <div class="hero-in">
+    <span class="hero-logo"><img src="assets/saagar-logo.png" alt="SAAGAR" style="width:92px;border-radius:22px;display:block"></span>
     <div>
-      <h1>This Is What You Are Searching For.</h1>
-      <p>Tools, games, knowledge, facts, skills, formulas, jokes, quotes and philosophy — one simple hub, free for everyone.</p>
-      <span class="dom">🇳🇵 sagardahal123.com.np · since 2026</span>
+      <h1 style="background:linear-gradient(135deg,#e08c3a,#a35d2b 55%,#e894b4);-webkit-background-clip:text;background-clip:text;color:transparent">SAAGAR</h1>
+      <div class="tag">sagardahal123.com.np</div>
     </div>
+    <form class="search" id="askForm" role="search">
+      <span class="ic-search"><span class="ic" style="display:inline-block"></span></span>
+      <input type="search" id="askInput" placeholder="Search a tool, game or page…" autocomplete="off" aria-label="Search the site">
+      <span class="ic-search" style="opacity:.65"><span class="ic-google" style="display:inline-block"></span></span>
+      <button type="submit" class="btn-search">Search the site</button>
+      <button type="button" class="btn-google" id="googleSearch">Search Google</button>
+    </form>
+    <div id="askOut" role="listbox" aria-label="Search results"></div>
   </div>
 </section>
 
-<main id="hub" class="grid-sec">
+<main class="sec">
   <div class="wrap">
-    <div class="sec-head">
-      <h2>Explore everything</h2>
-      <span>9 sections · tap any card</span>
+    <div class="secthead">
+      <h2>Browse</h2>
+      <span>Everything here is free and runs in your browser</span>
     </div>
-    <div class="tiles">
-      <a class="tile c-tools" href="tools.html">
-        <div class="ic">🧰</div>
-        <h3>Smart Tools</h3>
-        <p>Every tool I built in Smart Tools Nepal — date converter, calculators, converters and more. Just plain, useful, fast.</p>
-        <span class="go">Open tools →</span>
-      </a>
-      <a class="tile c-games" href="games.html">
-        <div class="ic">🎮</div>
-        <h3>Games</h3>
-        <p>Neon Snake, Memory Match, Reaction Test, RPS and Guess the Number — no install, no login.</p>
-        <span class="go">Play now →</span>
-      </a>
-      <a class="tile c-gk" href="gk.html">
-        <div class="ic">🧠</div>
-        <h3>G·K Knowledge</h3>
-        <p>General knowledge about Nepal and the world — facts, quizzes and things worth knowing.</p>
-        <span class="go">Learn →</span>
-      </a>
-      <a class="tile c-facts" href="facts.html">
-        <div class="ic">🤯</div>
-        <h3>WOW Facts</h3>
-        <p>Facts that make you say WOW — science, space, history, human body.</p>
-        <span class="go">Get amazed →</span>
-      </a>
-      <a class="tile c-skills" href="skills.html">
-        <div class="ic">🚀</div>
-        <h3>Skills</h3>
-        <p>Real, learnable skills with free resources — start from zero, step by step.</p>
-        <span class="go">Start learning →</span>
-      </a>
-      <a class="tile c-formula" href="formulas.html">
-        <div class="ic">📐</div>
-        <h3>Formulas</h3>
-        <p>Formulas for Excel, maths, science and economics — clean list with examples.</p>
-        <span class="go">See formulas →</span>
-      </a>
-      <a class="tile c-jokes" href="jokes.html">
-        <div class="ic">😂</div>
-        <h3>Jokes</h3>
-        <p>Funny Nepali + English jokes to brighten your day. Press the button, laugh, repeat.</p>
-        <span class="go">Make me laugh →</span>
-      </a>
-      <a class="tile c-quotes" href="quotes.html">
-        <div class="ic">💬</div>
-        <h3>Motivation · Quotes</h3>
-        <p>Motivational quotes to push you forward — one tap for your daily dose.</p>
-        <span class="go">Get motivated →</span>
-      </a>
-      <a class="tile c-phil" href="philosophy.html">
-        <div class="ic">🕯️</div>
-        <h3>Photos · Philosophy</h3>
-        <p>Short philosophy with soulful lines — thoughts about life with a gallery to match.</p>
-        <span class="go">Read &amp; feel →</span>
-      </a>
-    </div>
+    <div class="cats" id="cats"></div>
   </div>
 </main>
 
-<footer id="footer">
-  <div class="foot-inner">
-    <span>© 2026 Sagar Dahal · sagardahal123.com.np</span>
-    <span><a href="mailto:dahalsaagar8@gmail.com">dahalsaagar8@gmail.com</a> · <a href="https://www.facebook.com/saagar.dahal.50">Facebook</a></span>
-  </div>
-</footer>
+<div id="ftr"></div>
 
+<script src="assets/app.js"></script>
+<script src="assets/icons.js"></script>
+<script src="assets/catalog.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var T = window.SAAGAR_TOOLS || [];
+  var G = window.SAAGAR_GAMES || [];
+
+  var SECTIONS = [
+    { svg: 'assets/clay-logos/sections/games.svg', name: 'Games', url: 'games.html', n: G.length + ' games · bots & rooms', k: 'games play ludo carrom teen patti snake ladder checkers chess 2048 arcade' },
+    { svg: 'assets/clay-logos/sections/tools.svg', name: 'Tools', url: 'tools.html', n: T.length + ' everyday tools', k: 'tools calculators converters pdf photo nepali' },
+    { svg: 'assets/clay-logos/sections/skills.svg', name: 'Skills', url: 'skills.html', n: 'Guides made for Nepali youth', k: 'skills learn course guide roadmap links websites earning' },
+    { svg: 'assets/clay-logos/sections/nepal-laws.svg', name: 'Nepal Laws', url: 'law.html', n: 'your rights — in Nepali, with the dafa', k: 'law kanun dafa section rights constitution civil code labour consumer cyber nepal legal' }
+  ];
+
+  var host = document.getElementById('cats');
+  SECTIONS.forEach(function (s) {
+    var a = document.createElement('a');
+    a.className = 'cat';
+    a.href = s.url;
+    a.innerHTML =
+      '<span class="ci"><img src="' + s.svg + '" alt="" width="76" height="76"></span>' +
+      '<span class="ct"><span class="cn">' + s.name + '</span><span class="cc">' + s.n + '</span></span>' +
+      '<span class="ca">→</span>';
+    host.appendChild(a);
+  });
+
+  /* ---- search across every page on the site ---- */
+  var INDEX = SECTIONS.map(function (s) { return { t: s.icon + ' ' + s.name, u: s.url, k: s.name + ' ' + s.n + ' ' + s.k }; });
+  T.forEach(function (t) {
+    INDEX.push({ t: t.icon + ' ' + t.name, u: t.file, k: t.name + ' ' + t.group + ' ' + t.blurb + ' ' + t.kw + ' tool' });
+  });
+  G.forEach(function (g) {
+    INDEX.push({ t: g.icon + ' ' + g.name, u: g.file, k: g.name + ' game play ' + g.blurb + ' ' + g.tag });
+  });
+
+  var form = document.getElementById('askForm');
+  var input = document.getElementById('askInput');
+  var out = document.getElementById('askOut');
+
+  function render(q) {
+    q = (q || '').trim().toLowerCase();
+    out.innerHTML = '';
+    if (!q) return;
+    var words = q.split(/\s+/);
+    var hits = INDEX.filter(function (it) {
+      var hay = (it.t + ' ' + it.k).toLowerCase();
+      return words.every(function (w) { return hay.indexOf(w) > -1; });
+    });
+    if (!hits.length) hits = INDEX.filter(function (it) { return (it.t + ' ' + it.k).toLowerCase().indexOf(q) > -1; });
+    hits = hits.slice(0, 6);
+    if (!hits.length) { out.innerHTML = '<div class="none">Nothing found.</div>'; return; }
+    hits.forEach(function (it) {
+      var a = document.createElement('a');
+      a.href = it.u;
+      a.setAttribute('role', 'option');
+      a.innerHTML = '<span>' + it.t + '</span><span class="n">→</span>';
+      out.appendChild(a);
+    });
+  }
+
+  function setIcon(id, name) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (ICONS && ICONS.figure) { el.innerHTML = ICONS.figure(name); }
+    else { el.textContent = name; }
+  }
+  setIcon('ic', 'search');
+  setIcon('ic-google', 'globe');
+
+  input.addEventListener('input', function () { render(this.value); });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var first = out.querySelector('a');
+    if (first) location.href = first.href;
+    else render(input.value);
+  });
+  var googleBtn = document.getElementById('googleSearch');
+  if (googleBtn) {
+    googleBtn.addEventListener('click', function () {
+      var q = input.value.trim();
+      if (!q) { input.focus(); return; }
+      var target = 'https://www.google.com/search?q=' + encodeURIComponent(q) + '&udm=14';            /* web results */
+      var npr = 'https://www.google.com/search?q=' + encodeURIComponent(q) + '+site:sagardahal123.com.np';  /* site-first */
+      var useSite = (navigator.userAgent && /Mobile/i.test(navigator.userAgent));
+      location.href = useSite ? npr : target;
+    });
+  }
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.activeElement === input) { input.blur(); }
+    if (e.key === 'ArrowDown' && out.firstElementChild) {
+      out.firstElementChild.focus(); e.preventDefault();
+    }
+  });
+  output.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && document.activeElement && document.activeElement.tagName === 'A') {
+      document.activeElement.click(); e.preventDefault();
+    }
+  });
+})();
+</script>
 </body>
 </html>

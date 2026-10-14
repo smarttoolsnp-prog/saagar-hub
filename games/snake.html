@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Snake — vs bot or a friend | SAAGAR Games</title>
+<meta name="description" content="Neon Snake — play solo, race a pathfinding bot, or play online with a friend in a room. Arrows, WASD or swipe.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/games/snake.html">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/clay.css">
+<style>
+  /* clay spec: dark clay board on cream stage, neon clay chips, white-clay dpad */
+  .stagewrap{background:linear-gradient(135deg,#1b1747,#2e2a8a); border-radius:32px; padding:14px; box-shadow:var(--sh-clay);}
+  canvas{width:100%; display:block; border-radius:20px; background:linear-gradient(160deg,#1b1747,#0f172a); touch-action:none;
+    box-shadow:inset 4px 6px 14px rgba(0,0,0,.5), inset -3px -3px 10px rgba(255,255,255,.08);}
+  .hud{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:12px 0 4px;}
+  .hp{background:var(--card); border:none; border-radius:18px;
+    padding:7px 14px; text-align:center; min-width:88px; color:var(--navy-ink); box-shadow:var(--sh-clay);}
+  .hp b{display:block; font-size:18px; color:#22c55e;}
+  .hp.p2 b{color:#f472b6;}
+  .hp span{font-size:10.5px; font-weight:800; letter-spacing:.6px; color:var(--dim); text-transform:uppercase;}
+  .msg{color:var(--navy-ink); text-align:center; font-weight:800; font-size:15px; min-height:22px; margin-top:10px;}
+  .dpad{display:grid; grid-template-columns:repeat(3,58px); grid-template-rows:repeat(2,58px); gap:8px; justify-content:center; margin-top:14px;}
+  .dpad button{background:var(--card); border:none; color:var(--navy-ink);
+    border-radius:18px; font-size:20px; transition:.14s cubic-bezier(.34,1.4,.5,1); box-shadow:var(--sh-clay);}
+  .dpad button[data-d]{padding:0 8px;}
+  .dpad button:active{box-shadow:var(--sh-clay-press); transform:scale(.94);}
+  .dpad .sp{visibility:hidden;}
+  @media(min-width:761px){ .dpad{display:none;} }
+  .legend{display:flex; gap:14px; justify-content:center; margin-top:10px; color:var(--dim); font-size:12.5px; font-weight:700;}
+  .legend i{display:inline-block; width:11px; height:11px; border-radius:4px; margin-right:5px; box-shadow:inset 1px 1px 2px rgba(255,255,255,.6);}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="games">
+
+<div id="hdr"></div>
+<div class="clay-shell" style="display:none"><div class="row gap">
+  <a class="chip" style="font-size:13px;pointer-events:none">SAAGAR</a>
+  <a class="chip" style="font-size:13px">Log in</a>
+  <a class="chip" style="font-size:13px;color:#a35d2b;background:var(--clay-butter);border:1px solid var(--clay-lemon);font-weight:900">Play now →</a>
+</div></div>
+<div id="ftr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../games.html">Games</a> / Snake</div>
+    <h1><span class="lg"><img src="../assets/clay-logos/games/neon-snake.svg" width="56" height="56" alt="" style="vertical-align:top;margin-right:8px"></span>Neon Snake</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:660px;">
+    <div id="lobby"></div>
+
+    <div id="stage" class="hidden">
+      <div class="stagewrap">
+        <canvas id="cv" width="600" height="600" aria-label="Snake game board"></canvas>
+        <div class="hud">
+          <div class="hp"><b id="s1">0</b><span id="n1">You</span></div>
+          <div class="hp"><b id="r1">0</b><span>Rounds</span></div>
+          <div class="hp p2"><b id="s2">0</b><span id="n2">Bot</span></div>
+        </div>
+        <div class="msg" id="msg">Get ready…</div>
+        <div class="legend">
+          <span><i style="background:#4ade80"></i>You</span>
+          <span><i style="background:#f472b6"></i><span id="leg2">Opponent</span></span>
+          <span><i style="background:#ef4444"></i>Food</span>
+        </div>
+        <div class="dpad">
+          <button class="sp"></button><button data-d="up" aria-label="Up">▲</button><button class="sp"></button>
+          <button data-d="left" aria-label="Left">◀</button><button data-d="down" aria-label="Down">▼</button><button data-d="right" aria-label="Right">▶</button>
+        </div>
+      </div>
+      <div class="row mt" style="justify-content:center;">
+        <button class="btn shape-lozenge sm" id="restart" style="flex:0 0 auto;">Restart round</button>
+        <button class="btn shape-pill ghost sm" id="back" style="flex:0 0 auto;">Change mode</button>
+      </div>
+      <p class="muted center mt" id="netNote">Arrow keys / WASD on desktop · swipe or the pad on mobile.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/peerjs.min.js"></script>
+<script src="../assets/app.js"></script>
+<script src="../assets/net.js"></script>
+<script src="../assets/lobby.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var cv = $('cv'), ctx = cv.getContext('2d');
+  /* canvas scaled by devicePixelRatio so the board is sharp on phones (drawing math unchanged: rest on 600) */
+  (function setupCanvas(){
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var LOGICAL = 600;
+    cv.width = LOGICAL * dpr; cv.height = LOGICAL * dpr;
+    cv.style.maxWidth = '560px';
+    cv.style.margin = '0 auto';
+    ctx.scale(dpr, dpr);
+    var onRz = function(){ /* ctx transform persists across resize; nothing else needed */ };
+    window.addEventListener('resize', onRz);
+  })();
+  var N = 21;                       /* grid */
+  var CELL = 600 / N;
+  var DIRS = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
+  var OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  var WIN_ROUNDS = 3;
+
+  var cfg = { bot: null, online: false, isHost: false, room: null, opponent: true };
+  var S = null;                      /* authoritative state */
+  var myQueue = [];                  /* pending direction changes (local player) */
+  var timer = null, speed = 8;
+
+  /* ---------------- state ---------------- */
+  function blankState() {
+    return {
+      s1: [{ x: 8, y: 10 }, { x: 7, y: 10 }, { x: 6, y: 10 }],
+      s2: [{ x: 12, y: 10 }, { x: 13, y: 10 }, { x: 14, y: 10 }],
+      d1: 'right', d2: 'left',
+      f1: { x: 10, y: 5 }, f2: { x: 10, y: 15 },
+      alive1: true, alive2: true,
+      score1: 0, score2: 0,
+      rounds1: 0, rounds2: 0,
+      over: false, winner: ''
+    };
+  }
+
+  function freeCell(cells, avoid) {
+    var tries = 0;
+    while (tries++ < 500) {
+      var c = { x: Math.floor(Math.random() * N), y: Math.floor(Math.random() * N) };
+      var hit = cells.some(function (s) { return s.x === c.x && s.y === c.y; });
+      if (avoid) hit = hit || avoid.some(function (s) { return s.x === c.x && s.y === c.y; });
+      if (!hit) return c;
+    }
+    return { x: 0, y: 0 };
+  }
+
+  /* ---------------- step (host / local authority) ---------------- */
+  function step() {
+    var d1 = DIRS[S.d1], d2 = DIRS[S.d2];
+
+    /* single-snake mode (solo, no bot) */
+    if (!cfg.opponent) {
+      var hx = ((S.s1[0].x + d1.x) + N) % N, hy = ((S.s1[0].y + d1.y) + N) % N;
+      var bodySelf = S.s1.slice(0, S.s1.length - 1);
+      if (bodySelf.some(function (c) { return c.x === hx && c.y === hy; })) {
+        S.alive1 = false; endRound(); return;
+      }
+      S.s1.unshift({ x: hx, y: hy });
+      if (hx === S.f1.x && hy === S.f1.y) {
+        S.score1++; S.f1 = freeCell(S.s1); speed = Math.min(18, speed + 0.4);
+        clearInterval(timer); timer = null; startLoop();
+      } else S.s1.pop();
+      render(); updateHud();
+      return;
+    }
+
+    function nextHead(snake, d) { return { x: ((snake[0].x + d.x) + N) % N, y: ((snake[0].y + d.y) + N) % N }; }
+
+    var h1 = nextHead(S.s1, d1), h2 = nextHead(S.s2, d2);
+    var body1 = S.s1.slice(0, S.s1.length - 1), body2 = S.s2.slice(0, S.s2.length - 1);
+
+    function hits(h, snake, other) {
+      if (snake.some(function (c) { return c.x === h.x && c.y === h.y; })) return true;
+      if (other && other.some(function (c) { return c.x === h.x && c.y === h.y; })) return true;
+      return false;
+    }
+    var dead1 = hits(h1, body1, body2), dead2 = hits(h2, body2, body1);
+    if (h1.x === h2.x && h1.y === h2.y) { dead1 = dead2 = true; }
+
+    if (dead1) S.alive1 = false;
+    if (dead2) S.alive2 = false;
+
+    if (S.alive1) {
+      S.s1.unshift(h1);
+      if (h1.x === S.f1.x && h1.y === S.f1.y) { S.score1++; S.f1 = freeCell(S.s1, S.s2); speed = Math.min(16, speed + 0.35); }
+      else S.s1.pop();
+    }
+    if (S.alive2) {
+      S.s2.unshift(h2);
+      if (h2.x === S.f2.x && h2.y === S.f2.y) { S.score2++; S.f2 = freeCell(S.s2, S.s1); }
+      else S.s2.pop();
+    }
+
+    if (!S.alive1 || !S.alive2) endRound();
+    render();
+    updateHud();
+  }
+
+  function endRound() {
+    S.over = true;
+    if (!S.alive1 && !S.alive2) S.winner = S.score1 === S.score2 ? 'draw' : (S.score1 > S.score2 ? 'p1' : 'p2');
+    else S.winner = S.alive1 ? 'p1' : 'p2';
+    if (S.winner === 'p1') S.rounds1++;
+    else if (S.winner === 'p2') S.rounds2++;
+    clearInterval(timer); timer = null;
+    if (!cfg.opponent) {
+      $('msg').textContent = 'Game over — length ' + S.score1 + '. Best: ' + Math.max(SAAGAR.store('snake.best') || 0, S.score1);
+      SAAGAR.store('snake.best', Math.max(SAAGAR.store('snake.best') || 0, S.score1));
+      updateHud();
+      return;
+    }
+    var label = { p1: 'You win the round!', p2: (cfg.bot ? 'Bot wins the round.' : 'Friend wins the round.'), draw: 'Draw round.' }[S.winner];
+    $('msg').textContent = label + (S.rounds1 >= WIN_ROUNDS || S.rounds2 >= WIN_ROUNDS ? '  🏆 Match over!' : '  Starting next round…');
+    updateHud();
+    if (S.rounds1 < WIN_ROUNDS && S.rounds2 < WIN_ROUNDS) setTimeout(nextRound, 1600);
+  }
+
+  function nextRound() {
+    if (!S) return;
+    var r1 = S.rounds1, r2 = S.rounds2;
+    S = blankState();
+    S.rounds1 = r1; S.rounds2 = r2;
+    speed = 8; myQueue = [];
+    if (cfg.online && !cfg.isHost) { $('msg').textContent = 'Waiting for host…'; return; }
+    startLoop();
+  }
+
+  function startLoop() {
+    if (timer) clearInterval(timer);
+    var ms = Math.round(1000 / speed);
+    timer = setInterval(function () {
+      if (cfg.bot) botThink();
+      applyQueue();
+      step();
+      if (cfg.online && cfg.isHost) cfg.room.send({ t: 'state', s: S });
+    }, ms);
+  }
+
+  function applyQueue() {
+    if (!myQueue.length) return;
+    var d = myQueue.shift();
+    if (cfg.online && !cfg.isHost) {
+      /* guests only send input; the host moves the snake */
+      cfg.room.send({ t: 'dir', d: d });
+      return;
+    }
+    var cur = cfg.online ? S.d1 : S.d1;
+    if (d !== OPP[cur]) S.d1 = d;
+  }
+
+  /* ---------------- bot ---------------- */
+  function botThink() {
+    var d = bestDir(S.s2[0], S.s2, { self: S.s1, food: S.f2 });
+    var cur = S.d2;
+    if (d && d !== OPP[cur]) S.d2 = d;
+  }
+
+  function bestDir(head, snake, opt) {
+    var targets = [];
+    if (opt.food) targets.push(opt.food);
+    var start = { x: head.x, y: head.y };
+    /* BFS to the food avoiding bodies */
+    var blocked = {};
+    snake.slice(0, snake.length - 1).forEach(function (c) { blocked[c.x + ',' + c.y] = 1; });
+    if (opt.self) opt.self.forEach(function (c) { blocked[c.x + ',' + c.y] = 1; });
+
+    function passable(c) {
+      if (!c) return false;
+      if (c.x < 0 || c.y < 0 || c.x >= N || c.y >= N) return false;
+      if (blocked[c.x + ',' + c.y]) return false;
+      return true;
+    }
+    var q = [{ x: start.x, y: start.y, first: null }], seen = {};
+    seen[start.x + ',' + start.y] = 1;
+    var best = null;
+    while (q.length) {
+      var cur = q.shift();
+      if (best && q.length === 0) break;
+      for (var k in DIRS) {
+        var d = DIRS[k];
+        var nx = ((cur.x + d.x) + N) % N, ny = ((cur.y + d.y) + N) % N;
+        var key = nx + ',' + ny;
+        if (seen[key] || !passable({ x: nx, y: ny })) continue;
+        seen[key] = 1;
+        var first = cur.first || k;
+        if (targets.length && nx === targets[0].x && ny === targets[0].y) return first;
+        q.push({ x: nx, y: ny, first: first });
+      }
+    }
+    /* nothing reachable — pick any safe direction with most space */
+    var bestD = null, bestSpace = -1;
+    for (var k2 in DIRS) {
+      var d2 = DIRS[k2];
+      var hx = ((head.x + d2.x) + N) % N, hy = ((head.y + d2.y) + N) % N;
+      var safe = !blocked[hx + ',' + hy];
+      if (!safe) continue;
+      var space = floodSize({ x: hx, y: hy }, blocked);
+      if (space > bestSpace) { bestSpace = space; bestD = k2; }
+    }
+    return bestD;
+  }
+  function floodSize(start, blocked) {
+    var seen = {}, q = [start], n = 0;
+    seen[start.x + ',' + start.y] = 1;
+    while (q.length && n < 200) {
+      var c = q.shift(); n++;
+      for (var k in DIRS) {
+        var d = DIRS[k];
+        var nx = ((c.x + d.x) + N) % N, ny = ((c.y + d.y) + N) % N, key = nx + ',' + ny;
+        if (seen[key] || blocked[key]) continue;
+        seen[key] = 1; q.push({ x: nx, y: ny });
+      }
+    }
+    return n;
+  }
+
+  /* ---------------- render ---------------- */
+  function render() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    /* grid */
+    ctx.strokeStyle = 'rgba(255,255,255,.035)';
+    ctx.lineWidth = 1;
+    for (var i = 0; i <= N; i++) {
+      ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, cv.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(cv.width, i * CELL); ctx.stroke();
+    }
+    if (!S) return;
+    /* food pulses gently, honoring prefers-reduced-motion */
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var pulse = reduce ? 1 : 1 + 0.08 * Math.sin(Date.now() / 300);
+    drawFood(S.f1, '#ef4444', pulse);
+    drawFood(S.f2, '#fb923c', pulse);
+
+    drawSnake(S.s1, '#4ade80', '#86efac', !S.alive1);
+    drawSnake(S.s2, '#f472b6', '#fbcfe8', !S.alive2);
+  }
+  function drawFood(f, color, pulse) {
+    var cx = f.x * CELL + CELL / 2, cy = f.y * CELL + CELL / 2;
+    /* clay food: base circle + lighter top-left highlight */
+    ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(cx, cy, CELL * 0.3 * (pulse || 1), 0, Math.PI * 2); ctx.fill();
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.beginPath(); ctx.arc(cx - CELL * 0.08, cy - CELL * 0.08, CELL * 0.1, 0, Math.PI * 2); ctx.fill();
+  }
+  function drawSnake(snake, color, hi, dead) {
+    if (!snake.length) return;
+    for (var i = snake.length - 1; i >= 0; i--) {
+      var c = snake[i];
+      var x = c.x * CELL + 2, y = c.y * CELL + 2, w = CELL - 4;
+      /* head glow per spec: soft, body matte */
+      if (i === 0 && !dead) { ctx.shadowColor = color; ctx.shadowBlur = spark16(color); }
+      else { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; }
+      ctx.fillStyle = dead ? 'rgba(255,255,255,.16)' : color;
+      roundRect(x, y, w, w, i === 0 ? w * 0.36 : w * 0.28);
+      ctx.fill();
+      if (!dead && i > 0) {
+        /* lighter top-left highlight on each body square */
+        var g = ctx.createLinearGradient(x, y, x + w, y + w);
+        g.addColorStop(0, hi + 'aa'); g.addColorStop(0.5, color);
+        ctx.fillStyle = g;
+        roundRect(x, y, w, w, w * 0.28);
+        ctx.fill();
+      }
+    }
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+    /* head slightly bigger + two white eyes */
+    if (!dead) {
+      var h = snake[0];
+      var ex = h.x * CELL + CELL / 2, ey = h.y * CELL + CELL / 2;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(ex - CELL * 0.15, ey - CELL * 0.08, CELL * 0.11, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(ex + CELL * 0.15, ey - CELL * 0.08, CELL * 0.11, 0, 7); ctx.fill();
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath(); ctx.arc(ex - CELL * 0.13, ey - CELL * 0.08, CELL * 0.05, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(ex + CELL * 0.17, ey - CELL * 0.08, CELL * 0.05, 0, 7); ctx.fill();
+    }
+  }
+  function spark16(color) { return color === '#4ade80' ? 14 : 12; }
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function updateHud() {
+    if (!S) return;
+    $('s1').textContent = S.score1;
+    $('s2').textContent = S.score2;
+    $('r1').textContent = S.rounds1 + ' – ' + S.rounds2;
+  }
+
+  /* ---------------- input ---------------- */
+  function input(d) {
+    if (!S || S.over) return;
+    if (myQueue.length < 3) myQueue.push(d);
+  }
+  document.addEventListener('keydown', function (e) {
+    var map = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+                w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right' };
+    if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+    var dir = map[e.key];
+    if (dir) { e.preventDefault(); input(dir); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.dpad button[data-d]'), function (b) {
+    b.onclick = function () { input(b.getAttribute('data-d')); };
+  });
+  /* swipe */
+  var tsx = 0, tsy = 0;
+  cv.addEventListener('touchstart', function (e) {
+    var t = e.changedTouches[0]; tsx = t.clientX; tsy = t.clientY;
+  }, { passive: true });
+  cv.addEventListener('touchend', function (e) {
+    var t = e.changedTouches[0];
+    var dx = t.clientX - tsx, dy = t.clientY - tsy;
+    if (Math.abs(dx) < 22 && Math.abs(dy) < 22) return;
+    input(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+  }, { passive: true });
+
+  /* ---------------- modes ---------------- */
+  function showStage(label, note) {
+    $('lobby').classList.add('hidden');
+    $('stage').classList.remove('hidden');
+    $('netNote').textContent = note;
+  }
+
+  function boot(label) {
+    S = blankState();
+    speed = 8; myQueue = [];
+    updateHud();
+    render();
+    $('msg').textContent = label;
+    startLoop();
+  }
+
+  var lobby = window.SAAGAR_LOBBY.create({
+    key: 'snake',
+    seatChoices: [2],
+    title: '🐍 Choose how to play',
+    root: $('lobby'),
+    onSolo: function (o) {
+      if (timer) clearInterval(timer);
+      cfg = { bot: o.bot, online: false, isHost: false, room: null, opponent: !!o.bot };
+      $('n1').textContent = 'You';
+      $('n2').textContent = o.bot ? 'Bot (' + o.bot + ')' : '—';
+      $('leg2').textContent = o.bot ? 'Bot' : '—';
+      showStage(o.bot ? 'Solo vs Bot' : 'Solo', o.bot
+        ? 'Arrow keys / WASD · swipe on phone. The bot races you for food — first to ' + WIN_ROUNDS + ' rounds wins.'
+        : 'Arrow keys / WASD · swipe on phone. How long can you grow?');
+      boot(o.bot ? 'First to ' + WIN_ROUNDS + ' rounds wins.' : 'Grow as long as you can. Best: ' + (SAAGAR.store('snake.best') || 0));
+      if (!o.bot) { S.s2 = []; S.alive2 = false; }
+    },
+    onHostReady: function (room) { startRoom(room, true); },
+    onGuestReady: function (room) { startRoom(room, false); },
+    onMessage: function (msg, room, isHost) {
+      if (msg.t === 'dir' && isHost) {
+        var cur = S.d1;
+        if (msg.d !== OPP[cur]) S.d1 = msg.d;
+      }
+      if (msg.t === 'state' && !isHost) {
+        var wasOver = S && S.over;
+        S = msg.s;
+        render(); updateHud();
+        if (S.over && !wasOver) {
+          $('msg').textContent = (S.winner === 'p1' ? 'Friend wins the round.' : (S.winner === 'p2' ? 'You win the round!' : 'Draw round.')) +
+            (S.rounds1 >= WIN_ROUNDS || S.rounds2 >= WIN_ROUNDS ? '  🏆 Match over!' : '');
+        } else if (!S.over) {
+          $('msg').textContent = 'Playing…';
+        }
+      }
+      if (msg.t === 'again') { nextRound(); }
+    },
+    onPeerLeave: function () {
+      $('netNote').textContent = 'Your friend disconnected.';
+      window.SAAGAR.toast('Friend left the game', true);
+    }
+  });
+
+  function startRoom(room, isHost) {
+    if (timer) clearInterval(timer);
+    cfg = { bot: null, online: true, isHost: isHost, room: room, opponent: true };
+    var side = isHost ? 'green (left)' : 'purple (right)';
+    $('n1').textContent = isHost ? 'You (green)' : 'You (purple)';
+    $('n2').textContent = isHost ? 'Friend (purple)' : 'Friend (green)';
+    $('leg2').textContent = 'Friend';
+    showStage('Room ' + room.code, 'Connected — you are the ' + side + ' snake. First to ' + WIN_ROUNDS + ' rounds wins.');
+    S = blankState();
+    speed = 8; myQueue = [];
+    updateHud(); render();
+    if (isHost) { $('msg').textContent = 'Go!'; startLoop(); }
+    else { $('msg').textContent = 'Waiting for host…'; }
+  }
+
+  $('restart').onclick = function () {
+    if (cfg.online && !cfg.isHost) return;
+    nextRound();
+  };
+  $('back').onclick = function () {
+    if (timer) clearInterval(timer);
+    timer = null;
+    if (cfg.room) cfg.room.close(true);
+    cfg = { bot: null, online: false, isHost: false, room: null, opponent: true };
+    $('stage').classList.add('hidden');
+    $('lobby').classList.remove('hidden');
+    lobby.menu();
+  };
+})();
+</script>
+</body>
+</html>

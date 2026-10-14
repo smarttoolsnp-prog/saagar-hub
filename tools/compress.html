@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image Compressor — shrink photos in your browser | SAAGAR Tools</title>
+<meta name="description" content="Compress JPG, PNG and WebP images to a smaller size or a target file size, right in your browser. Nothing is uploaded.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/compress.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .drop{border:2.5px dashed var(--line-2); border-radius:16px; padding:34px 20px; text-align:center; transition:.18s; cursor:pointer; background:#fbfdff;}
+  .drop:hover,.drop.over{border-color:var(--navy); background:#f2f8ff;}
+  .drop .ic{font-size:44px;}
+  .drop h3{margin-top:8px; font-size:16.5px; color:var(--navy-2);}
+  .drop p{color:var(--dim); font-size:13.5px; margin-top:4px;}
+  .preview{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;}
+  @media(max-width:620px){ .preview{grid-template-columns:1fr;} }
+  .pimg{background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:10px; text-align:center;}
+  .pimg img{max-height:230px; margin:0 auto; border-radius:8px; object-fit:contain;}
+  .pimg b{display:block; font-size:12.5px; font-weight:900; letter-spacing:.6px; color:var(--faint); text-transform:uppercase; margin-bottom:6px;}
+  .pimg .size{font-size:15px; font-weight:900; color:var(--navy); margin-top:7px;}
+  .saved{background:#eefaf1; border:1px solid #b6e5c4; color:#136c36; border-radius:10px; padding:9px 13px;
+    font-weight:800; font-size:13.5px; text-align:center; margin-top:12px;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Image Compressor</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2 L12 5 M12 19 L12 22 M2 12 L5 12 M19 12 L22 12"/></svg></span>️ Image Compressor</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:760px;">
+    <div class="card">
+      <div class="drop" id="drop">
+        <div class="ic">🖼️</div>
+        <h3>Tap to choose an image</h3>
+        <p>JPG, PNG or WebP — or drag a file right here</p>
+        <input type="file" id="file" accept="image/*" class="hidden">
+      </div>
+
+      <div id="ctrls" class="hidden">
+        <div class="grid2 mt">
+          <div class="field">
+            <label for="quality">Quality: <span id="qVal">75</span>%</label>
+            <input type="range" id="quality" min="20" max="95" value="75" style="width:100%;">
+          </div>
+          <div class="field">
+            <label for="maxW">Max width (px)</label>
+            <select id="maxW">
+              <option value="0">Keep original</option>
+              <option value="2000">2000 px</option>
+              <option value="1600">1600 px</option>
+              <option value="1200" selected>1200 px</option>
+              <option value="800">800 px</option>
+              <option value="600">600 px</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fmt">Output format</label>
+            <select id="fmt">
+              <option value="image/jpeg" selected>JPEG (smallest)</option>
+              <option value="image/webp">WebP (best quality)</option>
+              <option value="image/png">PNG (lossless, big)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="target">Target size (optional)</label>
+            <select id="target">
+              <option value="0">No target</option>
+              <option value="50">Under 50 KB</option>
+              <option value="100">Under 100 KB</option>
+              <option value="200">Under 200 KB</option>
+              <option value="500">Under 500 KB</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="preview">
+          <div class="pimg"><b>Original</b><img id="imgA" alt="Original preview"><div class="size" id="sizeA">—</div></div>
+          <div class="pimg"><b>Compressed</b><img id="imgB" alt="Compressed preview"><div class="size" id="sizeB">—</div></div>
+        </div>
+        <div class="saved hidden" id="saved"></div>
+
+        <div class="row mt">
+          <button class="btn" id="dl" type="button" style="flex:0 0 auto;">⬇ Download compressed</button>
+          <button class="btn soft" id="reset" type="button" style="flex:0 0 auto;">Choose another</button>
+        </div>
+      </div>
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">💡</span> What to pick</h2>
+      <p class="muted">For passport and form photos, 600–800 px wide at 75% is plenty. For a website image, 1200 px WebP looks sharp and stays small. Set a target size and the tool automatically lowers quality until the file fits — try under 100 KB if a portal keeps rejecting your upload.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var img = null, original = null, outBlob = null, outName = 'compressed.jpg';
+
+  function kb(n) { return n < 1024 * 1024 ? (n / 1024).toFixed(0) + ' KB' : (n / 1048576).toFixed(2) + ' MB'; }
+
+  $('drop').onclick = function () { $('file').click(); };
+  $('file').onchange = function () { if (this.files[0]) load(this.files[0]); };
+  ['dragenter','dragover'].forEach(function (e) {
+    $('drop').addEventListener(e, function (ev) { ev.preventDefault(); $('drop').classList.add('over'); });
+  });
+  ['dragleave','drop'].forEach(function (e) {
+    $('drop').addEventListener(e, function (ev) { ev.preventDefault(); $('drop').classList.remove('over'); });
+  });
+  $('drop').addEventListener('drop', function (ev) {
+    var f = ev.dataTransfer.files[0];
+    if (f && /^image\//.test(f.type)) load(f);
+  });
+
+  function load(f) {
+    original = f;
+    outName = f.name.replace(/\.[^.]+$/, '') + '';
+    var url = URL.createObjectURL(f);
+    img = new Image();
+    img.onload = function () {
+      $('imgA').src = url;
+      $('sizeA').textContent = kb(f.size) + '  ·  ' + img.width + '×' + img.height;
+      $('ctrls').classList.remove('hidden');
+      $('msg').textContent = '';
+      compress();
+    };
+    img.onerror = function () { $('msg').textContent = 'That file could not be read as an image.'; $('msg').className = 'out bad'; };
+    img.src = url;
+  }
+
+  function draw(maxW) {
+    var w = img.width, h = img.height;
+    if (maxW && w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var ctx = c.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    if ($('fmt').value === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
+    ctx.drawImage(img, 0, 0, w, h);
+    return { canvas: c, w: w, h: h };
+  }
+
+  function toBlob(canvas, type, q) {
+    return new Promise(function (res) { canvas.toBlob(res, type, q); });
+  }
+
+  function compress() {
+    if (!img) return;
+    var q = parseInt($('quality').value, 10) / 100;
+    var maxW = parseInt($('maxW').value, 10);
+    var type = $('fmt').value;
+    var target = parseInt($('target').value, 10) * 1024;
+    var d = draw(maxW);
+
+    (async function () {
+      var blob = await toBlob(d.canvas, type, q);
+      if (target) {
+        /* binary-search the quality until it fits */
+        var lo = 0.15, hi = q, best = blob, tries = 0;
+        while (blob && blob.size > target && tries < 9) {
+          tries++;
+          var mid = (lo + hi) / 2;
+          var b2 = await toBlob(d.canvas, type, mid);
+          if (b2 && b2.size <= target) { best = b2; hi = mid; }
+          else { lo = mid; }
+          if (hi - lo < 0.02) break;
+          blob = await toBlob(d.canvas, type, hi);
+        }
+        var finalB = best;
+        if (finalB && finalB.size > target) {
+          /* still too big: also shrink the width */
+          var smaller = draw(Math.min(900, d.w));
+          var b3 = await toBlob(smaller.canvas, type, 0.6);
+          if (b3 && b3.size < finalB.size) { finalB = b3; }
+        }
+        blob = finalB;
+      }
+      outBlob = blob;
+      if (!blob) { $('msg').textContent = 'Compression failed — try a different format.'; $('msg').className = 'out bad'; return; }
+      var ext = type === 'image/jpeg' ? '.jpg' : type === 'image/webp' ? '.webp' : '.png';
+      outName = (original ? original.name.replace(/\.[^.]+$/, '') : 'image') + '-small' + ext;
+      $('imgB').src = URL.createObjectURL(blob);
+      $('sizeB').textContent = kb(blob.size);
+      var saved = original ? (1 - blob.size / original.size) * 100 : 0;
+      var s = $('saved');
+      s.classList.remove('hidden');
+      s.textContent = saved > 0
+        ? 'Saved ' + kb(original.size - blob.size) + ' — ' + saved.toFixed(0) + '% smaller (' + kb(original.size) + ' → ' + kb(blob.size) + ')'
+        : 'This setting made the file larger — lower the quality or switch to JPEG.';
+      $('msg').textContent = '';
+    })();
+  }
+
+  ['quality','maxW','fmt','target'].forEach(function (id) {
+    $(id).addEventListener('input', function () {
+      if (id === 'quality') $('qVal').textContent = $('quality').value;
+      compress();
+    });
+  });
+
+  $('dl').onclick = function () {
+    if (outBlob) SAAGAR.downloadBlob(outBlob, outName);
+  };
+  $('reset').onclick = function () {
+    img = null; original = null; outBlob = null;
+    $('file').value = '';
+    $('ctrls').classList.add('hidden');
+    $('saved').classList.add('hidden');
+    $('msg').textContent = '';
+  };
+})();
+</script>
+</body>
+</html>

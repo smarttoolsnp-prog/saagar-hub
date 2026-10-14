@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Form Photo Presets — passport, PP size, visa | SAAGAR Tools</title>
+<meta name="description" content="Make passport, PP size, stamp size and visa photos from any picture. Crop, position and download at print quality.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/photo.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .work{display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start;}
+  @media(max-width:700px){ .work{grid-template-columns:1fr;} }
+  .cropbox{background:var(--bg-2); border:1px solid var(--line); border-radius:14px; padding:12px; text-align:center;}
+  .cropbox canvas{max-width:100%; border-radius:10px; box-shadow:var(--sh); cursor:grab; background:#fff;}
+  .cropbox canvas:active{cursor:grabbing;}
+  .resultbox{text-align:center;}
+  .resultbox canvas{border:1px solid var(--line-2); border-radius:8px; box-shadow:var(--sh-2); background:#fff;}
+  .dims{font-size:12.5px; color:var(--dim); font-weight:700; margin-top:8px;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Form Photo</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M4 18 L10 12 L14 16 L17 13 L21 17"/></svg></span>️ Form Photo Presets</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:820px;">
+    <div class="card">
+      <h2><span class="em">1.</span> Choose your photo and preset</h2>
+      <div class="row">
+        <div class="field" style="flex:2;">
+          <label for="file">Photo (face clearly visible)</label>
+          <input type="file" id="file" accept="image/*" style="padding:8px;">
+        </div>
+        <div class="field" style="flex:2;">
+          <label for="preset">Size preset</label>
+          <select id="preset">
+            <option value="35,45" selected>Passport / PP size — 35 × 45 mm</option>
+            <option value="25,35">Form / stamp — 25 × 35 mm</option>
+            <option value="20,25">Small stamp — 20 × 25 mm</option>
+            <option value="51,51">US visa / green card — 51 × 51 mm (2×2 in)</option>
+            <option value="40,60">Large form photo — 40 × 60 mm</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1;">
+          <label for="dpi">Print quality</label>
+          <select id="dpi">
+            <option value="300" selected>300 dpi (printing)</option>
+            <option value="600">600 dpi (higher)</option>
+            <option value="150">150 dpi (screen)</option>
+          </select>
+        </div>
+      </div>
+      <div class="row hidden mt" id="customRow">
+        <div class="field"><label for="cw">Width (mm)</label><input type="number" id="cw" value="35" min="10" max="150"></div>
+        <div class="field"><label for="ch">Height (mm)</label><input type="number" id="ch" value="45" min="10" max="150"></div>
+      </div>
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card hidden" id="workCard">
+      <h2><span class="em">2.</span> Position the face</h2>
+      <div class="work">
+        <div class="cropbox">
+          <canvas id="stage" width="420" height="420"></canvas>
+          <div class="dims">Drag the photo to move it · use the slider to zoom</div>
+          <input type="range" id="zoom" min="100" max="400" value="100" style="width:100%;margin-top:8px;">
+          <div class="chips" style="justify-content:center;">
+            <button class="chip" id="resetPos" type="button">Reset position</button>
+            <button class="chip" id="autoFill" type="button">Centre face area</button>
+          </div>
+        </div>
+        <div class="resultbox">
+          <canvas id="out" width="413" height="531"></canvas>
+          <div class="dims" id="outDims">—</div>
+          <div class="field mt" style="text-align:left;">
+            <label for="bgc">Background (if photo doesn't cover)</label>
+            <select id="bgc">
+              <option value="#ffffff" selected>White</option>
+              <option value="#dbeafe">Light blue</option>
+              <option value="#e5e7eb">Light grey</option>
+              <option value="#ef4444">Red</option>
+            </select>
+          </div>
+          <button class="btn block mt" id="save" type="button">⬇ Download photo</button>
+        </div>
+      </div>
+      <p class="muted mt">Most passport rules want the head to fill roughly 70–80% of the frame, with a little space above the hair. Line the chin up near the bottom third and you're usually fine.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var img = null, offX = 0, offY = 0, zoom = 1, dragging = false, sx = 0, sy = 0;
+
+  function size() {
+    var v = $('preset').value;
+    var dpi = parseFloat($('dpi').value) || 300;
+    var wmm, hmm;
+    if (v === 'custom') { wmm = parseFloat($('cw').value) || 35; hmm = parseFloat($('ch').value) || 45; }
+    else { var p = v.split(','); wmm = +p[0]; hmm = +p[1]; }
+    var wpx = Math.round(wmm / 25.4 * dpi);
+    var hpx = Math.round(hmm / 25.4 * dpi);
+    return { wmm: wmm, hmm: hmm, w: wpx, h: hpx, dpi: dpi };
+  }
+
+  function load(f) {
+    var url = URL.createObjectURL(f);
+    img = new Image();
+    img.onload = function () {
+      offX = 0; offY = 0; zoom = 1;
+      $('zoom').value = 100;
+      $('workCard').classList.remove('hidden');
+      $('msg').textContent = '';
+      updateSize();
+      centreOnFace();
+    };
+    img.onerror = function () { $('msg').textContent = 'That file is not a readable image.'; $('msg').className = 'out bad'; };
+    img.src = url;
+  }
+
+  function updateSize() {
+    var s = size();
+    var out = $('out');
+    out.width = s.w; out.height = s.h;
+    $('outDims').textContent = s.wmm + ' × ' + s.hmm + ' mm  ·  ' + s.w + ' × ' + s.h + ' px at ' + s.dpi + ' dpi';
+    draw();
+  }
+
+  /* fit the image so the shortest side roughly covers the frame */
+  function baseScale() {
+    var s = size();
+    if (!img) return 1;
+    return Math.max(s.w / img.width, s.h / img.height);
+  }
+
+  function centreOnFace() {
+    /* bias the crop slightly above centre — that is where faces usually sit */
+    offX = 0; offY = 0;
+    var s = size();
+    var k = baseScale() * zoom;
+    var dh = img.height * k;
+    /* shift up by 8% of the extra vertical space */
+    offY = -(dh - s.h) * 0.08;
+    draw();
+  }
+
+  function draw() {
+    var s = size();
+    var scale = baseScale() * zoom;
+
+    /* preview stage shows the crop frame */
+    var st = $('stage'), sctx = st.getContext('2d');
+    var sw = st.width, sh = st.height;
+    sctx.clearRect(0, 0, sw, sh);
+    if (!img) return;
+
+    var frameW = s.w, frameH = s.h;
+    var ratio = Math.min(sw / frameW, sh / frameH) * 0.92;
+    var dispW = frameW * ratio, dispH = frameH * ratio;
+    var fx = (sw - dispW) / 2, fy = (sh - dispH) / 2;
+
+    /* image drawn as it will appear inside the frame */
+    var iw = img.width * scale * ratio, ih = img.height * scale * ratio;
+    var ix = fx + (dispW - iw) / 2 + offX * ratio;
+    var iy = fy + (dispH - ih) / 2 + offY * ratio;
+
+    sctx.save();
+    sctx.beginPath();
+    sctx.rect(fx, fy, dispW, dispH);
+    sctx.clip();
+    sctx.fillStyle = '#fff';
+    sctx.fillRect(fx, fy, dispW, dispH);
+    sctx.drawImage(img, ix, iy, iw, ih);
+    sctx.restore();
+
+    sctx.strokeStyle = '#2d5578';
+    sctx.lineWidth = 2;
+    sctx.strokeRect(fx, fy, dispW, dispH);
+    /* thirds guide */
+    sctx.strokeStyle = 'rgba(45,85,120,.28)';
+    sctx.lineWidth = 1;
+    sctx.beginPath();
+    sctx.moveTo(fx, fy + dispH / 3); sctx.lineTo(fx + dispW, fy + dispH / 3);
+    sctx.moveTo(fx, fy + dispH * 2 / 3); sctx.lineTo(fx + dispW, fy + dispH * 2 / 3);
+    sctx.stroke();
+
+    render();
+  }
+
+  function render() {
+    var s = size();
+    var octx = $('out').getContext('2d');
+    if (!img) return;
+    var scale = baseScale() * zoom;
+    var iw = img.width * scale, ih = img.height * scale;
+    var ix = (s.w - iw) / 2 + offX;
+    var iy = (s.h - ih) / 2 + offY;
+    octx.fillStyle = $('bgc').value;
+    octx.fillRect(0, 0, s.w, s.h);
+    octx.imageSmoothingQuality = 'high';
+    octx.drawImage(img, ix, iy, iw, ih);
+  }
+
+  /* dragging */
+  var stage = $('stage');
+  stage.addEventListener('pointerdown', function (e) {
+    dragging = true; sx = e.clientX; sy = e.clientY;
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var dx = e.clientX - sx, dy = e.clientY - sy;
+    sx = e.clientX; sy = e.clientY;
+    offX += dx / 0.92 * 1; offY += dy;
+    draw();
+  });
+  window.addEventListener('pointerup', function () { dragging = false; });
+
+  $('zoom').addEventListener('input', function () { zoom = this.value / 100; draw(); });
+  $('preset').addEventListener('change', function () {
+    $('customRow').classList.toggle('hidden', this.value !== 'custom');
+    updateSize();
+  });
+  $('dpi').addEventListener('change', updateSize);
+  ['cw','ch'].forEach(function (id) { $(id).addEventListener('input', updateSize); });
+  $('bgc').addEventListener('change', render);
+  $('resetPos').onclick = function () { offX = 0; offY = 0; zoom = 1; $('zoom').value = 100; draw(); };
+  $('autoFill').onclick = centreOnFace;
+  $('file').onchange = function () { if (this.files[0]) load(this.files[0]); };
+
+  $('save').onclick = function () {
+    if (!img) return;
+    var s = size();
+    $('out').toBlob(function (b) {
+      SAAGAR.downloadBlob(b, 'photo-' + s.wmm + 'x' + s.hmm + 'mm.jpg');
+      $('msg').textContent = 'Saved photo-' + s.wmm + 'x' + s.hmm + 'mm.jpg';
+      $('msg').className = 'out ok';
+    }, 'image/jpeg', 0.95);
+  };
+
+  updateSize();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ludo — play 4 players vs bots or a friend | SAAGAR Games</title>
+<meta name="description" content="Classic Ludo on a hand-drawn canvas board. Play against three bots, or open a room and play a friend with two bots filling the board.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/games/ludo.html">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/clay.css">
+<style>
+  .lwrap{position:relative; background:linear-gradient(145deg,#fff9f0,#ffead2); padding:16px; border-radius:32px;
+    box-shadow:var(--sh-clay);}
+  .lwrap::after{content:""; position:absolute; inset:7px; border-radius:26px; pointer-events:none;
+    box-shadow:inset 4px 5px 12px rgba(214,138,94,.16), inset -3px -3px 8px rgba(255,255,255,.85);}
+  /* the die lives ON the board — draggable, tap to roll */
+  .dicewrap{position:absolute; right:20px; bottom:20px; z-index:5; cursor:grab;
+    filter:drop-shadow(0 10px 18px rgba(0,0,0,.55)); touch-action:none;}
+  .dicewrap.disabled{opacity:.55; pointer-events:none;}
+  .dicewrap.canroll{animation:dicePulse 1.1s ease-in-out infinite;}
+  @keyframes dicePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+  #cv{display:block; margin:0 auto; border-radius:12px; cursor:pointer; touch-action:manipulation;
+    box-shadow:0 12px 30px rgba(0,0,0,.5);}
+  .hud{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:15px 0 4px;}
+  .pl{display:flex; align-items:center; gap:7px; background:var(--card); border:none;
+    border-radius:999px; padding:6px 13px; font-size:12.5px; font-weight:800; color:var(--navy-ink); transition:.2s; box-shadow:var(--sh-clay);}
+  .pl .dot{width:11px; height:11px; border-radius:50%; box-shadow:0 0 0 2px #fff inset;}
+  .pl.on{border-color:var(--navy); background:#fff; box-shadow:0 0 0 3px rgba(45,85,120,.15); transform:translateY(-1px);}
+  .pl small{font-weight:800; color:var(--dim); font-size:11px;}
+  .dicewrap{display:flex; align-items:center; justify-content:center; gap:16px; margin:10px 0 2px; flex-wrap:wrap;}
+  .btn[id=again],.btn[id=back]{border-radius:12px 999px 999px 12px; padding:8px 18px; font-size:13px;}
+  #dice3d{display:flex; align-items:center; justify-content:center;}
+  .msg{text-align:center; font-size:14.5px; font-weight:800; color:var(--navy-2); min-height:26px; margin-top:12px;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="games">
+
+<div id="hdr"></div>
+<div class="clay-shell" style="display:none"><div class="row gap">
+  <a class="chip" style="font-size:13px;pointer-events:none">SAAGAR</a>
+  <a class="chip" style="font-size:13px">Log in</a>
+  <a class="chip" style="font-size:13px;color:#a35d2b;background:var(--clay-butter);border:1px solid var(--clay-lemon);font-weight:900">Play now →</a>
+</div></div>
+<div id="ftr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../games.html">Games</a> / Ludo</div>
+    <h1><span class="lg"><img src="../assets/clay-logos/games/ludo.svg" width="56" height="56" alt="" style="vertical-align:top;margin-right:8px"></span>Ludo</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:680px;">
+    <div id="lobby"></div>
+
+    <div id="stage" class="hidden">
+      <div class="card">
+        <h2><span class="em"><img src="../assets/clay-logos/games/ludo.svg" width="44" height="44" alt="" style="vertical-align:middle;margin-right:6px;border-radius:12px"></svg></span> <span id="modeLabel">Ludo</span></h2>
+        <div class="hud" id="hud"></div>
+        <div class="lwrap">
+          <canvas id="cv"></canvas>
+          <div class="dicewrap" id="dice3d" title="Tap the die to roll"></div>
+        </div>
+        <div class="msg" id="msg">Tap the die to start.</div>
+        <div class="row mt" style="justify-content:center;">
+          <button class="btn ghost sm" id="again" style="flex:0 0 auto;">New game</button>
+          <button class="btn ghost sm" id="back" style="flex:0 0 auto;">Change mode</button>
+        </div>
+      </div>
+      <p class="muted center mt" id="netNote"></p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/peerjs.min.js"></script>
+<script src="../assets/app.js"></script>
+<script src="../assets/dice3d.js"></script>
+<script src="../assets/net.js"></script>
+<script src="../assets/turnbar.js"></script>
+<script src="../assets/lobby.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var cv = $('cv'), cx = cv.getContext('2d');
+  var CELL = 30, DPR = 1, M = 0;   /* M: painted rail margin */
+
+  /* =========================================================
+     Board geometry — 15 x 15 grid
+     ========================================================= */
+  var TRACK = [];
+  (function () {
+    var r, c;
+    for (c = 1; c <= 5; c++) TRACK.push([6, c]);
+    for (r = 5; r >= 0; r--) TRACK.push([r, 6]);
+    TRACK.push([0, 7]);
+    for (r = 0; r <= 5; r++) TRACK.push([r, 8]);
+    for (c = 9; c <= 14; c++) TRACK.push([6, c]);
+    TRACK.push([7, 14]);
+    for (c = 14; c >= 9; c--) TRACK.push([8, c]);
+    for (r = 9; r <= 14; r++) TRACK.push([r, 8]);
+    TRACK.push([14, 7]);
+    for (r = 14; r >= 9; r--) TRACK.push([r, 6]);
+    for (c = 5; c >= 0; c--) TRACK.push([8, c]);
+    TRACK.push([7, 0]);
+    TRACK.push([6, 0]);
+  })();
+
+  var STARTS = [0, 13, 26, 39];
+  var SAFE = [0, 8, 13, 21, 26, 34, 39, 47];
+  var COLORS = ['#ff3b5c', '#2ecc71', '#f1c40f', '#3498db'];
+  var DARKER = ['#e02849', '#27ae60', '#f39c12', '#2980b9'];
+  var NAMES = ['Red', 'Green', 'Yellow', 'Blue'];
+  var HOME_COLS = [
+    [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]],
+    [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]],
+    [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]],
+    [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]]
+  ];
+  var YARDS = [[0, 0], [0, 9], [9, 9], [9, 0]];
+  var BASE_SPOTS = [
+    [[1.5, 1.5], [4.5, 1.5], [1.5, 4.5], [4.5, 4.5]],
+    [[10.5, 1.5], [13.5, 1.5], [10.5, 4.5], [13.5, 4.5]],
+    [[10.5, 10.5], [13.5, 10.5], [10.5, 13.5], [13.5, 13.5]],
+    [[1.5, 10.5], [4.5, 10.5], [1.5, 13.5], [4.5, 13.5]]
+  ];
+
+  /* Each player walks 51 shared track cells, 5 home cells, then the centre. */
+  var PATHS = (function () {
+    return STARTS.map(function (s, pi) {
+      var out = [];
+      for (var k = 0; k < 51; k++) out.push(TRACK[(s + k) % 52]);
+      HOME_COLS[pi].forEach(function (cell) { out.push(cell); });
+      out.push([7, 7]);
+      return out;
+    });
+  })();
+  var GOAL = 56;
+
+  function trackIndexAt(pi, pos) { return (STARTS[pi] + pos) % 52; }
+
+  /* =========================================================
+     State
+     ========================================================= */
+  var S = null;
+  var cfg = { bot: null, online: false, isHost: false, room: null, side: 0, humans: 1 };
+  var busy = false;
+
+  function fresh(diff) {
+    S = {
+      toks: [0, 1, 2, 3].map(function () { return [{ p: -1 }, { p: -1 }, { p: -1 }, { p: -1 }]; }),
+      turn: 0, dice: 0, phase: 'roll', six: 0, winner: -1, legal: [],
+      bots: [false, true, true, true], diff: diff || 'medium', rank: [],
+      off: [false, false, false, false], n: 4
+    };
+  }
+
+  function isBot(pi) { return !!S.bots[pi]; }
+  function isOff(pi) { return !!S.off[pi]; }
+
+  /* next seat that actually has a player (skips off seats) */
+  function nextSeat(from) {
+    for (var k = 1; k <= 4; k++) {
+      var q = ((from + k) % 4 + 4) % 4;
+      if (!isOff(q)) return q;
+    }
+    return from;
+  }
+
+  function seatName(pi) {
+    if (isBot(pi)) return 'Bot';
+    if (cfg.online) return pi === cfg.side ? 'You' : 'Friend';
+    return pi === 0 ? 'You' : NAMES[pi];
+  }
+
+  /* =========================================================
+     Rules
+     ========================================================= */
+  function legalMoves(pi, d) {
+    var out = [], mine = S.toks[pi];
+    for (var i = 0; i < 4; i++) {
+      var p = mine[i].p;
+      if (p === -1) { if (d === 6) out.push({ ti: i, to: 0 }); continue; }
+      if (p >= GOAL) continue;
+      var to = p + d;
+      if (to > GOAL) continue;
+      out.push({ ti: i, to: to });
+    }
+    return out;
+  }
+
+  function occupants(ti) {
+    var list = [];
+    for (var pi = 0; pi < 4; pi++) {
+      var arr = S.toks[pi];
+      for (var i = 0; i < 4; i++) {
+        var p = arr[i].p;
+        if (p < 0 || p > 50) continue;
+        if (trackIndexAt(pi, p) === ti) list.push({ pi: pi, ti: i });
+      }
+    }
+    return list;
+  }
+
+  /* Returns list of captured {pi,ti} for a move landing on `to`. */
+  function captures(pi, to) {
+    var out = [];
+    if (to > 50) return out;                 /* home column is private */
+    var ti = trackIndexAt(pi, to);
+    if (SAFE.indexOf(ti) > -1) return out;   /* safe square protects */
+    occupants(ti).forEach(function (o) {
+      if (o.pi !== pi) out.push(o);
+    });
+    return out;
+  }
+
+  /* =========================================================
+     Bot brain
+     ========================================================= */
+  function botScore(pi, mv) {
+    var s = mv.to;                                   /* progress */
+    var caps = captures(pi, mv.to);
+    caps.forEach(function (c) {
+      s += 700 + S.toks[c.pi][c.ti].p * 4;           /* the further they got, the better */
+    });
+    if (mv.to === GOAL) s += 420;
+    if (S.toks[pi][mv.ti].p === -1) s += 260;        /* coming out */
+    if (mv.to <= 50 && SAFE.indexOf(trackIndexAt(pi, mv.to)) > -1) s += 120;
+    if (mv.to <= 50) {
+      var ti = trackIndexAt(pi, mv.to);
+      var danger = 0;
+      for (var o = 0; o < 4; o++) {
+        if (o === pi) continue;
+        S.toks[o].forEach(function (t) {
+          if (t.p < 0 || t.p > 50) return;
+          var gap = (ti - trackIndexAt(o, t.p) + 52) % 52;
+          if (gap >= 1 && gap <= 6) danger++;
+        });
+      }
+      s -= danger * 45;
+    }
+    return s;
+  }
+
+  function botChoose(pi) {
+    var list = S.legal.slice();
+    if (!list.length) return null;
+    if (S.diff === 'easy') return list[Math.floor(Math.random() * list.length)];
+    var scored = list.map(function (mv) { return { mv: mv, s: botScore(pi, mv) }; });
+    scored.sort(function (a, b) { return b.s - a.s; });
+    if (S.diff === 'medium' && Math.random() < 0.28 && scored.length > 1) return scored[1].mv;
+    return scored[0].mv;
+  }
+
+  /* =========================================================
+     Rendering
+     ========================================================= */
+  function resize() {
+    var host = cv.parentElement;
+    /* fit a true square: limit by width AND by viewport height so the whole
+       board is visible without scrolling */
+    var availH = window.innerHeight - 260;   /* header + hud + controls */
+    if (availH < 260) availH = 260;
+    var size = Math.min(host.clientWidth - 4, 620, availH);
+    if (size < 200) size = 200;
+    var step = Math.floor(size / 15.3);   /* 15 cells + painted margin */
+    CELL = Math.max(14, step);
+    M = Math.round(CELL * 0.15);          /* painted rail margin (px) */
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = (15 * CELL + M * 2) * DPR;
+    cv.height = (15 * CELL + M * 2) * DPR;
+    cv.style.width = (15 * CELL + M * 2) + 'px';
+    cv.style.height = (15 * CELL + M * 2) + 'px';
+    cx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    draw();
+  }
+
+  function sq(r, c, pad) {
+    pad = pad || 0;
+    return { x: M + c * CELL + pad, y: M + r * CELL + pad, w: CELL - pad * 2, h: CELL - pad * 2 };
+  }
+  function roundRect(x, y, w, h, rad) {
+    var r = Math.min(rad, w / 2, h / 2);
+    cx.beginPath();
+    cx.moveTo(x + r, y);
+    cx.arcTo(x + w, y, x + w, y + h, r);
+    cx.arcTo(x + w, y + h, x, y + h, r);
+    cx.arcTo(x, y + h, x, y, r);
+    cx.arcTo(x, y, x + w, y, r);
+    cx.closePath();
+  }
+
+  /* glossy 3-D ludo token, Ludo King style */
+  function drawToken3D(x, y, rad, pi, glow) {
+    cx.save();
+    if (glow) {
+      cx.beginPath();
+      cx.arc(x, y, rad + 3 + glow * 3, 0, 6.2832);
+      cx.fillStyle = 'rgba(255,255,255,' + (0.35 + glow * 0.35) + ')';
+      cx.fill();
+    }
+    /* drop shadow */
+    cx.beginPath();
+    cx.ellipse(x + rad * 0.12, y + rad * 0.30, rad * 0.92, rad * 0.62, 0, 0, 6.2832);
+    cx.fillStyle = 'rgba(0,0,0,.24)';
+    cx.fill();
+    /* base ring (dark) */
+    cx.beginPath();
+    cx.arc(x, y + rad * 0.14, rad, 0, 6.2832);
+    cx.fillStyle = DARKER[pi];
+    cx.fill();
+    /* main dome */
+    var g = cx.createRadialGradient(x - rad * 0.4, y - rad * 0.55, rad * 0.12, x, y - rad * 0.08, rad);
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(0.28, COLORS[pi]);
+    g.addColorStop(1, DARKER[pi]);
+    cx.beginPath();
+    cx.arc(x, y - rad * 0.08, rad, 0, 6.2832);
+    cx.fillStyle = g;
+    cx.fill();
+    /* specular highlight */
+    var hl = cx.createRadialGradient(x - rad * 0.38, y - rad * 0.42, 0, x - rad * 0.38, y - rad * 0.42, rad * 0.55);
+    hl.addColorStop(0, 'rgba(255,255,255,.95)');
+    hl.addColorStop(1, 'rgba(255,255,255,0)');
+    cx.beginPath();
+    cx.arc(x - rad * 0.3, y - rad * 0.34, rad * 0.5, 0, 6.2832);
+    cx.fillStyle = hl;
+    cx.fill();
+    /* rim light */
+    cx.beginPath();
+    cx.arc(x, y - rad * 0.08, rad, 0, 6.2832);
+    cx.lineWidth = Math.max(1.2, rad * 0.08);
+    cx.strokeStyle = 'rgba(255,255,255,.55)';
+    cx.stroke();
+    cx.restore();
+  }
+
+  function drawBoard() {
+    var N = 15 * CELL;
+    /* outer painted rail (sits inside the CSS wooden frame) */
+    var rail = cx.createLinearGradient(0, 0, 0, N + M * 2);
+    rail.addColorStop(0, '#ffefc2');
+    rail.addColorStop(0.5, '#ffe4c9');
+    rail.addColorStop(1, '#ffe0b8');
+    cx.fillStyle = rail;
+    cx.fillRect(0, 0, N + M * 2, N + M * 2);
+    /* rail inner shadow for depth */
+    var railSh = cx.createRadialGradient((N + M * 2) / 2, (N + M * 2) / 2, N * 0.42, (N + M * 2) / 2, (N + M * 2) / 2, N * 0.78);
+    railSh.addColorStop(0, 'rgba(255,255,255,.35)');
+    railSh.addColorStop(1, 'rgba(196,110,60,.16)');
+    cx.fillStyle = railSh;
+    cx.fillRect(0, 0, N + M * 2, N + M * 2);
+
+    /* play field with soft drop shadow onto the rail */
+    cx.save();
+    cx.shadowColor = 'rgba(196,110,60,.22)';
+    cx.shadowBlur = M * 0.9;
+    cx.fillStyle = '#fffdf8';
+    cx.fillRect(M, M, N, N);
+    cx.restore();
+
+    /* yards — colored quadrant + white home box + colored token slots
+       (the reference layout: gradient fill, white rounded box, 4 round slots) */
+    for (var pi = 0; pi < 4; pi++) {
+      var y = YARDS[pi];
+      var rx = M + y[1] * CELL, ry = M + y[0] * CELL, sz = 6 * CELL;
+      var g = cx.createLinearGradient(rx, ry, rx + sz, ry + sz);
+      g.addColorStop(0, COLORS[pi]);
+      g.addColorStop(1, DARKER[pi]);
+      cx.fillStyle = g;
+      roundRect(rx + 1, ry + 1, sz - 2, sz - 2, CELL * 0.5);
+      cx.fill();
+      /* white home box with soft inset shadow */
+      cx.save();
+      cx.shadowColor = 'rgba(0,0,0,.25)';
+      cx.shadowBlur = CELL * 0.35;
+      cx.shadowOffsetY = CELL * 0.12;
+      cx.fillStyle = '#ffffff';
+      roundRect(rx + CELL * 1.05, ry + CELL * 1.05, sz - CELL * 2.1, sz - CELL * 2.1, CELL * 0.55);
+      cx.fill();
+      cx.restore();
+      /* four colored token slots, inset rings like the reference */
+      for (var i = 0; i < 4; i++) {
+        var sp = BASE_SPOTS[pi][i];
+        var sx = M + sp[0] * CELL, sy = M + sp[1] * CELL, sr = CELL * 0.44;
+        cx.beginPath();
+        cx.arc(sx, sy + sr * 0.16, sr, 0, 6.2832);
+        cx.fillStyle = 'rgba(0,0,0,.18)';
+        cx.fill();
+        var sg = cx.createRadialGradient(sx - sr * 0.3, sy - sr * 0.35, sr * 0.15, sx, sy, sr);
+        sg.addColorStop(0, COLORS[pi]);
+        sg.addColorStop(1, DARKER[pi]);
+        cx.beginPath();
+        cx.arc(sx, sy, sr, 0, 6.2832);
+        cx.fillStyle = sg;
+        cx.fill();
+        cx.beginPath();
+        cx.arc(sx, sy, sr, 0, 6.2832);
+        cx.lineWidth = Math.max(1, CELL * 0.06);
+        cx.strokeStyle = 'rgba(255,255,255,.5)';
+        cx.stroke();
+      }
+    }
+
+    /* track cells */
+    for (var t = 0; t < TRACK.length; t++) {
+      var cell = TRACK[t], b = sq(cell[0], cell[1], 1.5);
+      var owner = STARTS.indexOf(t);
+      cx.fillStyle = owner > -1 ? COLORS[owner] : '#ffffff';
+      roundRect(b.x, b.y, b.w, b.h, CELL * 0.22);
+      cx.fill();
+      cx.strokeStyle = 'rgba(224,231,255,.9)';
+      cx.lineWidth = 1;
+      cx.stroke();
+      if (owner > -1) {
+        cx.fillStyle = 'rgba(255,255,255,.85)';
+        cx.font = 'bold ' + (CELL * 0.5) + 'px sans-serif';
+        cx.textAlign = 'center'; cx.textBaseline = 'middle';
+        cx.fillText('★', M + (cell[1] + 0.5) * CELL, M + (cell[0] + 0.55) * CELL);
+      } else if (SAFE.indexOf(t) > -1) {
+        cx.fillStyle = 'rgba(31,63,92,.3)';
+        cx.beginPath();
+        cx.arc(M + (cell[1] + 0.5) * CELL, M + (cell[0] + 0.5) * CELL, CELL * 0.14, 0, 6.2832);
+        cx.fill();
+      }
+    }
+
+    /* home columns */
+    for (var p2 = 0; p2 < 4; p2++) {
+      HOME_COLS[p2].forEach(function (cell) {
+        var b2 = sq(cell[0], cell[1], 1.5);
+        cx.fillStyle = COLORS[p2];
+        roundRect(b2.x, b2.y, b2.w, b2.h, CELL * 0.22);
+        cx.fill();
+        cx.fillStyle = 'rgba(255,255,255,.75)';
+        cx.beginPath();
+        cx.arc(M + (cell[1] + 0.5) * CELL, M + (cell[0] + 0.5) * CELL, CELL * 0.13, 0, 6.2832);
+        cx.fill();
+      });
+    }
+
+    /* centre: four triangles */
+    var c0 = M + 6 * CELL, c1 = M + 9 * CELL, mid = M + 7.5 * CELL;
+    var sides = [
+      { pi: 1, pts: [[c0, c0], [c1, c0], [mid, mid]] },   /* top = green */
+      { pi: 2, pts: [[c1, c0], [c1, c1], [mid, mid]] },   /* right = yellow */
+      { pi: 3, pts: [[c0, c1], [c1, c1], [mid, mid]] },   /* bottom = blue */
+      { pi: 0, pts: [[c0, c0], [c0, c1], [mid, mid]] }    /* left = red */
+    ];
+    sides.forEach(function (s) {
+      cx.beginPath();
+      cx.moveTo(s.pts[0][0], s.pts[0][1]);
+      cx.lineTo(s.pts[1][0], s.pts[1][1]);
+      cx.lineTo(s.pts[2][0], s.pts[2][1]);
+      cx.closePath();
+      cx.fillStyle = COLORS[s.pi];
+      cx.fill();
+      cx.strokeStyle = 'rgba(255,255,255,.6)';
+      cx.lineWidth = 1.5;
+      cx.stroke();
+    });
+    cx.fillStyle = 'rgba(255,255,255,.92)';
+    cx.beginPath();
+    cx.arc(mid, mid, CELL * 0.32, 0, 6.2832);
+    cx.fill();
+
+    cx.strokeStyle = 'rgba(31,63,92,.28)';
+    cx.lineWidth = 2.5;
+    roundRect(M + 1.5, M + 1.5, N - 3, N - 3, CELL * 0.7);
+    cx.stroke();
+  }
+
+  function tokenPos(pi, ti) {
+    var tk = S.toks[pi][ti];
+    if (tk.p === -1) {
+      var sp = BASE_SPOTS[pi][ti];
+      return { x: M + sp[0] * CELL, y: M + sp[1] * CELL };
+    }
+    var cell = PATHS[pi][Math.min(tk.p, GOAL)];
+    var x = M + (cell[1] + 0.5) * CELL, y = M + (cell[0] + 0.5) * CELL;
+    /* spread stacked tokens a little */
+    if (tk.p <= 50) {
+      var stack = occupants(trackIndexAt(pi, tk.p));
+      if (stack.length > 1) {
+        var at = 0;
+        for (var i = 0; i < stack.length; i++) {
+          if (stack[i].pi === pi && stack[i].ti === ti) { at = i; break; }
+        }
+        var ang = (at / stack.length) * 6.2832;
+        x += Math.cos(ang) * CELL * 0.17;
+        y += Math.sin(ang) * CELL * 0.17;
+      }
+    } else if (pi === 0) { y -= CELL * 0.12; }
+    else if (pi === 2) { y += CELL * 0.12; }
+    return { x: x, y: y };
+  }
+
+  function drawTokens() {
+    var movable = {};
+    if (!busy && S.phase === 'pick' && !isBot(S.turn) && S.legal.length) {
+      S.legal.forEach(function (m) { movable[m.ti] = 1; });
+    }
+    var pulse = 0.5 + 0.5 * Math.sin(Date.now() / 260);
+    for (var pi = 0; pi < 4; pi++) {
+      if (isOff(pi)) continue;
+      for (var ti = 0; ti < 4; ti++) {
+        var pos = tokenPos(pi, ti);
+        var rad = CELL * 0.36;
+        drawToken3D(pos.x, pos.y, rad, pi, (movable[ti] && pi === S.turn) ? pulse : 0);
+      }
+    }
+    /* goal badge for finished tokens */
+    for (var p2 = 0; p2 < 4; p2++) {
+      if (isOff(p2)) continue;
+      for (var t2 = 0; t2 < 4; t2++) {
+        if (S.toks[p2][t2].p !== GOAL) continue;
+        var po = tokenPos(p2, t2);
+        cx.beginPath();
+        cx.arc(po.x, po.y, CELL * 0.16, 0, 6.2832);
+        cx.fillStyle = '#fff';
+        cx.fill();
+      }
+    }
+  }
+
+  function draw() {
+    if (!S) return;
+    drawBoard();
+    drawTokens();
+  }
+
+  /* dice — shared 3-D die, small, draggable anywhere over the board */
+  var die = null;
+  function initDie() {
+    if (die) return die;
+    die = window.SAAGAR_DICE3D.make(46, { cls: 'gold' });
+    var host = $('dice3d');
+    if (host) { host.appendChild(die.el); makeDieDraggable(host); }
+    return die;
+  }
+  function paintDice(v) { initDie().show(v || 1); }
+
+  /* tap = roll, drag = reposition anywhere on the board */
+  function makeDieDraggable(host) {
+    if (host.__drag) return;
+    host.__drag = true;
+    var sx = 0, sy = 0, ox = 0, oy = 0, moved = false, down = false;
+    host.addEventListener('pointerdown', function (e) {
+      down = true; moved = false;
+      sx = e.clientX; sy = e.clientY;
+      var r = host.getBoundingClientRect(), p = host.parentElement.getBoundingClientRect();
+      ox = r.left - p.left; oy = r.top - p.top;
+      host.style.cursor = 'grabbing';
+      host.setPointerCapture && host.setPointerCapture(e.pointerId);
+    });
+    host.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+      if (moved) {
+        host.style.right = 'auto'; host.style.bottom = 'auto';
+        host.style.left = Math.max(0, ox + dx) + 'px';
+        host.style.top = Math.max(0, oy + dy) + 'px';
+      }
+    });
+    ['pointerup', 'pointercancel'].forEach(function (ev) {
+      host.addEventListener(ev, function () {
+        down = false;
+        host.style.cursor = '';
+        if (!moved) {
+          if (!S || busy || S.winner > -1 || S.phase !== 'roll') return;
+          if (cfg.online && !cfg.isHost) {
+            if (S.turn !== cfg.side) return;
+            cfg.room.send({ t: 'roll', seat: cfg.side });
+            refreshControls();
+            return;
+          }
+          if (isBot(S.turn)) return;
+          doRoll();
+        }
+      });
+    });
+  }
+
+  function hud() {
+    var h = $('hud');
+    h.innerHTML = '';
+    if (!S) return;
+    var n = S.n || 4;
+    for (var pi = 0; pi < n; pi++) {
+      var off = isOff(pi);
+      var d = document.createElement('div');
+      d.className = 'pl' + (S.turn === pi && S.winner < 0 && !off ? ' on' : '');
+      if (off) d.style.opacity = '.5';
+      var home = off ? 0 : S.toks[pi].filter(function (t) { return t.p === GOAL; }).length;
+      d.innerHTML = '<span class="dot" style="background:' + (off ? '#c4cbdb' : COLORS[pi]) + '"></span>' +
+        NAMES[pi] + ' <small>' + (off ? 'off' : seatName(pi) + ' · ' + home + '/4') + '</small>';
+      h.appendChild(d);
+    }
+  }
+
+  function say(t) { $('msg').textContent = t; }
+
+  function refreshControls() {
+    var dw = document.querySelector('.dicewrap');
+    if (!dw) return;
+    if (!S) { dw.classList.add('disabled'); dw.classList.remove('canroll'); return; }
+    var mine = cfg.online ? (S.turn === cfg.side) : (S.turn === 0);
+    var canRoll = !busy && S.winner < 0 && S.phase === 'roll' && mine && !isBot(S.turn);
+    dw.classList.toggle('disabled', !canRoll);
+    dw.classList.toggle('canroll', canRoll);
+  }
+
+  function redrawAll() { draw(); hud(); refreshControls(); armTurnClock(); }
+
+  /* ---- 30s turn clock: a human on the roll/pick phase must act, or the
+     turn is skipped. Bots and finished games never arm it. In a room the
+     HOST referees everyone (its timer skips the stalled seat and the
+     state broadcast moves both devices); solo/hotseat referees locally. ---- */
+  function armTurnClock() {
+    var T = window.SAAGAR_TURN;
+    if (!T || !S || S.winner > -1) { if (T) T.stop(); return; }
+    var humanTurn = !isBot(S.turn) && !S.off[S.turn];
+    if (cfg.online && !cfg.isHost) {           /* guest: display only, host referees */
+      if (humanTurn && (S.phase === 'roll' || S.phase === 'pick'))
+        T.arm({ secs: 30, onSkip: function () { say('Time is up — turn skipped.'); } });
+      else T.stop();
+      return;
+    }
+    /* host (rooms) or local play: referee the live human's turn */
+    if (!humanTurn || (S.phase !== 'roll' && S.phase !== 'pick')) { T.stop(); return; }
+    T.arm({ secs: 30, onSkip: function () {
+      if (!S || S.winner > -1 || isBot(S.turn) || S.off[S.turn] || busy) return;
+      if (S.phase !== 'roll' && S.phase !== 'pick') return;
+      say(NAMES[S.turn] + " ran out of time — turn skipped.");
+      S.six = 0;
+      endTurn();
+    } });
+  }
+
+  /* =========================================================
+     Turn engine
+     ========================================================= */
+  function netSend() {
+    if (cfg.online && cfg.isHost && cfg.room) cfg.room.send({ t: 'st', s: snap() });
+  }
+
+  function snap() {
+    return {
+      toks: S.toks.map(function (a) { return a.map(function (t) { return t.p; }); }),
+      turn: S.turn, dice: S.dice, phase: S.phase, six: S.six, winner: S.winner,
+      legal: S.legal, rank: S.rank,
+      bots: S.bots.slice(), off: S.off.slice(), n: S.n
+    };
+  }
+
+  function load(s) {
+    S.toks = s.toks.map(function (a) { return a.map(function (p) { return { p: p }; }); });
+    S.turn = s.turn; S.dice = s.dice; S.phase = s.phase;
+    S.six = s.six; S.winner = s.winner; S.legal = s.legal || []; S.rank = s.rank || [];
+    /* the guest must know which seats are real players, otherwise its own
+       turn is mistaken for a bot's and every control stays disabled. */
+    if (s.bots) S.bots = s.bots.slice();
+    if (s.off) S.off = s.off.slice();
+    if (s.n) S.n = s.n;
+    paintDice(S.dice);
+    redrawAll();
+    noteTurn();
+  }
+
+  function noteTurn() {
+    if (!S) return;
+    if (S.winner > -1) {
+      var won = cfg.online ? (S.winner === cfg.side) : (S.winner === 0);
+      var who = won ? 'You win the game! 🏆' : (cfg.online ? 'Your friend wins the game.' : NAMES[S.winner] + ' wins the game.');
+      say('🏆 ' + who + ' Tap New game for a rematch.');
+      return;
+    }
+    var mine = cfg.online ? (S.turn === cfg.side) : (S.turn === 0);
+    if (isBot(S.turn)) say(NAMES[S.turn] + ' is thinking…');
+    else if (mine) say(S.phase === 'pick' ? 'Pick a glowing token to move.' : 'Your turn — roll the dice.');
+    else say("Friend's turn (" + NAMES[S.turn] + ').');
+  }
+
+  function rollDice(cb) {
+    busy = true;
+    S.phase = 'roll';
+    var v = 1 + Math.floor(Math.random() * 6);
+    initDie().roll(v, function () {
+      if (!S) { busy = false; return; }
+      S.dice = v;
+      busy = false;
+      if (cb) cb(v);
+    });
+  }
+
+  function endTurn() {
+    S.six = 0;
+    S.turn = nextSeat(S.turn);
+    S.phase = 'roll';
+    S.legal = [];
+    redrawAll();
+    noteTurn();
+    netSend();
+    maybeBot();
+  }
+
+  function finished(pi) {
+    return S.toks[pi].every(function (t) { return t.p === GOAL; });
+  }
+
+  function afterMove(pi, extra) {
+    if (finished(pi)) {
+      S.winner = pi;
+      redrawAll();
+      noteTurn();
+      netSend();
+      return;
+    }
+    if (extra) {
+      S.phase = 'roll';
+      S.legal = [];
+      redrawAll();
+      say(NAMES[pi] + ' rolls again — ' + (S.turn === cfg.side && cfg.online ? 'your turn' : (isBot(pi) ? 'thinking…' : 'your turn')));
+      netSend();
+      maybeBot();
+      return;
+    }
+    netSend();
+    endTurn();
+  }
+
+  function applyMove(pi, ti, to) {
+    busy = true;
+    S.phase = 'anim';
+    var tk = S.toks[pi][ti];
+    var caps = captures(pi, to);
+    var from = tk.p;
+    var steps = [];
+    if (from === -1) steps.push(0);
+    else for (var k = from + 1; k <= to; k++) steps.push(k);
+
+    var idx = 0;
+    function hop() {
+      if (idx >= steps.length) {
+        busy = false;
+        var got = caps.length > 0;
+        caps.forEach(function (c) { S.toks[c.pi][c.ti].p = -1; });
+        if (got) {
+          say('💥 ' + NAMES[pi] + ' knocked out ' + NAMES[caps[0].pi] + '!');
+          window.SAAGAR && window.SAAGAR.toast && window.SAAGAR.toast('Capture! Extra turn');
+        }
+        var extra = got || to === GOAL || from === -1 || S.dice === 6;
+        if (S.dice === 6) S.six++; else if (got || to === GOAL) S.six = S.six;
+        if (S.six >= 3) {
+          say('Three sixes in a row — ' + NAMES[pi] + ' loses the turn.');
+          S.six = 0;
+          extra = false;
+        }
+        redrawAll();
+        afterMove(pi, extra);
+        return;
+      }
+      tk.p = steps[idx];
+      idx++;
+      draw();
+      setTimeout(hop, from === -1 ? 90 : 105);
+    }
+    hop();
+  }
+
+  function doRoll() {
+    if (!S || busy || S.winner > -1 || S.phase !== 'roll') return;
+    var pi = S.turn;
+    rollDice(function (v) {
+      var mv = legalMoves(pi, v);
+      S.legal = mv;
+      if (!mv.length) {
+        say(NAMES[pi] + ' rolled ' + v + ' — no move possible.');
+        setTimeout(function () {
+          if (v === 6 && S.six < 2) { S.six++; S.phase = 'roll'; redrawAll(); netSend(); maybeBot(); }
+          else { S.six = 0; endTurn(); }
+        }, 650);
+        return;
+      }
+      if (mv.length === 1) {
+        S.phase = 'anim';
+        redrawAll();
+        netSend();
+        setTimeout(function () { applyMove(pi, mv[0].ti, mv[0].to); }, 320);
+        return;
+      }
+      S.phase = 'pick';
+      redrawAll();
+      netSend();
+      if (isBot(pi)) {
+        say(NAMES[pi] + ' rolled ' + v + '…');
+        setTimeout(function () {
+          var pick = botChoose(pi) || mv[0];
+          applyMove(pi, pick.ti, pick.to);
+        }, 620);
+      } else if (cfg.online && pi === cfg.side) {
+        say('You rolled ' + v + ' — tap a glowing token.');
+      } else {
+        say('You rolled ' + v + ' — tap a glowing token.');
+      }
+    });
+  }
+
+  function maybeBot() {
+    if (!S || S.winner > -1) return;
+    if (!isBot(S.turn)) return;
+    if (window.SAAGAR_TURN) window.SAAGAR_TURN.stop();   /* bots never stall */
+    setTimeout(function () {
+      if (!S || S.winner > -1 || !isBot(S.turn) || S.phase !== 'roll') return;
+      doRoll();
+    }, 720);
+  }
+
+  /* canvas clicks — choose a token */
+  cv.addEventListener('click', function (e) {
+    if (busy || S.winner > -1 || S.phase !== 'pick') return;
+    if (isBot(S.turn)) return;
+    if (cfg.online && S.turn !== cfg.side) return;
+    var r = cv.getBoundingClientRect();
+    var gx = (e.clientX - r.left) / CELL - (M / CELL);
+    var gy = (e.clientY - r.top) / CELL - (M / CELL);
+    var best = null, bestD = 0.95;
+    S.legal.forEach(function (m) {
+      var p = tokenPos(S.turn, m.ti);
+      var d = Math.hypot(p.x / CELL - gx, p.y / CELL - gy);
+      if (d < bestD) { bestD = d; best = m; }
+    });
+    if (!best) return;
+    if (cfg.online && !cfg.isHost) {
+      cfg.room.send({ t: 'pick', ti: best.ti, seat: cfg.side });
+      S.phase = 'anim';
+      refreshControls();
+      return;
+    }
+    S.phase = 'anim';
+    applyMove(S.turn, best.ti, best.to);
+  });
+
+  /* rolling is handled by the die's own pointer handlers (makeDieDraggable) */
+
+  /* =========================================================
+     Modes
+     ========================================================= */
+  function showStage(label, note) {
+    $('lobby').classList.add('hidden');
+    $('stage').classList.remove('hidden');
+    $('modeLabel').textContent = label;
+    $('netNote').textContent = note || '';
+    resize();
+    redrawAll();
+    noteTurn();
+  }
+
+  /* Build the seat map for a room: occupied seats play, everyone else is off. */
+  function seatUp(players, seatCount) {
+    fresh('hard');
+    S.bots = [false, false, false, false];
+    S.off = [true, true, true, true];
+    (players || [0, 1]).forEach(function (p) { if (p >= 0 && p < 4) S.off[p] = false; });
+    S.n = Math.max(2, Math.min(4, seatCount || 4));
+    if (S.off[S.turn]) S.turn = nextSeat(S.turn);
+  }
+
+  function startSolo(opts) {
+    /* Solo is ALWAYS 1v1 — you (Red) vs one bot (Green), like Snakes & Ladders */
+    var diff = opts.bot || 'medium';
+    cfg = { bot: diff, online: false, isHost: false, room: null, side: 0, humans: 1, seats: 2, players: [0, 1] };
+    fresh(diff);
+    S.bots = [false, true, true, true];
+    S.off = [false, false, true, true];
+    S.n = 2;
+    showStage('You vs Bot (' + diff + ')',
+      'One on one. You are Red, the bot is Green. Roll a six to bring a token out.');
+    hud();
+    maybeBot();
+  }
+
+  function startRoom(room, isHost, o) {
+    o = o || {};
+    var players = (o.players && o.players.length) ? o.players : [0, 1];
+    var seats = o.seats || 4;
+    var seat = (typeof o.seat === 'number' && o.seat >= 0) ? o.seat : (isHost ? 0 : 1);
+    cfg = { bot: null, online: true, isHost: isHost, room: room, side: seat, humans: players.length, seats: seats, players: players };
+    seatUp(players, seats);
+    var offCount = 0;
+    for (var i = 0; i < seats; i++) if (isOff(i)) offCount++;
+    var note = offCount
+      ? 'Waiting for more players? Empty seats stay off — the game only expects the ' + players.length + ' here.'
+      : 'Every seat has a player. Good luck!';
+    if (isHost) {
+      showStage('Room ' + room.code + ' — you are ' + NAMES[seat], note);
+      say('Your turn — roll the dice.');
+      netSend();
+    } else {
+      showStage('Room ' + room.code + ' — you are ' + NAMES[seat], 'Waiting for the host to move.');
+    }
+    maybeBot();
+  }
+
+  function restartRoom() {
+    if (cfg.online && cfg.room && cfg.isHost) {
+      seatUp(cfg.players, cfg.seats);
+      netSend();
+      redrawAll();
+      noteTurn();
+      maybeBot();
+    } else if (cfg.online && cfg.room) {
+      cfg.room.send({ t: 'again' });
+    }
+  }
+
+  var lobby = window.SAAGAR_LOBBY.create({
+    key: 'ludo',
+    title: '🎲 How do you want to play?',
+    root: $('lobby'),
+    labels: { solo: '▶  Play 1v1 vs Bot', bot: '🤖  Play vs Bot (level)', create: '＋  Create room', join: '🔗  Join room' },
+    onSolo: startSolo,
+    onHostReady: function (room, o) { startRoom(room, true, o); },
+    onGuestReady: function (room, o) { startRoom(room, false, o); },
+    onMessage: function (msg, room, isHost, fromSeat) {
+      if (isHost) {
+        if (!S) return;
+        var seat = (typeof fromSeat === 'number' && fromSeat >= 0) ? fromSeat : msg.seat;
+        if (msg.t === 'roll') {
+          if (S.turn === seat && S.phase === 'roll' && !isBot(S.turn)) doRoll();
+        } else if (msg.t === 'pick') {
+          if (S.turn === seat && S.phase === 'pick') {
+            var m = null;
+            S.legal.forEach(function (x) { if (x.ti === msg.ti) m = x; });
+            if (m) { S.phase = 'anim'; applyMove(seat, m.ti, m.to); }
+          }
+        } else if (msg.t === 'again') {
+          restartRoom();
+        }
+        return;
+      }
+      if (msg.t === 'st') load(msg.s);
+    },
+    onPeerLeave: function (room, isHost, seat) {
+      if (typeof seat !== 'number' || seat < 0) return;
+      $('netNote').textContent = 'A player left — their seat is off now.';
+      if (window.SAAGAR && window.SAAGAR.toast) window.SAAGAR.toast('Friend left the game', true);
+      if (!S) return;
+      S.off[seat] = true;
+      if (S.turn === seat) { S.turn = nextSeat(seat); S.phase = 'roll'; S.legal = []; S.six = 0; }
+      netSend();
+      redrawAll();
+      noteTurn();
+      maybeBot();
+    }
+  });
+
+  $('again').onclick = function () {
+    if (cfg.online) { restartRoom(); return; }
+    fresh(cfg.bot || 'medium');
+    S.bots = [false, true, true, true];
+    S.off = [false, false, false, false];
+    S.n = 4;
+    redrawAll();
+    noteTurn();
+    maybeBot();
+  };
+
+  $('back').onclick = function () {
+    if (cfg.room) { try { cfg.room.close(true); } catch (e) { } }
+    S = null;
+    $('stage').classList.add('hidden');
+    $('lobby').classList.remove('hidden');
+    lobby.menu();
+  };
+
+  window.addEventListener('resize', function () { if (S) resize(); });
+  paintDice(0);
+  setInterval(function () { if (S && S.phase === 'pick' && !busy) draw(); }, 320);
+})();
+</script>
+</body>
+</html>

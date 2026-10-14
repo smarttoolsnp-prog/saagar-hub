@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signature Maker — draw and download a PNG | SAAGAR Tools</title>
+<meta name="description" content="Draw your signature with a finger or mouse and download it as a clean PNG with a transparent or white background.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/signature.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .padwrap{position:relative; border:2px solid var(--line-2); border-radius:14px; overflow:hidden; background:
+    linear-gradient(45deg,#f0f0f0 25%,transparent 25%,transparent 75%,#f0f0f0 75%),
+    linear-gradient(45deg,#f0f0f0 25%,transparent 25%,transparent 75%,#f0f0f0 75%);
+    background-size:18px 18px; background-position:0 0,9px 9px;}
+  .padwrap.white{background:#fff;}
+  canvas#pad{display:block; width:100%; height:230px; touch-action:none; cursor:crosshair;}
+  .baseline{position:absolute; left:8%; right:8%; bottom:52px; border-bottom:1.5px dashed #b9c6d6; pointer-events:none;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Signature Maker</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><path d="M4 20 C7 18 8 14 12 10 C15 7 18 5 20 4 C19 6 17 9 14 12 C10 16 6 17 4 20 Z"/><path d="M3 21 L7 21"/></svg></span>Signature Maker</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:720px;">
+    <div class="card">
+      <h2><span class="em">🖊️</span> Draw your signature</h2>
+      <div class="padwrap" id="wrap">
+        <canvas id="pad" width="1400" height="460"></canvas>
+        <div class="baseline"></div>
+      </div>
+      <div class="grid3 mt">
+        <div class="field">
+          <label for="thick">Pen thickness: <span id="thVal">3</span></label>
+          <input type="range" id="thick" min="1" max="10" value="3" style="width:100%;">
+        </div>
+        <div class="field">
+          <label for="color">Ink colour</label>
+          <select id="color">
+            <option value="#12233a" selected>Black-blue</option>
+            <option value="#000000">Black</option>
+            <option value="#1a3fd0">Blue</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bg">Background</label>
+          <select id="bg">
+            <option value="transparent" selected>Transparent (for documents)</option>
+            <option value="white">White</option>
+          </select>
+        </div>
+      </div>
+      <div class="row mt">
+        <button class="btn" id="save" type="button" style="flex:0 0 auto;">⬇ Download PNG</button>
+        <button class="btn soft" id="undo" type="button" style="flex:0 0 auto;">↶ Undo</button>
+        <button class="btn ghost" id="clear" type="button" style="flex:0 0 auto;">Clear</button>
+      </div>
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">📄</span> Tips for an accepted signature</h2>
+      <ul style="padding-left:20px; font-size:14px; line-height:1.8;">
+        <li>Sign in the <b>top part of the box</b> — the dashed line shows where it sits above the name.</li>
+        <li>Use <b>transparent background</b> when you'll place it on a form; use white if the form will be printed.</li>
+        <li>Keep one signature style and reuse it, the way you'd use a pen.</li>
+        <li>Export at a large size — it stays sharp when printed smaller.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var cv = $('pad'), ctx = cv.getContext('2d');
+  var drawing = false, last = null, history = [];
+
+  function reset() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    history = [];
+    snapshot();
+  }
+  function snapshot() {
+    try { history.push(ctx.getImageData(0, 0, cv.width, cv.height)); } catch (e) { }
+    if (history.length > 20) history.shift();
+  }
+  function undo() {
+    if (history.length < 2) { reset(); return; }
+    history.pop();
+    ctx.putImageData(history[history.length - 1], 0, 0);
+  }
+
+  function pos(e) {
+    var r = cv.getBoundingClientRect();
+    var p = e.touches ? e.touches[0] : e;
+    return {
+      x: (p.clientX - r.left) * cv.width / r.width,
+      y: (p.clientY - r.top) * cv.height / r.height
+    };
+  }
+
+  function start(e) {
+    e.preventDefault();
+    drawing = true;
+    last = pos(e);
+    ctx.strokeStyle = $('color').value;
+    ctx.lineWidth = parseInt($('thick').value, 10) * 3.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(last.x + 0.1, last.y + 0.1);
+    ctx.stroke();
+  }
+  function move(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    var p = pos(e);
+    ctx.strokeStyle = $('color').value;
+    ctx.lineWidth = parseInt($('thick').value, 10) * 3.2;
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last = p;
+  }
+  function end() {
+    if (!drawing) return;
+    drawing = false;
+    snapshot();
+    $('msg').textContent = '';
+  }
+
+  cv.addEventListener('pointerdown', start);
+  cv.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', end);
+  cv.addEventListener('touchstart', start, { passive: false });
+  cv.addEventListener('touchmove', move, { passive: false });
+  cv.addEventListener('touchend', end);
+
+  $('thick').addEventListener('input', function () { $('thVal').textContent = this.value; });
+  $('undo').onclick = undo;
+  $('clear').onclick = function () { reset(); $('msg').textContent = ''; };
+
+  $('save').onclick = function () {
+    /* is anything drawn? */
+    var data = ctx.getImageData(0, 0, cv.width, cv.height).data;
+    var hasInk = false;
+    for (var i = 3; i < data.length; i += 4) { if (data[i] > 0) { hasInk = true; break; } }
+    if (!hasInk) {
+      $('msg').textContent = 'Draw your signature first.';
+      $('msg').className = 'out bad';
+      return;
+    }
+    /* trim the empty margin so the signature fills the image */
+    var bounds = null;
+    for (var y = 0; y < cv.height; y++) {
+      for (var x = 0; x < cv.width; x++) {
+        if (data[(y * cv.width + x) * 4 + 3] > 0) {
+          if (!bounds) bounds = { x1: x, y1: y, x2: x, y2: y };
+          else {
+            if (x < bounds.x1) bounds.x1 = x;
+            if (y < bounds.y1) bounds.y1 = y;
+            if (x > bounds.x2) bounds.x2 = x;
+            if (y > bounds.y2) bounds.y2 = y;
+          }
+        }
+      }
+    }
+    var pad = 24;
+    var w = Math.max(1, bounds.x2 - bounds.x1 + pad * 2);
+    var h = Math.max(1, bounds.y2 - bounds.y1 + pad * 2);
+    var out = document.createElement('canvas');
+    out.width = w; out.height = h;
+    var octx = out.getContext('2d');
+    if ($('bg').value === 'white') { octx.fillStyle = '#fff'; octx.fillRect(0, 0, w, h); }
+    octx.drawImage(cv, bounds.x1 - pad, bounds.y1 - pad, w, h, 0, 0, w, h);
+
+    out.toBlob(function (blob) {
+      SAAGAR.downloadBlob(blob, 'signature.png');
+      $('msg').textContent = 'Saved — signature.png (' + w + '×' + h + ' pixels).';
+      $('msg').className = 'out ok';
+    }, 'image/png');
+  };
+
+  reset();
+})();
+</script>
+</body>
+</html>

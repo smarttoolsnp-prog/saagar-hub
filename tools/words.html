@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Number → Words — cheques and forms | SAAGAR Tools</title>
+<meta name="description" content="Write any amount in words: English in the lakh-crore system and Nepali akchhar. Perfect for cheques, vouchers and forms.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/words.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .words{background:linear-gradient(150deg,#fff,#eef4fb); border:1px solid var(--line); border-radius:14px;
+    padding:16px; margin-top:12px;}
+  .words h4{font-size:11.5px; font-weight:900; letter-spacing:1.6px; color:var(--faint); text-transform:uppercase; margin-bottom:6px;}
+  .words .w{font-size:clamp(16px,2.7vw,20px); font-weight:800; color:var(--navy-2); line-height:1.45; word-break:break-word;}
+  .fillout{background:#fffdf5; border:2px dashed #e0c98a; border-radius:12px; padding:16px;
+    font-family:var(--mono); font-size:14px; color:#5b4a1f; line-height:1.7; margin-top:14px;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Number → Words</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 16 L10.5 8 L13 16 M8.8 13.5 L12.2 13.5 M15.5 8 L15.5 16 M18 8 L18 16 M18 12 L15.5 12"/></svg></span>Number → Words</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:720px;">
+    <div class="card">
+      <h2><span class="em">💵</span> Enter the amount</h2>
+      <div class="row">
+        <div class="field" style="flex:2;">
+          <label for="amt">Amount (numbers only)</label>
+          <input type="text" id="amt" placeholder="e.g. 123456.75" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="field" style="flex:1;">
+          <label for="unit">Show as</label>
+          <select id="unit">
+            <option value="Rupees">Rupees</option>
+            <option value="Rs.">Rs. only</option>
+            <option value="">Plain number</option>
+          </select>
+        </div>
+        <button class="btn" id="go" style="flex:0 0 auto;">Convert</button>
+      </div>
+      <div class="out" id="msg" role="status"></div>
+
+      <div id="out" style="display:none;">
+        <div class="words"><h4>English (lakh · crore)</h4><div class="w" id="wEn">—</div></div>
+        <div class="words"><h4>नेपाली अक्षर</h4><div class="w" id="wNe">—</div></div>
+        <div class="words"><h4>Devanagari numerals</h4><div class="w" id="wDig">—</div></div>
+        <div class="fillout" id="cheque">—</div>
+        <div class="chips">
+          <button class="chip" id="copyEn" type="button">Copy English</button>
+          <button class="chip" id="copyNe" type="button">Copy Nepali</button>
+          <button class="chip" id="copyChq" type="button">Copy cheque line</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">🇳🇵</span> Why the groups look odd</h2>
+      <p class="muted">In Nepal and India, digits group after the first three: <b>12,34,567</b> reads as twelve lakh thirty-four thousand five hundred sixty-seven. That's why the words skip from thousand straight to lakh, then crore — there's no “million” in this system.</p>
+      <table class="tbl mt">
+        <thead><tr><th>Digits</th><th>Nepali / Indian</th><th>International</th></tr></thead>
+        <tbody>
+          <tr><td>1,00,000</td><td>1 lakh</td><td>100 thousand</td></tr>
+          <tr><td>10,00,000</td><td>10 lakh</td><td>1 million</td></tr>
+          <tr><td>1,00,00,000</td><td>1 crore</td><td>10 million</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+
+  var ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+    'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+  var TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+  var NE = ['शून्य', 'एक', 'दुई', 'तीन', 'चार', 'पाँच', 'छ', 'सात', 'आठ', 'नौ', 'दश',
+    'एघार', 'बाह्र', 'तेह्र', 'चौध', 'पन्ध्र', 'सोह्र', 'सत्र', 'अठार', 'उन्नाइस',
+    'बीस', 'एक्काइस', 'बाइस', 'तेइस', 'चौबिस', 'पच्चिस', 'छब्बिस', 'सत्ताइस', 'अठ्ठाइस', 'उनन्तिस',
+    'तीस', 'एकतीस', 'बत्तीस', 'तेत्तीस', 'चौँतीस', 'पैँतीस', 'छत्तीस', 'सैँतीस', 'अठतीस', 'उनन्चालीस',
+    'चालीस', 'एकचालीस', 'बयालीस', 'त्रिचालीस', 'चवालीस', 'पैँतालीस', 'छयालीस', 'सतचालीस', 'अठचालीस', 'उनन्चास',
+    'पचास', 'एकाउन्न', 'बाउन्न', 'त्रिपन्न', 'चवन्न', 'पचपन्न', 'छपन्न', 'सन्ताउन्न', 'अन्ठाउन्न', 'उनन्साठी',
+    'साठी', 'एकसट्ठी', 'बयसट्ठी', 'त्रिसट्ठी', 'चौँसट्ठी', 'पैँसट्ठी', 'छयसट्ठी', 'सतसट्ठी', 'अठसट्ठी', 'उनन्सत्तरी',
+    'सत्तरी', 'एकहत्तर', 'बहत्तर', 'त्रिहत्तर', 'चौहत्तर', 'पचहत्तर', 'छयहत्तर', 'सतहत्तर', 'अठहत्तर', 'उनासी',
+    'असी', 'एकासी', 'बयासी', 'त्रियासी', 'चौरासी', 'पचासी', 'छयासी', 'सतासी', 'अठासी', 'उनान्नब्बे',
+    'नब्बे', 'एकानब्बे', 'बयानब्बे', 'त्रियानब्बे', 'चौरानब्बे', 'पन्चानब्बे', 'छयानब्बे', 'सन्तानब्बे', 'अन्ठानब्बे', 'उनन्सय'];
+
+  var NE_SCALE = { 'लाख': 'लाख', 'करोड': 'करोड', 'हजार': 'हजार', 'सय': 'सय' };
+
+  function wordsEn(n) {
+    n = Math.floor(Math.abs(n));
+    if (n === 0) return 'zero';
+    var out = [];
+    var crore = Math.floor(n / 10000000); n %= 10000000;
+    var lakh = Math.floor(n / 100000); n %= 100000;
+    var thou = Math.floor(n / 1000); n %= 1000;
+    var hund = Math.floor(n / 100); n %= 100;
+
+    function under1000(x) {
+      var s = [];
+      var h = Math.floor(x / 100); x %= 100;
+      if (h) s.push(ONES[h] + ' hundred');
+      if (x) {
+        if (s.length) s.push('and');
+        if (x < 20) s.push(ONES[x]);
+        else {
+          var t = Math.floor(x / 10), o = x % 10;
+          s.push(TENS[t] + (o ? '-' + ONES[o] : ''));
+        }
+      }
+      return s.join(' ');
+    }
+    function under100(x) { return x < 20 ? ONES[x] : TENS[Math.floor(x / 10)] + (x % 10 ? '-' + ONES[x % 10] : ''); }
+
+    if (crore) out.push(under100(crore > 99 ? 99 : crore) + ' crore');   /* simple: single crore figure */
+    if (lakh) out.push(under100(lakh) + ' lakh');
+    if (thou) out.push(under100(thou) + ' thousand');
+    if (hund || n) out.push(under1000(hund * 100 + n));
+    var s = out.join(' ').replace(/\s+/g, ' ').trim();
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function wordsNe(n) {
+    n = Math.floor(Math.abs(n));
+    if (n === 0) return 'शून्य';
+    var out = [];
+    var crore = Math.floor(n / 10000000); n %= 10000000;
+    var lakh = Math.floor(n / 100000); n %= 100000;
+    var thou = Math.floor(n / 1000); n %= 1000;
+    var hund = Math.floor(n / 100); n %= 100;
+
+    function u99(x) { return NE[x]; }
+    function u999(x) {
+      var s = [];
+      var h = Math.floor(x / 100); x %= 100;
+      if (h) s.push(u99(h) + ' सय');
+      if (x) s.push(u99(x));
+      return s.join(' ');
+    }
+    if (crore) out.push(u99(crore > 99 ? 99 : crore) + ' करोड');
+    if (lakh) out.push(u99(lakh) + ' लाख');
+    if (thou) out.push(u99(thou) + ' हजार');
+    if (hund || n) out.push(u999(hund * 100 + n));
+    return out.join(' ');
+  }
+
+  function groupNepali(s) {
+    s = String(s).replace(/[^0-9]/g, '');
+    if (s.length <= 3) return s;
+    var last3 = s.slice(-3), rest = s.slice(0, -3);
+    rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+    return rest + ',' + last3;
+  }
+  function groupIntl(s) {
+    return String(s).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function convert() {
+    var raw = $('amt').value.trim().replace(/,/g, '');
+    if (!raw) { warn('Type an amount first.'); return; }
+    var num = parseFloat(raw);
+    if (!isFinite(num) || num < 0) { warn('Enter a valid amount (no letters, no minus sign).'); return; }
+    if (num >= 1e12) { warn('That is larger than this tool handles.'); return; }
+
+    var whole = Math.floor(num);
+    var paisa = Math.round((num - whole) * 100);
+    var unit = $('unit').value;
+
+    $('wEn').textContent = wordsEn(whole) + (paisa ? ' and ' + wordsEn(paisa) + ' paisa' : '') + ' only';
+    $('wNe').textContent = wordsNe(whole) + (paisa ? ' ' + wordsNe(paisa) + ' पैसा' : '') + ' मात्र';
+    $('wDig').textContent = SAAGAR.bs.neDigits(groupNepali(String(whole))) +
+      (paisa ? '.' + SAAGAR.bs.neDigits(SAAGAR.pad(paisa)) : '');
+
+    var label = unit === 'Rupees' ? 'Rupees' : (unit === 'Rs.' ? 'Rs.' : '');
+    $('cheque').textContent = label
+      ? label + ' ' + wordsEn(whole) + (paisa ? ' and ' + wordsEn(paisa) + ' paisa' : '') + ' only  —  ' + groupNepali(String(whole)) + (paisa ? '.' + SAAGAR.pad(paisa) : '')
+      : wordsEn(whole) + ' — ' + groupIntl(String(whole)) + ' (Nepali: ' + groupNepali(String(whole)) + ')';
+
+    $('out').style.display = '';
+    $('msg').textContent = '';
+    $('msg').className = 'out';
+  }
+  function warn(t) { $('msg').textContent = t; $('msg').className = 'out bad'; $('out').style.display = 'none'; }
+
+  $('go').onclick = convert;
+  $('amt').addEventListener('keydown', function (e) { if (e.key === 'Enter') convert(); });
+  $('amt').addEventListener('input', convert);
+
+  $('copyEn').onclick = function () { SAAGAR.copy($('wEn').textContent, 'English copied'); };
+  $('copyNe').onclick = function () { SAAGAR.copy($('wNe').textContent, 'Nepali copied'); };
+  $('copyChq').onclick = function () { SAAGAR.copy($('cheque').textContent, 'Cheque line copied'); };
+
+  $('amt').value = '123456.75';
+  convert();
+
+  /* expose for tests */
+  window.__words = { en: wordsEn, ne: wordsNe, groupNepali: groupNepali };
+})();
+</script>
+</body>
+</html>

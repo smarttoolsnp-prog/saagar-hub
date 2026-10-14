@@ -3,107 +3,433 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Skills | SAAGAR</title>
-<meta name="description" content="Learn real skills from zero — web development, design, Excel, English, video editing. Free resources, clear roadmaps.">
-<meta name="theme-color" content="#0f2c4c">
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<title>Skills — Guides for Nepali Youth | SAAGAR</title>
+<meta name="description" content="15 deep, step-by-step skill guides made for Nepali youth — web development, freelancing, English, video editing, Lok Sewa, farming, trades and more. Why it matters in Nepal, a full roadmap, realistic earning, mistakes to avoid and free links. All free.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/skills.html">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/clay.css">
+<link rel="stylesheet" href="assets/clay.css">
 <style>
-  :root{--ink:#0f2c4c; --paper:#f4f8fd; --card:#fff; --line:#d7e3f0; --text:#1a2b3c; --dim:#5b7186; --blue:#2f6df6; --gold:#f0a72e; --ok:#1fa564;}
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{font-family:"Segoe UI",system-ui,sans-serif; background:var(--paper); color:var(--text); line-height:1.6;}
-  header{background:var(--ink); color:#fff; padding:12px 20px; display:flex; align-items:center; gap:12px; border-bottom:3px solid var(--gold);}
-  header img{width:38px; height:38px;}
-  header a{color:#cfe0ef; font-size:13.5px; font-weight:600; margin-left:auto;}
-  .wrap{max-width:920px; margin:0 auto; padding:28px 20px 70px;}
-  h1{font-size:26px; font-weight:800; margin-bottom:4px;}
-  .sub{color:var(--dim); font-size:14px; margin-bottom:24px;}
-  .skill{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:14px;}
-  .skill h2{font-size:16.5px; margin-bottom:6px; display:flex; align-items:center; gap:8px;}
-  .skill .time{font-size:12px; background:#eef4fb; color:var(--blue); border-radius:999px; padding:3px 10px; font-weight:700;}
-  .skill p{font-size:13.5px; color:var(--dim); margin-bottom:10px;}
-  ol{padding-left:20px;}
-  li{font-size:14px; margin:5px 0;}
-  .free{margin-top:10px; font-size:13px; color:var(--ok); font-weight:700;}
+  .guide{background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:var(--sh);
+    padding:20px 22px; margin-bottom:18px; scroll-margin-top:84px;}
+  .guide h3{font-size:19px; font-weight:900; color:var(--navy-2); line-height:1.3; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .guide h3 .np{font-size:13.5px; font-weight:800; color:var(--faint);}
+  .guide .meta{display:flex; gap:7px; flex-wrap:wrap; margin:8px 0 2px;}
+  .guide .chip{font-size:11.2px; font-weight:900; padding:4px 11px; border-radius:99px; background:var(--bg-2); border:1px solid var(--line); color:var(--navy-2);}
+  .guide .chip.earn{background:#fff8e6; border-color:#f0dca6; color:#7a5a06;}
+  .guide .wlbl{font-size:10.5px; font-weight:900; letter-spacing:1.1px; text-transform:uppercase; color:#8a90b8; margin:14px 0 5px;}
+  .guide p.why{font-size:14px; line-height:1.75; color:var(--dim); margin:0;}
+  .guide ol{margin:0; padding-left:0; list-style:none; counter-reset:step; display:flex; flex-direction:column; gap:8px;}
+  .guide ol li{
+    counter-increment:step; position:relative; font-size:13.8px; line-height:1.7; color:var(--navy-2);
+    background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:11px 14px 11px 46px;
+  }
+  .guide ol li::before{
+    content:counter(step); position:absolute; left:12px; top:10px;
+    width:24px; height:24px; border-radius:8px; display:grid; place-items:center;
+    background:var(--grad); color:#fff; font-size:12px; font-weight:900;
+  }
+  .guide .earnbox{font-size:13.5px; line-height:1.75; background:#effaf2; border-left:3px solid #35a35f; border-radius:0 12px 12px 0; padding:11px 14px; color:#14532d;}
+  .guide .earnbox b{color:#0d5c2c;}
+  .guide .mist{font-size:13.3px; line-height:1.7; background:#fdf0ef; border-left:3px solid #d9534f; border-radius:0 12px 12px 0; padding:11px 14px; color:#7c2d26;}
+  .guide ul.mist{margin:0; padding-left:18px;}
+  .guide ul.mist li{margin:3px 0;}
+  .guide .links{display:flex; gap:8px; flex-wrap:wrap; margin-top:13px;}
+  .guide .links a{font-size:12.4px; font-weight:800; text-decoration:none; padding:8px 13px; border-radius:10px;
+    background:#fff; color:var(--navy-2); border:1px solid var(--line); transition:.15s;}
+  .guide .links a:hover{border-color:var(--navy-soft); transform:translateY(-1px);}
+  .howcard{background:linear-gradient(135deg,#1e2749,#141a38); color:#e8ebff; border-radius:18px; padding:20px 22px; margin-bottom:20px; box-shadow:var(--sh);}
+  .howcard h2{font-size:17px; font-weight:900; margin:0 0 8px; color:#fff;}
+  .howcard p{font-size:13.8px; line-height:1.75; margin:0 0 8px; color:#c9ceff;}
+  .howcard b{color:#ffe08a;}
+  @media(max-width:620px){ .guide{padding:16px 14px;} }
 </style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
 </head>
-<body>
-<header>
-  <img src="assets/logo.svg" alt="SAAGAR"><strong>SAAGAR</strong>
-  <a href="index.html">← Back to hub</a>
-</header>
-<div class="wrap">
-  <h1>🚀 Skills</h1>
-  <p class="sub">Real skills you can start from zero — each with a simple roadmap and free resources.</p>
+<body data-root="" data-page="skills">
+<div id="hdr"></div>
 
-  <div class="skill">
-    <h2>💻 Web Development <span class="time">3–6 months</span></h2>
-    <p>Build websites and web apps. The highest-demand skill in the world right now.</p>
-    <ol>
-      <li>HTML — structure of every website (1–2 weeks)</li>
-      <li>CSS — design and layout (3–4 weeks)</li>
-      <li>JavaScript — make things interactive (2–3 months)</li>
-      <li>Build 3 real projects: portfolio, tool site, game</li>
-    </ol>
-    <div class="free">🆓 Free: freeCodeCamp, MDN Web Docs, YouTube (Traversy Media)</div>
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="index.html">Home</a> / Skills</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><circle cx="12" cy="8" r="4"/><path d="M12 12 L12 15 L10 17 L14 17 Z"/><path d="M6 16 L8 16 L10 14 L12 14 M16 16 L18 16 L16 14 L14 14"/></svg></span>Skills for Nepali Youth</h1>
+    <p class="muted" style="max-width:680px;">Not a list of buzzwords — 15 skills that actually earn in Nepal, each with a full roadmap, realistic income, the mistakes everyone makes, and free links. Pick one. Give it 90 days. One hour a day.</p>
   </div>
+</section>
 
-  <div class="skill">
-    <h2>🎨 Graphic Design <span class="time">1–3 months</span></h2>
-    <p>Logos, posters, social media designs. Start earning from day one with Canva.</p>
-    <ol>
-      <li>Learn Canva (free) — 1 week to basics</li>
-      <li>Study colour theory and typography (2 weeks)</li>
-      <li>Learn Figma — the free pro tool for UI design</li>
-      <li>Recreate 10 designs you admire, then make your own</li>
-    </ol>
-    <div class="free">🆓 Free: Canva Design School, Figma Academy, YouTube</div>
-  </div>
+<main class="sec">
+  <div class="wrap">
+    <div class="howcard">
+      <h2><span class="sm-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;display:inline;vertical-align:middle;margin-right:6px"><path d="M4 5 L9 5 L7 11 Z" fill="currentColor" opacity=".4"/><path d="M15 5 L10 5 L12 11 Z" fill="currentColor" opacity=".4"/><path d="M15 5 L15 11 L13 13 L17 13 Z" fill="currentColor" opacity=".4"/></svg></span>पहिले यो पढ्नुहोस् — how to use this page</h2>
+      <p><b>One skill at a time.</b> The fastest way to stay poor in skills is to start five of them. Read all 15, choose <b>one</b> that fits your situation (your phone, your district, your family situation), and commit to 90 days. One hour a day, every day, beats 8 hours on Saturday.</p>
+      <p><b>Your phone is enough to start.</b> Almost everything here — typing, English, Canva, CapCut, coding practice, Lok Sewa MCQs, MeroShare — works on an Android phone with 4 GB data a month. A laptop becomes necessary later, and by then your skill may already be paying for it.</p>
+      <p><b>Nepal tax, Nepal reward.</b> Skills that everyone has (driving, basic MS Word) pay little. Skills that few can do well (real coding, real editing, real English, clean accounting, modern farming) pay a lot — and most of them pay in foreign currency if you are good. That is the whole game: <b>be in the top 10% of one useful skill, not the average of ten.</b></p>
+      <p><b>Document everything.</b> From day one, keep proof of what you make — screenshots, files, a portfolio folder. In Nepal nobody asks “what do you know?”; they ask <b>“show me.”</b></p>
+    </div>
 
-  <div class="skill">
-    <h2>📊 Excel / Spreadsheets <span class="time">2–6 weeks</span></h2>
-    <p>Every office job needs this. Formulas, charts, pivot tables — see the Formulas page.</p>
-    <ol>
-      <li>Basic formulas: SUM, AVERAGE, IF, VLOOKUP</li>
-      <li>Charts and conditional formatting</li>
-      <li>Pivot tables — analyse data in minutes</li>
-    </ol>
-    <div class="free">🆓 Free: ExcelJet, Microsoft Learn, YouTube (Leila Gharani)</div>
+    <div class="fbar">
+      <input type="search" id="sfind" placeholder="Search a skill… (coding, editing, lok sewa, farming)" aria-label="Search skills">
+      <span class="cnt" id="scount"></span>
+    </div>
+    <div class="guides" id="skills"></div>
   </div>
+</main>
 
-  <div class="skill">
-    <h2>🗣️ English Speaking <span class="time">ongoing</span></h2>
-    <p>The world's connective language. Daily 20 minutes beats weekend cramming.</p>
-    <ol>
-      <li>Learn 10 new words daily with example sentences</li>
-      <li>Shadow native speakers — repeat after YouTube/podcast audio</li>
-      <li>Speak to yourself 10 minutes a day (really works)</li>
-      <li>Find a language partner online for weekly practice</li>
-    </ol>
-    <div class="free">🆓 Free: BBC Learning English, YouTube (EngVarta), Duolingo</div>
-  </div>
+<div id="ftr"></div>
 
-  <div class="skill">
-    <h2>🎬 Video Editing <span class="time">1–2 months</span></h2>
-    <p>Content creators are the new TV. Every business wants video now.</p>
-    <ol>
-      <li>Start with CapCut (free, phone) — cuts, transitions, text</li>
-      <li>Learn DaVinci Resolve (free, PC) — the pro standard</li>
-      <li>Study pacing: watch ads and note when scenes change</li>
-      <li>Edit 5 videos for friends free — build a portfolio</li>
-    </ol>
-    <div class="free">🆓 Free: DaVinci Resolve, CapCut, YouTube tutorials</div>
-  </div>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var esc = window.SAAGAR.esc;
 
-  <div class="skill">
-    <h2>📱 Content Creation <span class="time">ongoing</span></h2>
-    <p>TikTok, YouTube, Instagram — learn to hook attention in 3 seconds.</p>
-    <ol>
-      <li>Pick one niche and one platform — go deep, not wide</li>
-      <li>Post 30 videos before judging results</li>
-      <li>Study your top 3 performers and make more like them</li>
-    </ol>
-    <div class="free">🆓 Free: your phone + consistency is the whole stack</div>
-  </div>
-</div>
+  var SKILLS = [
+    /* ------------------------------------------------ 1 */
+    { n: 'Web Development', np: 'वेब डेभलपमेन्ट', ic: '💻', t: '4–6 months', earn: 'रु. 25,000 local start → रु. 1–3 lakh/month remote',
+      why: 'Every shop, school, hotel, NGO and startup in Nepal needs a website, and almost none of them can build one. Locally that means paid projects and jobs; remotely it means dollar income from your own room in any district. It is the clearest path from zero to skilled work without a degree — this very website is plain HTML, CSS and JavaScript, built without any framework.',
+      steps: [
+        'Week 1–2 — HTML: learn tags, links, images, forms by building a real page about yourself or your village. Do not watch videos for more than 20 minutes before writing code yourself.',
+        'Week 3–5 — CSS: layout (flexbox, grid), colours, responsive design. Rebuild the home page of a Nepali news site as practice — it teaches more than any course.',
+        'Week 6–10 — JavaScript: variables, functions, DOM, events. Build a calculator, then a quiz app, then a tip calculator for restaurant bills.',
+        'From day 1 use Git and GitHub — push every small thing. Employers read your GitHub before your CV.',
+        'Deploy everything free on Cloudflare Pages or Netlify. A live link impresses ten times more than a file.',
+        'Week 11–14 — build 3 real projects: your portfolio site, a useful tool (unit converter, bill calculator), and one small game.',
+        'Learn fetch/APIs: build a weather app or a gold-price viewer that pulls live data.',
+        'Months 3–4 — pick a framework (React has the most jobs in Nepal and abroad) and rebuild your projects in it.',
+        'Months 4–6 — backend basics: Node/Express or PHP/Laravel (most Nepali agencies use Laravel) plus MySQL. Build a business site with an admin panel.',
+        'Then start selling: offer a free site to one local shop, use it as the sample, and charge the next one रु. 25,000–60,000.'
+      ],
+      earnbox: '<b>Local:</b> internships रु. 15,000–25,000; junior developer रु. 40,000–80,000; one-off business sites रु. 25,000–60,000 each. <b>Remote/freelance:</b> $500–3,000/month is normal for solid mid-level developers paid through Payoneer or bank transfer. This site’s own stack (HTML + CSS + JS on Cloudflare Pages) costs रु. 0 to run — proof you do not need money to start.',
+      mistakes: 'Tutorial hell — watching courses for months without building anything. Skipping fundamentals to jump straight into React. Never learning Git. Working only in Nepali — the docs, error messages and best answers are all in English.',
+      links: [['freeCodeCamp', 'https://www.freecodecamp.org/'], ['The Odin Project', 'https://www.theodinproject.com/'], ['MDN Web Docs', 'https://developer.mozilla.org/'], ['CS50x (Harvard)', 'https://cs50.harvard.edu/x/']] },
+
+    /* ------------------------------------------------ 2 */
+    { n: 'Freelancing & Earning Online', np: 'फ्रिलान्सिङ र अनलाइन कमाई', ic: '🧑‍💻', t: '1–3 months to first income', earn: '$5–25/hour after portfolio; many Nepalis reach $1,000+/month',
+      why: 'Freelancing converts any of the other skills on this page into dollar income without leaving home. Nepal’s banks receive it, Payoneer supports it, and thousands of Nepalis already live on it. The barrier is not money or connections — it is proof that you can deliver.',
+      steps: [
+        'Pick ONE sellable service you can already do at beginner level: web development, graphic design, video editing, data entry, translation (Nepali↔English), content writing.',
+        'Create 3 portfolio samples. No clients yet? Do free work for a local shop, NGO or friend’s business and treat it seriously.',
+        'Set up profiles on Upwork, Fiverr and Freelancer: real photo, one clear niche, a first line that says exactly who you help and how.',
+        'Price low at the start — the first 5 reviews are worth more than the first 5 payments. Raise rates after every 5 reviews.',
+        'Send 10 personalised proposals a day. Copy-paste proposals get zero replies; mention the client’s actual problem in the first line.',
+        'Set up payment: Payoneer → your Nepali bank, or direct bank transfer (SWIFT). Test with a small amount early.',
+        'Register for PAN. When income grows, talk to a tax office about registering as a small firm — clean paperwork matters when income is visible.',
+        'Deliver early, communicate daily, and never disappear mid-project. Reviews compound like interest.',
+        'Never pay anyone for a “job”, “registration” or “training slot”. Real clients pay you; agents that promise jobs for fees are frauds.',
+        'After 10 completed jobs: pick the best client type and double down. One steady retainer beats ten one-off gigs.'
+      ],
+      earnbox: '<b>Realistic ladder:</b> data entry $3–8/hr → design/video $10–25/hr → development $15–50/hr. Nepali freelancers commonly cross $1,000/month within 1–2 years. <b>Local alternatives:</b> content writing रु. 500–2,000 per article, translation रु. 2–5 per word pair for agencies. Income is remittance-favourable: dollars arrive while you spend rupees.',
+      mistakes: 'Paying “agents” for jobs (classic scam). Being on 5 platforms with 5 skills and finishing nothing. Quoting a price then panicking and halving it. Giving up before 50 proposals — the first job usually lands around proposal 30–60.',
+      links: [['Upwork', 'https://www.upwork.com/'], ['Fiverr', 'https://www.fiverr.com/'], ['Freelancer', 'https://www.freelancer.com/'], ['Payoneer', 'https://www.payoneer.com/']] },
+
+    /* ------------------------------------------------ 3 */
+    { n: 'English & IELTS', np: 'अङ्ग्रेजी बोली र IELTS', ic: '🗣️', t: 'Ongoing — visible change in 3 months', earn: 'Unlocks interviews, scholarships, remote jobs and IELTS 7+',
+      why: 'In Nepal, English decides who gets the interview, the scholarship, the foreign client and the visa. It is not about accent — a Nepali with clear, confident English beats a hesitant topper everywhere. It is also the master key to every other skill on this page, because the best free learning material is in English.',
+      steps: [
+        'Learn 10 new words a day WITH a sentence you actually say out loud. 300 words a month, 3,600 a year — more than most graduates use.',
+        'Shadowing (10 min/day): play a short clip, pause after each sentence, repeat with the same rhythm and stress. This fixes fluency faster than grammar books.',
+        'Start thinking in English: narrate your day internally — “I am making tea, the gas is low…”. It feels silly and works.',
+        'Fix basic grammar once — the 12 tenses — then stop studying grammar as a subject. Communication first, perfection later.',
+        'Watch English content with subtitles for 2 weeks, then without. Nepali subtitled content does not count.',
+        'Speak weekly with a partner: online language exchange apps, or a friend with the same goal — agree that mistakes are free.',
+        'Record yourself for 2 minutes weekly on your phone. Compare week 1 vs week 8. This is your real progress report.',
+        'For IELTS specifically: read the official band descriptors. Examiners score against a checklist, not feelings.',
+        'Writing Task 2 formula: 4 paragraphs — intro, two body paragraphs each with one idea + example, conclusion. Practise 20 essays with strict 40-minute timers.',
+        'One full mock test every week under exam conditions. Band score improves on mock-review cycles, not on random practice.'
+      ],
+      earnbox: '<b>Direct money:</b> remote customer support $300–800/month; IELTS teaching locally रु. 300–800/hour; content writing and translation. <b>Indirect but bigger:</b> IELTS 7+ opens Chevening, MEXT, DAAD and Australian scholarships — a fully funded master’s is worth lakhs and changes a family’s trajectory.',
+      mistakes: 'Memorising IELTS essays (examiners detect and penalise it). Chasing an American accent instead of clarity. Studying grammar for years without speaking. Paying रु. 30,000 for a class you attend for a month and never practising again.',
+      links: [['BBC Learning English', 'https://www.bbc.co.uk/learningenglish'], ['IELTS Official', 'https://ielts.org/'], ['British Council LearnEnglish', 'https://learnenglish.britishcouncil.org/'], ['Cambridge Dictionary', 'https://dictionary.cambridge.org/']] },
+
+    /* ------------------------------------------------ 4 */
+    { n: 'Video Editing', np: 'भिडियो एडिटिङ', ic: '🎬', t: '1–2 months to first paid work', earn: 'रु. 500–3,000 per reel locally; $300–1,500/month remote',
+      why: 'Nepal’s businesses, singers, politicians and YouTubers all need video now, and editing is where the money sits. A phone and free software are enough to start, which makes this the cheapest high-demand skill to enter — and wedding season (Mangsir–Falgun) creates a local market every single year.',
+      steps: [
+        'Week 1 — CapCut on your phone: cut, speed, text, transitions, trending audio. Edit 20 reels, even from random footage.',
+        'Learn pacing: pick 10 viral reels and watch them frame by frame. Notice: hook in 1.5 seconds, cut every 1–2 seconds, text on screen.',
+        'Week 2–4 — DaVinci Resolve (free) on PC: timeline discipline, colour, audio cleanup. Audio is 50% of perceived quality — most beginners ignore it.',
+        'Master subtitles: clean, readable, synced captions are the single most requested skill in the reels economy.',
+        'Build a portfolio: edit 5 videos free for local businesses or small creators. Ask permission to show them as samples.',
+        'Pick a lane: reels editor, YouTube long-form, or wedding/event. Each has different pricing and clients.',
+        'Find clients: DM 20 creators or businesses a week with one specific improvement to their current video — or a free redo of their worst reel.',
+        'Write your rules: 2 revisions included, 50% advance for big jobs, delivery time fixed. It filters bad clients immediately.',
+        'Save 30% of every payment into an SSD and RAM — equipment upgrades pay for themselves.',
+        'Raise your rate after every 5 clients. The market rewards editors who deliver on time more than editors with fancy effects.'
+      ],
+      earnbox: '<b>Local rates:</b> reels रु. 500–3,000 each; YouTube long-form रु. 2,000–8,000 per video; wedding films रु. 10,000–50,000 per project; monthly retainers with one business or creator रु. 10,000–40,000. <b>Remote:</b> YouTube editors charge $300–1,500/month per channel. Wedding season alone can fund the rest of the year.',
+      mistakes: 'Effects over story. No file backup (one dead hard drive has ended careers). Underpricing forever out of fear. Delivering 2 days late and losing the retainer client.',
+      links: [['DaVinci Resolve (free)', 'https://www.blackmagicdesign.com/products/davinciresolve'], ['CapCut', 'https://www.capcut.com/'], ['Casey Faris (Resolve tutorials)', 'https://www.youtube.com/@CaseyFaris']] },
+
+    /* ------------------------------------------------ 5 */
+    { n: 'Digital Marketing', np: 'डिजिटल मार्केटिङ', ic: '📈', t: '2–3 months', earn: 'रु. 8,000–25,000/client/month for page management',
+      why: 'Businesses pay for customers, not likes. Every cafe, clinic, college and trekking agency in Nepal wants to be visible online, and almost none of them can measure or run ads properly. Marketing is a measurable skill: you either grew the page and the sales or you did not — which makes results easy to prove and easy to charge for.',
+      steps: [
+        'Learn the funnel in one evening: attention → interest → message → sale. Every strategy is a variation of this.',
+        'Offer to manage one real local business page free for 30 days. Post 4 times a week, reply to every comment, note what gets reach.',
+        'Build a 30-day content calendar: 10 educational, 10 social proof, 5 offers, 5 local-culture posts. Repeatable monthly.',
+        'Meta Ads properly: use Ads Manager (not the Boost button), define audience, run रु. 300–500/day tests, and read results after 3 days, not 3 hours.',
+        'Google Skillshop certificates (free): Search ads, Analytics. They cost nothing and go on your CV.',
+        'Local SEO: set up and fully complete a Google Business Profile for a shop — photos, hours, menu, posts. This alone brings calls.',
+        'Learn on-page SEO basics: titles, descriptions, keywords, page speed. Nepali businesses rank easily in local searches because competition is low.',
+        'Make one case study: “grew a page from X to Y followers and Z messages in 30 days.” This document is your sales weapon.',
+        'Price monthly packages: page management, ad management (% of spend), or both. Charge from client #2 onward.',
+        'Keep 4–5 retainer clients maximum and build a reporting sheet you send every week — retainer clients stay for years.'
+      ],
+      earnbox: '<b>Local packages:</b> page management रु. 8,000–25,000 per client per month; 4–5 clients = रु. 40,000–100,000/month. Ad-spend commission 10–15%. SEO projects रु. 15,000–60,000. <b>Jobs:</b> marketing executive roles in Kathmandu start around रु. 30,000–60,000. <b>Remote:</b> social media management $300–1,000/month per foreign client.',
+      mistakes: 'Boosting posts without targeting (money burner). Reporting likes instead of leads and sales. Promising “viral” — you cannot; you can promise consistency and process. Working for “exposure” past the first free month.',
+      links: [['Google Skillshop', 'https://skillshop.withgoogle.com/'], ['Meta Blueprint', 'https://www.facebook.com/business/learn'], ['HubSpot Academy', 'https://academy.hubspot.com/'], ['Google Analytics', 'https://analytics.google.com/']] },
+
+    /* ------------------------------------------------ 6 */
+    { n: 'Excel & Office Skills', np: 'एक्सेल र अफिस स्किल', ic: '📊', t: '2–6 weeks — fastest skill here', earn: 'Office jobs रु. 25,000–50,000; MIS/data roles रु. 40,000+',
+      why: 'This is the gatekeeper skill of the Nepali office economy — banks, NGOs, INGOs, schools, hospitals, municipalities and every admin job run on spreadsheets, and almost nobody uses them properly. Two focused weeks of Excel separates you from hundreds of equal-degree applicants. It is also the easiest skill to practise daily on a phone via Google Sheets.',
+      steps: [
+        'First, typing: English 30+ wpm (10 min/day) and Nepali Unicode typing (Preeti or Unicode — offices use both).',
+        'Core formulas until they are reflexes: SUM, AVERAGE, IF, COUNTIF, SUMIF, VLOOKUP/XLOOKUP.',
+        'Data cleaning: remove duplicates, Text-to-Columns, Flash Fill, TRIM. Real office data is always dirty — cleaning it is the job.',
+        'Pivot tables: learn them in one focused afternoon; they turn 1,000 rows into a one-screen report in minutes.',
+        'Charts + conditional formatting: make the same report readable to a non-technical boss.',
+        'Data validation and protection: dropdowns, locked cells, password-protected sheets — this is where real offices need help.',
+        'Google Sheets: sharing, live collaboration, and Google Forms → auto-collected Sheets (perfect for school, NGO and survey work).',
+        'Word for offices: mail merge for letters and certificates, styles, table of contents. PowerPoint: clean 10-slide decks, not paragraphs.',
+        'Practise with real datasets: build a salary sheet with tax, an inventory tracker, a student marks analysis. Use these as interview proof.',
+        'In interviews, offer to do a live task. Nobody forgets the candidate who said “give me the data, I will show you now”.'
+      ],
+      earnbox: '<b>Jobs:</b> admin/executive assistant रु. 25,000–40,000; data and MIS roles रु. 40,000+; accountant-assistant roles (add Tally) रु. 30,000–60,000. <b>Remote:</b> data entry $3–6/hour to start; virtual assistant $5–12/hour with Excel + English combined. NGOs and municipalities increasingly ask for “computer skills” — this page IS that answer.',
+      mistakes: 'Watching tutorials without a spreadsheet open. Ignoring keyboard shortcuts (Ctrl+Shift+L, Ctrl+T, F4…). Making fancy charts on dirty data. Learning Excel but never touching Nepali typing — half the office paperwork is in Nepali.',
+      links: [['ExcelJet', 'https://exceljet.net/'], ['GCFGlobal (Office basics)', 'https://edu.gcfglobal.org/en/'], ['Microsoft Learn', 'https://learn.microsoft.com/en-us/training/'], ['Google Sheets Training', 'https://support.google.com/a/users/answer/9282959']] },
+
+    /* ------------------------------------------------ 7 */
+    { n: 'Graphic Design', np: 'ग्राफिक डिजाइन', ic: '🎨', t: '1–3 months', earn: 'Posters रु. 500–3,000; logos रु. 3,000–15,000',
+      why: 'Nepal’s small businesses, wedding houses, event planners, schools and NGOs all need posters, menus, banners, invitation cards and logos — and mostly get bad ones. Canva removed the software barrier; what remains is taste and reliability, and that is exactly what a beginner can build in weeks. Wedding and festival season guarantees local demand.',
+      steps: [
+        'Week 1 — Canva: rebuild 10 designs you admire, exactly. Copying for practice is how designers actually learn.',
+        'Week 2–3 — typography and colour: pair two fonts maximum, learn why alignment and white space decide quality. Use Coolors for palettes.',
+        'Learn the logo process: brief → 20 paper sketches → 3 strong concepts → vector in Figma/Inkscape (free) or Illustrator.',
+        'Learn print reality: CMYK vs RGB, bleed, safe margins, standard sizes (A4, A3, flex banners, ID cards). Designers who know print get repeat clients.',
+        'Build a 6-piece portfolio: one logo, one menu, one festival poster, one wedding card, one social pack, one flex banner.',
+        'Set a printed price list: poster, logo, full branding, monthly social pack. Vague pricing loses money.',
+        'First clients are already around you: the restaurant with an ugly menu, the shop with no logo, the bratabandha happening next month.',
+        'Deliver in formats the client actually needs: PNG for phone, PDF print-ready for the press, source file for the big client.',
+        'Create a Behance/Dribbble profile and an Instagram portfolio — clients in Nepal find designers through Instagram as much as anywhere.',
+        'Retainer path: monthly social-media design packs for 3 shops beats one-time projects. Same art, stable income.'
+      ],
+      earnbox: '<b>Local rates:</b> poster रु. 500–3,000; menu/rate card रु. 1,500–5,000; logo रु. 3,000–15,000; full branding रु. 20,000–80,000; monthly social pack (12–15 posts) रु. 5,000–15,000 per client. <b>Remote:</b> international clients pay $20–100 for designs you can produce in an hour once you are good.',
+      mistakes: 'Using 6 fonts and 9 colours in one design (the beginner signature). Downloading cracked software — it is malware and it is illegal; free tools cover everything. Copying a competitor’s logo for a client — that is a copyright lawsuit waiting to happen. Charging per revision infinitely instead of setting a limit.',
+      links: [['Canva Design School', 'https://www.canva.com/designschool/'], ['Figma Learn', 'https://help.figma.com/hc/en-us/categories/360002051613'], ['Coolors (palettes)', 'https://coolors.co/'], ['Google Fonts', 'https://fonts.google.com/']] },
+
+    /* ------------------------------------------------ 8 */
+    { n: 'Content Creation', np: 'कन्टेन्ट क्रियेसन', ic: '📱', t: 'Ongoing — 6–12 months to real income', earn: 'AdSense, brand deals रु. 5,000–100,000+',
+      why: 'A Nepali creator with 20,000 engaged followers now reaches more people than most newspapers — and monetises it. YouTube monetisation works in Nepal, Facebook pays creators here, and local brands pay for promotion. Content is also the cheapest way to market every other skill on this page: teach Excel, and Excel clients come to you.',
+      steps: [
+        'Pick ONE niche you can sustain for 2 years: your district’s tourism, tech tips in Nepali, farming, study hacks, cooking, finance in Nepali.',
+        'One platform first. Master it before adding the second — spreading thin is how channels die.',
+        'Study 20 successful creators in your niche: their titles, thumbnails, first 5 seconds. Make a notes file.',
+        'Script the first 3 seconds before filming. The hook decides 80% of a video’s fate.',
+        'Batch-produce: film 4–6 videos in one session per week. Consistency beats bursts.',
+        'Publish 30 videos before judging results. The algorithm needs data; you need practice. Most people quit at video 12.',
+        'Read analytics weekly: audience retention graph — find the exact second people leave and fix that in the next video.',
+        'Monetise in layers: YouTube Partner (AdSense) → Facebook in-stream → brand deals (start at 10k engaged followers) → your own product or service.',
+        'Repurpose everything: 1 long video → 3 reels → 1 photo post → 1 community post. One effort, four surfaces.',
+        'Collect your audience somewhere you own — a WhatsApp group, an email list. Platforms change rules; your list does not.'
+      ],
+      earnbox: '<b>Reality check:</b> Nepali-language AdSense pays modestly, so pick niches with international or high-value audiences (tech, finance, English learning) or monetise through brands and your own services. <b>Typical numbers:</b> brand deals रु. 5,000–100,000 per campaign depending on engagement; a channel selling its own course or service out-earns AdSense 5–10×. Daraz affiliate and local sponsorships add steady side income.',
+      mistakes: 'Buying followers (kills your reach permanently). Chasing trends outside your niche. Obsessing over gear — a phone with a रु. 500 mic beats an iPhone with bad audio. Quitting at video 15; the curve bends after 30–50.',
+      links: [['YouTube Creators', 'https://www.youtube.com/creators/'], ['Meta Business (creator tools)', 'https://www.facebook.com/business/learn'], ['Google AdSense', 'https://adsense.google.com/']] },
+
+    /* ------------------------------------------------ 9 */
+    { n: 'Python, Data & AI', np: 'पाइथन, डेटा र AI', ic: '🐍', t: '3–6 months', earn: 'Data/automation roles $500–2,000/month remote',
+      why: 'Python is the language of automation, data and AI — the three fields reshaping every economy including Nepal’s. Banks, fintechs (eSewa, Fonepay, Khalti) and telecos are hiring data people now. For everyone else, Python removes hours of repetitive work. AI tools reward people who can speak to them precisely, and that is a learnable skill.',
+      steps: [
+        'Weeks 1–4 — Python basics: variables, loops, functions, lists, files. Use CS50P or “Python for Everybody” free. Code daily, even 30 minutes.',
+        'Automate one real boring task: rename 500 photos, merge 12 Excel sheets, rename and sort bill scans. Real automation = real learning.',
+        'Weeks 5–10 — pandas + matplotlib: load data, clean it, ask it questions, chart the answers.',
+        'SQL basics (SELECT, JOIN, GROUP BY) — data jobs interview on SQL more than Python.',
+        'One end-to-end project with NEPALI data: NEPSE prices, Kalimati vegetable prices, district census data, weather. Nobody else’s portfolio has these — instant differentiation.',
+        'Git + GitHub + Google Colab notebooks as your portfolio. Recruiters click links, not attachments.',
+        'AI layer: learn prompt engineering seriously, then call an AI API from Python and build one useful tool (resume screener, Nepali text cleaner, Q&A bot).',
+        'Kaggle: enter one beginner competition, study 5 winning notebooks line by line.',
+        'Choose a lane: data analyst (SQL + dashboards, fastest to income) or ML engineering (longer, higher ceiling).',
+        'Apply remote-first: international data roles hire in Nepal timezones all the time; local fintech and bank roles are growing every year.'
+      ],
+      earnbox: '<b>Remote:</b> data analyst $500–2,000/month; automation and scraping gigs $10–30/hour; AI chatbot building $20–50/hour. <b>Nepal:</b> data/BI roles in banks and fintech रु. 60,000–150,000 and rising. <b>Non-coders:</b> advanced AI-tool fluency alone now saves offices hours a day and is a sellable service by itself.',
+      mistakes: 'Being scared of the maths before week 1 (you need plus-10-level maths to start, not PhD calculus). Copying notebooks without understanding. Learning Python but never doing a project with real, messy data. Ignoring SQL.',
+      links: [['CS50P (Harvard)', 'https://cs50.harvard.edu/python/'], ['Kaggle Learn', 'https://www.kaggle.com/learn'], ['Python for Everybody', 'https://www.py4e.com/'], ['Google Colab', 'https://colab.research.google.com/']] },
+
+    /* ------------------------------------------------ 10 */
+    { n: 'Cyber Security', np: 'साइबर सुरक्षा', ic: '🛡️', t: '4–8 months to job-ready', earn: 'SOC/analyst roles रु. 40,000–80,000+; bug bounties',
+      why: 'Nepal loses crores every year to account theft, phishing and digital fraud, and the country has far fewer security professionals than it has banks and fintechs. Demand is real, local roles exist, and remote security roles pay in dollars. One warning defines this skill: everything you learn must be practised only on systems you own or in legal labs — unauthorised hacking is a crime under Nepal’s Electronic Transactions Act, 2063 (see the Laws page, दफा 44–48).',
+      steps: [
+        'Networking first: IP, DNS, HTTP, ports, how a request travels. Two weeks. Security without networking is guessing.',
+        'Linux command line until you are comfortable — most security tools live there. Install Ubuntu, live in it for a month.',
+        'TryHackMe free rooms, in order: Pre Security → Complete Beginner → Cyber Defense. Do 3 rooms a week minimum.',
+        'Learn the OWASP Top 10 and actually demonstrate each one in a legal lab environment.',
+        'Study real Nepali fraud patterns: fake lottery SMS, marketplace scams, fake job agents, FB account theft. Teaching your family to recognise them is the first real security work.',
+        'Python scripting for small tools: log parsers, hash checkers, simple port scanners for your OWN network.',
+        'Certification path: CompTIA Security+ first (recognised, structured), then decide between blue team (SOC/defence) and offensive (pentesting) tracks.',
+        'Bug bounty on HackerOne or Bugcrowd — legal hacking with a licence. Start with reports, not exploits.',
+        'Build a home lab: old laptop + virtual machines. Broken things you fix yourself teach the most.',
+        'Follow Nepali CERT and the Cyber Bureau’s public advisories — local context is what local employers need.'
+      ],
+      earnbox: '<b>Nepal:</b> SOC analyst and security roles in banks/fintech रु. 40,000–80,000 starting, senior roles much higher. <b>Remote:</b> security roles $1,000+/month. <b>Side income:</b> bug bounty payouts, security-awareness training for schools and offices (banks pay for this), and helping fraud victims document reports correctly.',
+      mistakes: 'Testing any system without written permission — in Nepal this means the Electronic Transactions Act and a police case, not a “learning experience”. Buying expensive courses before free ones. Skipping networking basics. Posting “I hack” online — employers want quiet competence.',
+      links: [['TryHackMe', 'https://tryhackme.com/'], ['OWASP Top 10', 'https://owasp.org/www-project-top-ten/'], ['Professor Messer (Security+)', 'https://www.professormesser.com/'], ['HackerOne', 'https://www.hackerone.com/']] },
+
+    /* ------------------------------------------------ 11 */
+    { n: 'Lok Sewa & Government Jobs', np: 'लोक सेवा तयारी', ic: '🏛️', t: '6–18 months of disciplined prep', earn: 'Kharidar→Section Officer scale + allowances + pension',
+      why: 'For lakhs of Nepali families, a government job remains the definition of security — permanent appointment, salary scale, allowances, pension, and social standing. The exam rewards preparation systems, not brilliance: the same syllabus, the same paper pattern, every year. Winners are simply the ones who prepared against the syllabus for months while others “planned to start”.',
+      steps: [
+        'Choose your post level honestly: Kharidar (SEE+), Subba/अधिकृत प्रथम (Plus Two), Section Officer (Bachelor’s) — and the service (सामान्य प्रशासन, राजपत्र अनंकित प्रथम…).',
+        'Download the official syllabus from psc.gov.np for YOUR post. This document is everything — study it, print it, tick it.',
+        'Collect the last 5 years’ question papers of your post. Solve each one twice. The pattern repeats more than people believe.',
+        'Daily current affairs 20 minutes: Nepal’s budgets, policies, appointments, sports, festivals — keep a one-page daily note.',
+        'Maths + IQ (GK of computation) 30 minutes daily. This is the section that eliminates most candidates — and the most improvable.',
+        'Nepali and English grammar: one rule a day with 5 sentences. Both papers fail more people than GK does.',
+        'Constitution and laws: read the fundamental rights and structures — the Laws page on this site covers the core in Nepali.',
+        'Computer/IT practical: typing (Nepali + English), Word, Excel, email, file management — the practical paper quietly fails unprepared candidates.',
+        'Join or build a 3–5 person study group; teach each other weekly. Teaching is the fastest retention tool known.',
+        'Physical posts (police/armed): add fitness from day one — running timing is a pass/fail gate, not a formality.'
+      ],
+      earnbox: '<b>Indicative scale (with allowances):</b> Kharidar from ~रु. 35,000/month; Subba ~रु. 40,000+; Khar/Section Officer ~रु. 45,000–60,000+ growing with grade and promotions, plus permanent security and pension. <b>Parallel income:</b> while preparing, teaching Lok Sewa aspirants locally pays रु. 5,000–15,000/month and deepens your own revision.',
+      mistakes: 'Studying thick guide-books instead of the official syllabus. Ignoring maths/IQ because “it is basic”. Random YouTube hours with no schedule. Waiting for the perfect advertisement to “start seriously” — the toppers started the day the last exam ended.',
+      links: [['Public Service Commission', 'https://psc.gov.np/'], ['Nepal Law Commission (Acts)', 'https://lawcommission.gov.np/'], ['Ministry of Finance (budget docs)', 'https://www.mof.gov.np/']] },
+
+    /* ------------------------------------------------ 12 */
+    { n: 'Money Management & Investing', np: 'पैसा व्यवस्थापन र लगानी', ic: '💰', t: 'Start this week — a lifelong skill', earn: 'Not income — protection and compounding',
+      why: 'Every skill on this page earns money; this one decides whether any of it survives. Nepali youth face the same traps every year: IPO margin debt, “20% per month” schemes, gambling apps, and lifestyle creep with the first salary. Meanwhile the genuinely powerful tools — MeroShare IPOs, fixed deposits, term insurance — sit unused. This is the skill that multiplies all the others silently.',
+      steps: [
+        'Track every rupee for one month — an app or a notebook. You cannot fix a leak you have never seen.',
+        'Apply the 50/30/20 shape to Nepal: ~50% needs, 30% wants, 20% future. Adjust the ratios to your reality, but the future slice is non-negotiable.',
+        'Build an emergency fund of 3 months’ expenses in a savings account or fixed deposit before ANY investing.',
+        'Open a DEMAT account via CDSC and MeroShare. Cost: a few hundred rupees. This is your gateway to IPOs.',
+        'IPO discipline: apply every IPO with your own money only. Never take loans for IPOs — the interest eats the profit and the habit ruins people.',
+        'Before buying any share, learn to read three numbers: EPS, NAV, P/E. If you cannot explain why a share is worth it, you are gambling, not investing.',
+        'Understand NEPSE volatility: only invest money you will not need for 3+ years, and never invest on tips from Facebook groups.',
+        'Insurance: term life + hospitalisation cover from a licensed company (check the Nepal Insurance Authority list). Insurance is protection, not investment.',
+        'Recognise scams instantly: any “guaranteed” 15–20% monthly return, any scheme paying old members from new members’ money. Check whether the company is licensed by NRB/SEBON/Insurance Authority — if not, it is illegal in Nepal.',
+        'If you run even a small business: keep a daily khata, separate business money from personal money, and count profit monthly — most Nepali shops fail from unclear accounts, not bad sales.'
+      ],
+      earnbox: '<b>What this skill “earns”:</b> it stops the silent losses — 20% interest on impulse loans, scam losses Nepali families cry about on the news every year, IPO margin traps. Then it compounds: consistent IPO participation, dividends, and long-term holdings have quietly built more Nepali family wealth than any single hustle. A person earning रु. 40,000 with this skill ends the decade richer than one earning रु. 60,000 without it.',
+      mistakes: 'Crypto hype (NRB has warned it is not legal tender in Nepal — trading it risks legal trouble AND your money). IPO margin loans. Mixing business and personal money. Insurance bought as “investment” instead of protection. Confusing a bull-run win with skill.',
+      links: [['CDSC / MeroShare', 'https://www.cdsc.com.np/'], ['SEBON', 'https://www.sebon.gov.np/'], ['Nepal Rastra Bank', 'https://www.nrb.org.np/'], ['Nepal Insurance Authority', 'https://www.nia.gov.np/']] },
+
+    /* ------------------------------------------------ 13 */
+    { n: 'Modern Agriculture Business', np: 'आधुनिक कृषि व्यवसाय', ic: '🌾', t: 'First cycle in 3–6 months', earn: 'Tunnel farming रु. 3–8 lakh/ropani/year (crop-dependent)',
+      why: 'Youth leave villages, land lies empty, and Nepal imports vegetables it could grow — that combination is a business opportunity, not a tragedy. Modern small-plot farming (tunnels, drip, mushrooms, goat, fish+poultry) can out-earn many city salaries, government subsidies exist for it, and the market is guaranteed: people eat every day. The farmers winning are the ones who treat it as data and marketing, not just mud.',
+      steps: [
+        'Start small deliberately: 2–4 ropani or 2–3 plastic tunnels. Your first cycle is tuition; do not bet the family land on it.',
+        'Pick one crop/livestock with a local edge: off-season tomato/capsicum in tunnels, mushroom (fast cycles), goat (compounding), fish+poultry combo (two incomes one pond).',
+        'Take the free training: your local Agriculture Knowledge Centre (कृषि ज्ञान केन्द्र) and PMAMP programme units run them regularly. One week of training saves a season of losses.',
+        'Visit the market BEFORE planting: talk to Kalimati-type collection centres, local wholesalers, hotels. Decide the crop by who will buy, not by what grew last year.',
+        'Register the farm at your municipality/Rural Municipality — this unlocks subsidies (25–50% on tunnels, equipment, seeds in many schemes).',
+        'Set up tunnel + drip irrigation with a written cost sheet. Know your cost per plant before you have plants.',
+        'Record everything daily: input cost, labour, mortality, weekly yield. Farmers who keep khata make decisions; farmers who guess hope.',
+        'Sell smart: direct to 2–3 regular buyers beats one desperate sale to a middleman. WhatsApp groups and Facebook local groups genuinely move produce in Nepal now.',
+        'Add value when volume grows: tomato → pickle, milk → curd, herbs → dried. Value-added products double margins and survive price crashes.',
+        'Scale only on profit: reinvest one cycle’s profit into one more tunnel or one more herd segment. Growth from profit, not from loans.'
+      ],
+      earnbox: '<b>Indicative economics (varies by district and skill):</b> tunnel tomato/capsicum रु. 3–8 lakh per ropani per year in good cycles; mushroom रु. 20,000–40,000 per cycle per 1,000 spawns; goat herds compound annually; government subsidies cover a meaningful share of tunnel and equipment cost for registered farms. <b>The quiet advantage:</b> land + family labour many Nepali youth already own idle.',
+      mistakes: 'Planting before finding the buyer. Putting full savings into cycle one. Skipping training to “save time”. Copying a neighbour’s crop blindly — their soil, water and market differ from yours.',
+      links: [['Ministry of Agriculture & Livestock', 'https://www.moald.gov.np/'], ['PMAMP (PM Agriculture Modernization)', 'https://pmamp.gov.np/'], ['Kalimati Market (prices)', 'https://kalimatimarket.gov.np/']] },
+
+    /* ------------------------------------------------ 14 */
+    { n: 'Technical Trades (CTEVT)', np: 'सीपमूलक तालिम (CTEVT)', ic: '🔧', t: '3–18 months certification', earn: 'रु. 30,000–60,000 local; रु. 1.5–2.5 lakh/month abroad',
+      why: 'Not everyone should code. Nepal’s electricians, welders, plumbers, mobile technicians and AC mechanics out-earn many degree holders, and these exact trades are the top demand list for Japan (SSW), Korea (EPS) and the Gulf. CTEVT offers subsidised, certificate-backed training for them — a realistic, dignified, high-demand path that starts with a 3-month course, not a 4-year degree.',
+      steps: [
+        'Pick a trade with both local and abroad demand: electrician, mobile repair, plumbing, welding, AC/fridge repair, bike mechanics, tailoring.',
+        'Find CTEVT short-term (3–6 months) or pre-diploma (18 months) courses at your nearest CTEVT school/college — fees are subsidised and scholarships exist.',
+        'Attendance and practical marks decide your result — treat the workshop hours as the actual education.',
+        'Apprentice 3–6 months at a busy local workshop even after the certificate. Speed and real-world repairs are learned beside a master, not in a classroom.',
+        'Build your toolkit gradually (रु. 20,000–50,000 over a year) — buy as jobs pay you, not all at once.',
+        'Get required licences where relevant (electrical wiring permits, gas handling) — licensed work charges more and protects you legally.',
+        'Abroad route done RIGHT: for Korea, prepare EPS (Korean language test); for Japan, SSW skill test + Japanese N4. Register ONLY with licensed manpower agencies (verify on dofe.gov.np) — unlicensed agents are where Nepali families lose lakhs.',
+        'Local route: after ~2 years’ experience open your own shop. A trusted local technician’s phone never stops ringing.',
+        'Print a rate list and show it. Transparent pricing builds the reputation that raises income.',
+        'Train juniors as you grow — a two-person shop doubles output and starts multiplying your income beyond your own hands.'
+      ],
+      earnbox: '<b>Nepal:</b> mobile technicians रु. 30,000–60,000; electricians रु. 1,000–5,000 per job; AC/fridge seasonal work spikes in summer; own-shop owners commonly रु. 50,000+. <b>Abroad (licensed route):</b> Korea EPS roughly रु. 1.5–2.5 lakh/month; Japan SSW similar with a renewal path; Gulf electricians/welders रु. 60,000–120,000. The trade pays the same whether you stay or go — that is its power.',
+      mistakes: 'Using unlicensed agents for foreign employment (fraud, debt bondage, worse). Buying expensive tools before skills. Ignoring safety gear — one accident erases a year of income. Skipping the certificate: papers matter for abroad licences and city work.',
+      links: [['CTEVT', 'https://ctevt.org.np/'], ['Dept. of Foreign Employment', 'https://www.dofe.gov.np/'], ['EPS Korea (Nepal)', 'https://www.epsnepal.gov.np/'], ['Ministry of Labour', 'https://moless.gov.np/']] },
+
+    /* ------------------------------------------------ 15 */
+    { n: 'CV, Jobs & Interviews', np: 'CV, जागिर र इन्टरभ्यु', ic: '📄', t: '1–2 weeks — the cheapest upgrade here', earn: '10–30% better offers; the difference between shortlist and silence',
+      why: 'Hundreds of capable Nepali applicants are rejected for reasons that have nothing to do with ability: a four-page CV of duties, an interview with no stories, a salary answer that undersells. This is the fastest skill on the page to fix and it instantly improves the return on every other skill you build. Employers in Nepal see 200 CVs per opening — the job of the CV is to survive 20 seconds.',
+      steps: [
+        'One page. Achievements with numbers (“managed billing for 300+ monthly customers”), not duty lists (“was responsible for billing”).',
+        'Structure: name + contact → 2-line summary → experience (newest first) → skills → education. Photo and references optional; never print your full citizenship number.',
+        'Tailor the CV for every application — mirror the exact skills named in the job ad. Filtering software and tired HR both scan for keywords.',
+        'Cover letter in 6 lines: who you are, the one relevant proof, why THIS company, one number you are proud of.',
+        'Where to apply properly: MeroJob, JobsNepal, company career pages, LinkedIn — and the walk-in network of relatives and teachers still matters in Nepal, use both.',
+        'Prepare 10 STAR stories (Situation, Task, Action, Result) — 2 teamwork, 2 pressure, 2 failure-learned, 2 initiative, 2 customer/problem. Stories beat adjectives.',
+        'Interview homework: read the company’s site and Facebook for 15 minutes. Walking in knowing their product instantly separates you.',
+        'The salary answer: give a researched range, not a whisper (“रु. 35,000–45,000 depending on responsibilities”). Never state a number below what you can justify.',
+        'Follow up within 24 hours — a 3-line thank-you email. Almost nobody in Nepal does this; it is remembered.',
+        'No experience yet? Manufacture proof: freelance work, volunteering, this website’s projects — “built and shipped” counts as experience everywhere.'
+      ],
+      earnbox: '<b>Direct return:</b> negotiating with a range and proof typically moves an offer 10–30%. A proper CV gets shortlisted instead of ignored — which is the entire game. <b>Protection:</b> know what fake “placement fees” look like — legitimate employers and licensed agencies never charge you to get hired.',
+      mistakes: 'A 4-page CV nobody reads. Listing duties instead of results. Lying about salary history (background talk reveals it). Arriving without knowing anything about the company. Begging tone in interviews — you are offering value, not requesting charity.',
+      links: [['MeroJob', 'https://www.merojob.com/'], ['JobsNepal', 'https://www.jobsnepal.com/'], ['LinkedIn', 'https://www.linkedin.com/']] }
+  ];
+
+  var root = document.getElementById('skills');
+  var count = document.getElementById('scount');
+
+  /* one real-life example (EG) per skill, same order as SKILLS */
+  var SKILL_EG = [
+    'EG — Sita from Butwal learned HTML on a 2 GB/day phone, built a 3-page site for the local bakery free, then charged bakery #2 रु. 30,000 — her first paid project happened before she ever owned a laptop.',
+    'EG — Rajesh sent 10 tailored proposals a day for 6 weeks; on proposal #51 an Australian client hired him for $400, and that one review led to $1,200/month of steady work.',
+    'EG — Anita recorded herself for 2 minutes every Sunday; comparing week 1 (hesitant, long pauses) with week 8 (clear, confident) got her through a hotel front-desk interview that five other candidates were rejected from.',
+    'EG — a shop owner paid Binod रु. 1,500 for one product reel; it sold out in 4 days, and the same owner now pays him रु. 15,000/month for weekly videos.',
+    'EG — Muna managed a café\'s page free for 30 days, took it from 200 to 2,300 followers with daily reels and replies — her case study then won her 4 paying clients at रु. 12,000 each per month.',
+    'EG — an NGO interviewee froze on "show us your Excel"; the candidate who built a VLOOKUP salary sheet live on their laptop got the रु. 38,000 job that day.',
+    'EG — Krisha redesigned a restaurant\'s ugly menu free, put it on Instagram, and within a month was charging रु. 6,000 per menu and रु. 4,000 per festival poster.',
+    'EG — a creator\'s first 29 videos averaged 300 views; video 31 hit 90,000 after he fixed just the first-line hook — most people quit at video 12 and never see the bend.',
+    'EG — Dinesh automated merging 14 daily Excel sales sheets into one pandas report — a 2-hour manual job his office paid a bank BI team to do; that portfolio project became his remote job.',
+    'EG — a family lost रु. 4 lakh to a fake "20% monthly return" app; a friend who studied TryHackMe-level fraud awareness spotted the pattern on day 1 and saved them from sending more.',
+    'EG — Sunder printed the official Kharidar syllabus and solved the last 5 years\' papers twice; neighbours who "would start soon" are still neighbours — he is posted. That is the whole difference.',
+    'EG — Ramesh earns रु. 55,000 but tracked one month of spending: रु. 9,000 was impulse loans and app subscriptions. Redirected to MeroShare IPOs and a fixed deposit, that leak alone is his emergency fund.',
+    'EG — Gopal started with 2 tunnels of off-season tomato after visiting Kalimati buyers FIRST; his strip now earns more per ropani than his brother\'s Kathmandu job, and the municipality covered 40% of tunnel cost.',
+    'EG — a CTEVT-certified mobile technician in Dharan fixes phones for रु. 800–2,000 per repair; his small shop clears रु. 60,000 in peak months — more than most office degrees.',
+    'EG — two equally experienced candidates: one wrote a 4-page duty list, the other wrote "managed billing for 300+ monthly customers, cut errors 40%". Only the second got shortlisted — CVs win in 20 seconds.'
+  ];
+
+  function card(s) {
+    var links = s.links.map(function (l) {
+      return '<a href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <b>↗</b></a>';
+    }).join('');
+    var steps = s.steps.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
+    return '<article class="guide reveal" id="' + esc(s.n.toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '')) + '">' +
+      '<h3>' + s.ic + ' ' + esc(s.n) + ' <span class="np">— ' + esc(s.np) + '</span></h3>' +
+      '<div class="meta"><span class="chip">⏳ ' + esc(s.t) + '</span><span class="chip earn">💰 ' + esc(s.earn) + '</span></div>' +
+      '<div class="wlbl">Why it matters in Nepal</div><p class="why">' + esc(s.why) + '</p>' +
+      '<div class="wlbl">The full roadmap — step by step</div><ol>' + steps + '</ol>' +
+      '<div class="eg">' + esc(SKILL_EG[SKILLS.indexOf(s)] || '') + '</div>' +
+      '<div class="wlbl">Earning — realistic numbers</div><div class="earnbox">' + s.earnbox + '</div>' +
+      '<div class="wlbl">Mistakes that cost people years</div><ul class="mist">' +
+        s.mistakes.split('; ').map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ul>' +
+      '<div class="links">' + links + '</div>' +
+      '</article>';
+  }
+
+  function draw(q) {
+    q = (q || '').trim().toLowerCase();
+    var list = !q ? SKILLS : SKILLS.filter(function (s) {
+      return (s.n + ' ' + s.np + ' ' + s.t + ' ' + s.earn + ' ' + s.why + ' ' + s.steps.join(' ') + ' ' + s.mistakes).toLowerCase().indexOf(q) > -1;
+    });
+    root.innerHTML = list.length ? list.map(card).join('')
+      : '<div class="card center"><p class="muted">No skill matches that search.</p></div>';
+    count.textContent = list.length + ' of ' + SKILLS.length + ' guides';
+    if (window.SAAGAR) {
+      Array.prototype.forEach.call(root.querySelectorAll('.reveal'), function (n) { n.classList.add('in'); });
+    }
+  }
+
+  document.getElementById('sfind').addEventListener('input', function () { draw(this.value); });
+  draw('');
+})();
+</script>
 </body>
 </html>

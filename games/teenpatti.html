@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teen Patti — 3-card Indian poker, vs bots or a friend | SAAGAR Games</title>
+<meta name="description" content="Teen Patti with real card graphics. Blind or seen, chaal, raise, pack or show. Trail beats a pure run, a run beats colour, colour beats a pair. Play two bots or open a room with a friend.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/games/teenpatti.html">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/clay.css">
+<style>
+  /* ---- casino room: the table floats on a dark floor ---- */
+  .tp-stage > .card{background:transparent; border:0; box-shadow:none; padding:0; overflow:visible;}
+  .tp-stage{padding-bottom:6px;}
+
+  /* ---- the oval table (overrides shared .ptable felt) ---- */
+  .tp-stage .ptable{
+    position:relative; min-height:690px; padding:24px 20px 26px;
+    border:0; border-image:none;
+    border-radius:48% 48% 46% 46% / 34% 34% 58% 58%;
+    background:
+      radial-gradient(115% 85% at 50% 10%, #1f8a5c 0, #0f6440 40%, #083f28 74%, #052b1b 100%);
+    box-shadow:
+      0 0 0 10px #4a2c12,
+      0 0 0 13px #6d4318,
+      0 0 0 15px #b98a3e,
+      0 0 0 17px #8a5f24,
+      0 34px 70px rgba(0,0,0,.6),
+      0 10px 26px rgba(0,0,0,.45),
+      inset 0 0 0 3px rgba(226,185,90,.30),
+      inset 0 0 90px rgba(0,0,0,.5),
+      inset 0 14px 40px rgba(255,255,255,.05);
+  }
+  /* felt sheen + stitched gold inlay line */
+  .tp-stage .ptable::before{
+    content:""; position:absolute; inset:14px; pointer-events:none; opacity:.85;
+    border-radius:inherit;
+    background:radial-gradient(60% 42% at 50% 40%, rgba(255,255,255,.10), transparent 70%);
+    box-shadow:inset 0 0 0 1.6px rgba(226,185,90,.34);
+  }
+  /* centre watermark, printed on the felt like a real casino table */
+  .tp-stage .ptable::after{
+    content:"SAAGAR  ·  Teen Patti";
+    position:absolute; inset:auto; width:auto; border-radius:0; box-shadow:none;
+    left:50%; top:52%; transform:translate(-50%,-50%);
+    font-weight:800; letter-spacing:6px; font-size:17px; white-space:nowrap;
+    color:rgba(240,208,120,.26); text-shadow:0 2px 3px rgba(0,0,0,.35);
+    z-index:0; pointer-events:none;
+  }
+  .tp-seats,.tp-pot,.tp-hand,.tp-meseat{position:relative; z-index:1;}
+
+  /* ---- seats: gold-ring plates around the table ---- */
+  .tp-seats{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; max-width:92%; margin:0 auto;}
+  .tp-seats .tp-seat:first-child{transform:translateY(10px);}
+  .tp-seats .tp-seat:last-child{transform:translateY(10px);}
+  .tp-seats .tp-seat:first-child:last-child{transform:translateY(0);}
+  .tp-seats .tp-seat:nth-child(2):not(:last-child){transform:translateY(-4px);}
+  /* clay seats: cream puffy plates with color dot + gold ring when active */
+  .tp-seat{
+    position:relative; min-width:118px; padding:8px 12px 9px; border-radius:20px; text-align:center;
+    background:var(--card);
+    border:none;
+    color:#6b4423; box-shadow:var(--sh-clay);
+    transition:.25s;
+  }
+  .tp-seat.on{box-shadow:0 0 0 3.5px #ffd66b, var(--sh-clay); transform:translateY(-2px);}
+  .tp-seat.out{opacity:.42; filter:grayscale(.6);}
+  .tp-seat.win{box-shadow:0 0 0 3.5px #5cc585, var(--sh-clay);}
+  .tp-seat .nm{font-size:12.6px; font-weight:850; letter-spacing:.3px; color:var(--navy-ink);}
+  .tp-seat .ck{display:flex; align-items:center; gap:5px; justify-content:center; font-size:11.5px; font-weight:800; color:#97775f; margin-top:3px;}
+  .tp-seat .ck b{font-size:13px; color:#c97e46;}
+  .tp-seat .tag{display:inline-block; font-size:9.5px; font-weight:900; letter-spacing:.5px; text-transform:uppercase;
+    background:rgba(255,255,255,.14); border-radius:99px; padding:2px 8px; margin-top:5px;}
+  .tp-seat .tag.blind{background:rgba(255,216,94,.92); color:#4a3300;}
+  .tp-seat .tag.seen{background:rgba(123,241,168,.92); color:#0c3a20;}
+  /* each player's three cards, dealt on the felt in front of their plate */
+  .tp-cards{position:absolute; top:calc(100% + 4px); left:50%; transform:translateX(-50%);
+    display:flex; gap:3px; justify-content:center; z-index:3;}
+  .tp-cards .pcard:nth-child(1){transform:rotate(-6deg) translateY(3px);}
+  .tp-cards .pcard:nth-child(3){transform:rotate(6deg) translateY(3px);}
+  .tp-seats .tp-cards{top:calc(100% + 2px); transform:translateX(-50%) scale(.76); transform-origin:top center;}
+
+  /* ---- pot: gold plaque in the middle ---- */
+  .tp-pot{text-align:center; margin:92px 0 6px; position:relative; z-index:4;}
+  .tp-pot small{display:block; font-size:10px; font-weight:900; letter-spacing:2.4px; color:#a8e0c0; text-transform:uppercase;}
+  .tp-pot b{display:inline-block; margin-top:4px; padding:6px 22px; font-size:26px; font-weight:900; color:#6b4423;
+    letter-spacing:.5px; border-radius:99px;
+    background:var(--clay-butter);
+    border:none; box-shadow:var(--sh-clay);
+    text-shadow:none;}
+  .tp-pot .schips{justify-content:center; margin:8px 0 4px; transform:scale(.85);}
+
+  /* ---- my hand at the bottom rail ---- */
+  .tp-hand{display:flex; gap:10px; justify-content:center; align-items:flex-end; min-height:112px; margin:14px 0 2px;}
+  .tp-hand .pcard:nth-child(1){transform:rotate(-4deg);}
+  .tp-hand .pcard:nth-child(3){transform:rotate(4deg);}
+  .tp-meseat{display:flex; justify-content:center; margin-top:10px;}
+  .tp-meseat .tp-seat{min-width:132px;}
+  .tp-me{text-align:center; color:#dff4e6; font-size:12.5px; font-weight:800; min-height:18px; margin-top:10px;}
+  .tp-me span{color:#ffe08a;}
+  .tp-round{text-align:center; font-size:11px; font-weight:800; letter-spacing:1.2px; color:#9fd9b6; text-transform:uppercase;}
+  /* action buttons live ON the felt, under your seat box */
+  .abs{display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin:8px auto 0; position:relative; z-index:1;
+    width:min(76%,272px); background:none; border:none; padding:0; box-shadow:none;}
+  /* clay action pills: Chaal blue, Raise amber, Show green, Pack red — 52px high */
+  .abs{gap:8px;}
+  .abs .btn{flex:1 1 40%; min-width:0; min-height:52px; margin:0; font-size:15px;
+    color:#fff; border-radius:999px; border:none; box-shadow:var(--sh-clay); gap:3px;}
+  .abs .btn:active{box-shadow:var(--sh-clay-press); transform:scale(.97);}
+  .abs .btn:disabled{opacity:.45; box-shadow:none;}
+  .abs .btn[data-act="chaal"],.abs .btn:first-child{background:#3b82f6;}
+  .abs .btn[data-act="raise"]{background:#f59e0b;}
+  .abs .btn[data-act="show"]{background:#22c55e;}
+  .abs .btn[data-act="pack"]{background:#ef4444;}
+  .log{background:var(--card); border:none; border-radius:22px; padding:12px 16px; margin-top:16px;
+    max-height:126px; overflow-y:auto; font-size:12.8px; color:#6b4423; line-height:1.6; box-shadow:var(--sh-clay-press);}
+  .log b{color:var(--navy);}
+  .msg{text-align:center; font-size:15px; font-weight:850; color:var(--navy-2); min-height:24px; margin-top:12px;}
+  @media(max-width:620px){
+    .tp-stage .ptable{min-height:620px; padding:16px 12px 18px;}
+    .tp-stage .ptable::after{font-size:14px; letter-spacing:4px;}
+    .tp-seat{min-width:98px; padding:7px 9px 8px;}
+    .tp-seat .nm{font-size:11.6px;}
+    .tp-hand{gap:7px; min-height:96px;}
+    .tp-pot{margin-top:74px;}
+    .tp-pot b{font-size:22px;}
+  }
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="games">
+
+<div id="hdr"></div>
+<div class="clay-shell" style="display:none"><div class="row gap">
+  <a class="chip" style="font-size:13px;pointer-events:none">SAAGAR</a>
+  <a class="chip" style="font-size:13px">Log in</a>
+  <a class="chip" style="font-size:13px;color:#a35d2b;background:var(--clay-butter);border:1px solid var(--clay-lemon);font-weight:900">Play now →</a>
+</div></div>
+<div id="ftr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../games.html">Games</a> / Teen Patti</div>
+    <h1><span class="lg"><img src="../assets/clay-logos/games/teen-patti.svg" width="56" height="56" alt="" style="vertical-align:top;margin-right:8px"></span>Teen Patti</h1>
+  </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:720px;">
+    <div id="lobby"></div>
+
+    <div id="stage" class="tp-stage hidden">
+      <div class="card" style="overflow:visible;">
+        <div class="ptable">
+          <div class="tp-seats" id="seats"></div>
+          <div class="tp-pot">
+            <small>The pot</small>
+            <div id="potChips"></div>
+            <b id="pot">0</b>
+          </div>
+          <div class="tp-hand" id="hand"></div>
+          <div class="tp-meseat" id="meseat"></div>
+          <div class="abs" id="acts"></div>
+        </div>
+        <div class="tp-me" id="meInfo"></div>
+        <div class="tp-round" id="roundInfo"></div>
+        <div class="msg" id="msg">Dealing…</div>
+        <div class="log" id="log"></div>
+        <div class="row mt" style="justify-content:center;">
+          <button class="btn ghost sm" id="back" style="flex:0 0 auto;">Change mode</button>
+        </div>
+      </div>
+      <p class="muted center mt" id="netNote"></p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/peerjs.min.js"></script>
+<script src="../assets/app.js"></script>
+<script src="../assets/cards.js"></script>
+<script src="../assets/net.js"></script>
+<script src="../assets/turnbar.js"></script>
+<script src="../assets/lobby.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var C = window.SAAGAR_CARDS;
+  var BOOT = 50, START_CHIPS = 10000;
+  var BORROW = 5000, MAX_DEBT = 50000;      /* the bank: borrow when broke, repay from winnings */
+  var MAX_SEATS = 6;                        /* up to 6 players at the table */
+
+  var G = null;
+  var cfg = { bot: null, online: false, isHost: false, room: null, side: 0 };
+  var busy = false;
+
+  /* ---------------- deck ---------------- */
+  function newDeck() {
+    var d = [], s, r;
+    for (s = 0; s < 4; s++) for (r = 2; r <= 14; r++) d.push({ r: r, s: s });
+    for (var i = d.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = d[i]; d[i] = d[j]; d[j] = t;
+    }
+    return d;
+  }
+
+  /* ---------------- hand ranking (Teen Patti) ---------------- */
+  function handScore(cards) {
+    var rs = cards.map(function (c) { return c.r; }).sort(function (a, b) { return b - a; });
+    var flush = cards[0].s === cards[1].s && cards[1].s === cards[2].s;
+    var trip = rs[0] === rs[1] && rs[1] === rs[2];
+    var straight = (rs[0] - rs[1] === 1 && rs[1] - rs[2] === 1);
+    var low = (rs[0] === 14 && rs[1] === 3 && rs[2] === 2);   /* A-2-3 = lowest run */
+    if (trip) return { key: [6, rs[0]], name: 'Trail \u2014 three ' + C.rankChar(rs[0]) + 's' };
+    if (straight && flush) return { key: [5, rs[0]], name: 'Pure run, ' + C.rankChar(rs[0]) + ' high' };
+    if (low && flush) return { key: [5, 3], name: 'Pure run A-2-3' };
+    if (straight) return { key: [4, rs[0]], name: 'Run, ' + C.rankChar(rs[0]) + ' high' };
+    if (low) return { key: [4, 3], name: 'Run A-2-3' };
+    if (flush) return { key: [3, rs[0], rs[1], rs[2]], name: 'Colour (' + C.suits[cards[0].s] + ')' };
+    if (rs[0] === rs[1]) return { key: [2, rs[0], rs[2]], name: 'Pair of ' + C.rankChar(rs[0]) + 's' };
+    if (rs[1] === rs[2]) return { key: [2, rs[1], rs[0]], name: 'Pair of ' + C.rankChar(rs[1]) + 's' };
+    return { key: [1, rs[0], rs[1], rs[2]], name: 'High card ' + C.rankChar(rs[0]) };
+  }
+  function cmpHand(a, b) {
+    var A = handScore(a).key, B = handScore(b).key;
+    for (var i = 0; i < Math.max(A.length, B.length); i++) {
+      var x = A[i] === undefined ? -1 : A[i], y = B[i] === undefined ? -1 : B[i];
+      if (x !== y) return x > y ? 1 : -1;
+    }
+    return 0;
+  }
+  function strength(cards) {
+    var k = handScore(cards).key, s;
+    if (k[0] === 6) s = 0.97;
+    else if (k[0] === 5) s = 0.90;
+    else if (k[0] === 4) s = 0.70 + k[1] / 100;
+    else if (k[0] === 3) s = 0.58 + k[1] / 90;
+    else if (k[0] === 2) s = 0.32 + (k[1] - 2) / 40;
+    else s = 0.09 + (k[1] - 2) / 60;
+    return Math.max(0.02, Math.min(1, s));
+  }
+
+  /* ---------------- state ---------------- */
+  var BOT_NAMES = ['Ramu', 'Sita', 'Ravi', 'Meera', 'Arjun'];
+  function names(n) {
+    var out = [];
+    for (var i = 0; i < n; i++) {
+      if (cfg.online) out.push(i === cfg.side ? 'You' : ('Player ' + (i + 1)));
+      else out.push(i === 0 ? 'You' : BOT_NAMES[i - 1]);
+    }
+    return out;
+  }
+
+  function nextPresent(from) {
+    for (var k = 1; k <= G.n; k++) {
+      var q = ((from + k) % G.n + G.n) % G.n;
+      if (G.present[q]) return q;
+    }
+    return from;
+  }
+
+  function fresh(keepMoney) {
+    var n = cfg.online ? (cfg.seats || 2) : 3;
+    var present = [];
+    var players = cfg.players || [0, 1];
+    players = players.map(function (p) { return Math.min(p, MAX_SEATS - 1); });
+    for (var i = 0; i < n; i++) present.push(cfg.online ? (players.indexOf(i) > -1) : true);
+    /* stacks + debts carry across hands for the life of the room */
+    var prev = (keepMoney && G) ? { chips: G.chips.slice(), debt: (G.debt || []).slice() } : null;
+    var d = newDeck();
+    G = {
+      n: n, present: present, pot: 0, stake: BOOT, raises: 0, round: 0, turn: 0,
+      chips: [], debt: [], cards: [], seen: [], folded: [], last: [], name: names(n),
+      over: false, winner: -1, reveal: false, log: [], human: [], noshown: true
+    };
+    for (var k = 0; k < n; k++) {
+      var money = prev ? prev.chips[k] : START_CHIPS;
+      var owe = prev ? (prev.debt[k] || 0) : 0;
+      if (typeof money !== 'number') { money = START_CHIPS; owe = 0; }
+      if (present[k]) {
+        G.cards.push([d.pop(), d.pop(), d.pop()]);
+        G.chips.push(money); G.debt.push(owe);
+        G.seen.push(false); G.folded.push(false); G.last.push('');
+        /* in a room every seated player is a human on its own device;
+           in bot mode only seat 0 is you. */
+        G.human.push(cfg.online ? true : (k === 0));
+      } else {
+        G.cards.push([]); G.chips.push(money); G.debt.push(owe);
+        G.seen.push(false); G.folded.push(true); G.last.push('');
+        G.human.push(false);
+      }
+    }
+    for (var b = 0; b < n; b++) { if (present[b]) { G.chips[b] -= BOOT; G.pot += BOOT; } }
+    G.turn = G.present[0] ? 0 : nextPresent(0);
+    $('log').innerHTML = '';
+    logAdd(prev ? 'New hand. Boot ' + BOOT + ' each — stacks carry over.'
+                : 'Everyone buys in with Rs ' + START_CHIPS + ' and puts in the blind boot of ' + BOOT + '. Good luck.');
+    paint(true);
+    turnTick();
+  }
+
+  /* the winner clears their debt out of the winnings — bank money returns to the bank */
+  function settleDebt(i) {
+    if (!G.debt || !G.debt[i]) return;
+    if (G.chips[i] >= G.debt[i]) {
+      logAdd('<b>' + G.name[i] + '</b> repays the borrowed Rs ' + G.debt[i] + '. Debt clear.');
+      G.chips[i] -= G.debt[i];
+      G.debt[i] = 0;
+    }
+  }
+
+  function alive() {
+    var out = [];
+    G.folded.forEach(function (f, i) { if (!f && G.present[i]) out.push(i); });
+    return out;
+  }
+  function cur() { return { chips: G.chips[G.turn], seen: G.seen[G.turn] }; }
+  function chaalAmount(i) { return G.seen[i] ? G.stake : Math.max(BOOT, Math.round(G.stake / 2)); }
+
+  /* ---------------- render ---------------- */
+  function cardEl(c, down, extra, size) {
+    return C.card(c || { r: 14, s: 0 }, { down: down, cls: extra || '', size: size || '' });
+  }
+
+  function paint(deal) {
+    var n = G.n;
+    /* seats: everyone else around the top/sides, me at the bottom rail */
+    var st = $('seats');
+    var ms = $('meseat');
+    st.innerHTML = '';
+    ms.innerHTML = '';
+    var anchors = {};
+    for (var i = 0; i < n; i++) {
+      var d = document.createElement('div');
+      var mine = (i === cfg.side);
+      if (!G.present[i]) {
+        d.className = 'tp-seat out';
+        d.innerHTML = '<div class="nm">Seat ' + (i + 1) + '</div>' +
+          '<div class="ck">\u2014</div><span class="tag">off</span>';
+      } else {
+        var cls = 'tp-seat';
+        if (!G.folded[i] && G.turn === i && !G.over) cls += ' on';
+        if (G.folded[i]) cls += ' out';
+        if (G.over && G.winner === i) cls += ' win';
+        d.className = cls;
+        d.innerHTML =
+          '<div class="nm">' + G.name[i] + '</div>' +
+          '<div class="ck">\u25CF <b>' + G.chips[i] + '</b></div>' +
+          (G.debt && G.debt[i] ? '<div class="ck" style="color:#ffd85e;">\u2691 debt <b>Rs ' + G.debt[i] + '</b></div>' : '') +
+          '<span class="tag ' + (G.seen[i] ? 'seen' : 'blind') + '">' +
+          (G.folded[i] ? 'packed' : (G.seen[i] ? 'seen' : 'blind')) + '</span>' +
+          (G.last[i] ? '<div class="tag" style="background:rgba(255,255,255,.14);">' + G.last[i] + '</div>' : '');
+      }
+      var cardsAnchor = document.createElement('div');
+      cardsAnchor.className = 'tp-cards';
+      d.appendChild(cardsAnchor);
+      anchors[i] = cardsAnchor;
+      (mine ? ms : st).appendChild(d);
+    }
+
+    /* pot */
+    $('pot').textContent = G.pot;
+    var pc = $('potChips');
+    pc.innerHTML = '';
+    if (G.pot > 0) pc.appendChild(C.chips(G.pot, { label: false }));
+
+    /* opponents' cards dealt at their seats */
+    for (var j = 0; j < n; j++) {
+      if (j === cfg.side || !G.present[j] || !anchors[j]) continue;
+      G.cards[j].forEach(function (c, k) {
+        var down = !(G.reveal && (!G.folded[j] || G.over));
+        var e = cardEl(c, down, 'sm' + (deal ? ' slide deal' : '') + (G.reveal && j === G.winner ? ' hl' : '') + (G.folded[j] ? ' dimz' : ''));
+        e.style.animationDelay = (0.06 * k) + 's';
+        anchors[j].appendChild(e);
+      });
+    }
+
+    /* my cards — tap any of them to look (teen patti style) */
+    var mine = cfg.side;
+    var hd = $('hand');
+    hd.innerHTML = '';
+    var shown = G.seen[mine] || G.reveal;
+    G.cards[mine].forEach(function (c, k) {
+      var e = cardEl(c, !shown, (deal ? ' deal' : '') + (G.reveal && G.winner === mine ? ' hl' : '') + (G.folded[mine] ? ' dimz' : ''));
+      if (!G.folded[mine] && !G.over && !G.online_turnLock) {
+        e.classList.add('lift');
+        if (!shown) {
+          e.style.cursor = 'pointer';
+          e.title = 'Tap to see your cards';
+          e.onclick = function () {
+            if (G && !G.seen[mine] && !G.over) {
+              act('see');
+            }
+          };
+        }
+      }
+      e.style.animationDelay = (0.1 + k * 0.08) + 's';
+      hd.appendChild(e);
+    });
+    var info = $('meInfo');
+    if (G.folded[mine]) info.innerHTML = 'You packed.';
+    else if (G.seen[mine]) info.innerHTML = 'Your hand: <span>' + handScore(G.cards[mine]).name + '</span>';
+    else info.innerHTML = 'You are <span>blind</span> \u2014 chaal costs half. See your cards any time.';
+
+    $('roundInfo').textContent = 'Stake ' + G.stake + ' \u00B7 round ' + Math.max(1, G.round + 1) + ' \u00B7 ' + alive().length + ' in the hand';
+
+    paintActs();
+  }
+
+  function paintActs() {
+    var ac = $('acts');
+    ac.innerHTML = '';
+    if (!G) return;
+    if (G.over) {
+      var b = document.createElement('button');
+      b.className = 'btn';
+      b.textContent = '\uD83C\uDFB4 Deal the next hand';
+      b.onclick = nextHand;
+      ac.appendChild(b);
+      return;
+    }
+    var mine = cfg.side;
+    if (!G.human[mine] || G.folded[mine]) return;
+    if (G.turn !== mine) return;
+    var mk = function (label, cls, fn, dis) {
+      var btn = document.createElement('button');
+      btn.className = 'btn ' + (cls || '');
+      btn.textContent = label;
+      btn.disabled = !!dis;
+      if (dis) { btn.style.opacity = '.42'; btn.style.cursor = 'not-allowed'; }
+      btn.onclick = fn;
+      ac.appendChild(btn);
+    };
+    var amt = chaalAmount(mine);
+    /* your cards are tappable to see — no separate See button */
+    mk('\uD83D\uDFE2 Chaal ' + amt, '', function () { act('chaal'); }, G.chips[mine] < amt);
+    if (G.chips[mine] < amt && (G.debt[mine] || 0) < MAX_DEBT)
+      mk('\uD83D\uDCB8 Borrow ' + BORROW, 'soft', function () { act('borrow'); });
+    /* anyone can raise — blind players too, no cap on the stake */
+    var raiseTo = G.stake * 2;
+    var canRaise = G.chips[mine] >= (G.seen[mine] ? raiseTo : Math.max(BOOT, Math.round(raiseTo / 2)));
+    mk('\uD83D\uDD3A Raise to ' + raiseTo, 'soft', function () { act('raise'); }, !canRaise);
+    /* show: any time, against anyone, if you can pay the stake */
+    var canShow = alive().length >= 2 && G.chips[mine] >= G.stake;
+    mk('\uD83D\uDC41 Show ' + G.stake, 'soft', function () { act('show'); }, !canShow);
+    mk('\uD83D\uDEAA Pack', 'ghost', function () { act('pack'); });
+  }
+
+  function say(t) { $('msg').textContent = t; }
+  function logAdd(t) {
+    if (!G) return;
+    G.log.push(t);
+    var l = $('log');
+    l.innerHTML = G.log.slice(-40).map(function (x) { return '<div>' + x + '</div>'; }).join('');
+    l.scrollTop = l.scrollHeight;
+  }
+
+  function afterPaint() { if (cfg.online && cfg.isHost) netState(); }
+
+  /* ---------------- betting ---------------- */
+  function put(i, amt) {
+    var real = Math.min(amt, G.chips[i]);
+    G.chips[i] -= real; G.pot += real;
+    return real;
+  }
+
+  function doAction(i, a) {
+    if (!G || G.over || G.folded[i]) return;
+    if (a === 'borrow') {                     /* money move only — the turn stays with you */
+      if ((G.debt[i] || 0) >= MAX_DEBT) return;
+      G.debt[i] += BORROW; G.chips[i] += BORROW;
+      logAdd('<b>' + G.name[i] + '</b> borrows Rs ' + BORROW + ' from the bank — debt is now Rs ' + G.debt[i] + '.');
+      paint(); afterPaint();
+      return;
+    }
+    var paid = 0;
+    if (a === 'see') {
+      G.seen[i] = true;
+      logAdd('<b>' + G.name[i] + '</b> looks at the cards.');
+    } else if (a === 'pack') {
+      G.folded[i] = true;
+      G.last[i] = 'packed';
+      logAdd('<b>' + G.name[i] + '</b> packs.');
+    } else if (a === 'chaal') {
+      paid = put(i, chaalAmount(i));
+      G.last[i] = (G.seen[i] ? 'chaal ' : 'blind ') + paid;
+      logAdd('<b>' + G.name[i] + '</b> ' + (G.seen[i] ? 'plays chaal ' : 'plays blind ') + paid + '.');
+    } else if (a === 'raise') {
+      var to = G.stake * 2;                    /* no ceiling — the table decides */
+      G.stake = to;
+      paid = put(i, G.seen[i] ? to : Math.max(BOOT, Math.round(to / 2)));
+      G.last[i] = 'raise ' + to;
+      logAdd('<b>' + G.name[i] + '</b> raises \u2014 stake is now <b>' + to + '</b>.');
+    } else if (a === 'show') {
+      paid = put(i, G.stake);
+      G.last[i] = 'show';
+      logAdd('<b>' + G.name[i] + '</b> calls a show for ' + paid + '.');
+      G.round = 99;
+    }
+    G.round++;
+    afterAction(i);
+  }
+
+  function afterAction(i) {
+    var left = alive();
+    if (left.length === 1) { finish(left[0], 'everyone else packed'); return; }
+    if (left.length === 2 && G.round >= 99) { finish(compare(left), 'show'); return; }
+    var nxt = i;
+    do { nxt = (nxt + 1) % G.n; } while (G.folded[nxt] || !G.present[nxt]);
+    G.turn = nxt;
+    paint();
+    afterPaint();
+    turnTick();
+  }
+
+  function compare(left) {
+    var a = left[0], b = left[1];
+    return cmpHand(G.cards[a], G.cards[b]) >= 0 ? a : b;
+  }
+
+  var autoDeal = null;
+  function scheduleNext() {
+    if (cfg.online) return;                    /* rooms: host deals manually */
+    if (autoDeal) clearTimeout(autoDeal);
+    logAdd('Next hand starts in 3 seconds…');
+    autoDeal = setTimeout(function () {
+      autoDeal = null;
+      if (G && G.over && !cfg.online) nextHand();
+    }, 3000);
+  }
+
+  function finish(winner, why) {
+    G.over = true;
+    stopTurnClock();
+    G.winner = winner;
+    G.reveal = true;
+    G.chips[winner] += G.pot;
+    settleDebt(winner);
+    logAdd('\uD83C\uDFC6 <b>' + G.name[winner] + '</b> takes the pot of <b>' + G.pot + '</b> (' + why + ').');
+    if (alive().length === 2) {
+      var other = alive()[0] === winner ? alive()[1] : alive()[0];
+      logAdd(G.name[winner] + ': ' + handScore(G.cards[winner]).name + ' \u00B7 ' +
+        G.name[other] + ': ' + handScore(G.cards[other]).name);
+    }
+    G.pot = 0;
+    scheduleNext();
+    paint();
+    afterPaint();
+    if (winner === cfg.side) {
+      say('\uD83C\uDFC6 You win the hand!');
+      if (window.SAAGAR && window.SAAGAR.toast) window.SAAGAR.toast('You took the pot \uD83C\uDF89');
+    } else {
+      say(G.name[winner] + ' wins the hand.');
+      if (cfg.side === 0 && G.seen[0]) paint();
+    }
+  }
+
+  function turnTick() {
+    if (!G || G.over) { stopTurnClock(); return; }
+    var i = G.turn;
+    if (G.human[i]) {
+      say(i === cfg.side ? 'Your move — chaal, raise, show or pack.' : 'Waiting for your friend…');
+      paintActs();
+      armTurnClock(i);
+      return;
+    }
+    stopTurnClock();
+    say(G.name[i] + ' is thinking…');
+    setTimeout(function () {
+      if (!G || G.over || G.human[G.turn]) return;
+      botAct(G.turn);
+    }, 820);
+  }
+
+  /* ---- 30s clock: stall on your turn and the hand auto-PACKS you.
+     Solo/vs-bots: this device referees. In a room the HOST referees
+     every seat (bots act through doAction, so they never stall). ---- */
+  function armTurnClock(i) {
+    var T = window.SAAGAR_TURN;
+    if (!T) return;
+    if (cfg.online && !cfg.isHost) {           /* guest: the host referees */
+      if (i === cfg.side) T.arm({ secs: 30, onSkip: function () { say('Time is up.'); } });
+      else T.stop();
+      return;
+    }
+    T.arm({ secs: 30, onSkip: function () {
+      if (!G || G.over || G.folded[i] || G.turn !== i) return;
+      logAdd('<b>' + G.name[i] + '</b> ran out of time — auto-packed.');
+      doAction(i, 'pack');
+    } });
+  }
+  function stopTurnClock() {
+    if (window.SAAGAR_TURN) window.SAAGAR_TURN.stop();
+  }
+
+  /* ---------------- bots ---------------- */
+  function botAct(i) {
+    var s = strength(G.cards[i]);
+    var left = alive().length;
+    var noise = cfg.bot === 'easy' ? 0.26 : (cfg.bot === 'medium' ? 0.10 : 0.03);
+    var seenS = Math.max(0.02, Math.min(1, s + (Math.random() - 0.5) * noise * 2));
+    var r = Math.random();
+
+    /* look at the cards when the pot gets serious, or at random */
+    if (!G.seen[i] && (G.stake >= 40 || G.round >= 2 || r < 0.3)) {
+      doAction(i, 'see');
+      return;
+    }
+    /* the show used to be gated on round count; now it's always available */
+    if (G.chips[i] < chaalAmount(i)) {
+      if ((G.debt[i] || 0) < MAX_DEBT) { doAction(i, 'borrow'); return; }
+      doAction(i, 'pack'); return;
+    }
+
+    if (left === 2 && G.seen[i] && (G.round >= 3) && (s > 0.72 || G.stake >= 160)) {
+      if (r < 0.7) { doAction(i, 'show'); return; }
+    }
+    if (!G.seen[i]) { doAction(i, 'chaal'); return; }
+
+    if (seenS > 0.82) {
+      if (r < 0.5) { doAction(i, 'raise'); return; }
+      doAction(i, 'chaal'); return;
+    }
+    if (seenS > 0.58) {
+      if (r < 0.2) { doAction(i, 'raise'); return; }
+      doAction(i, 'chaal'); return;
+    }
+    if (seenS > 0.40) { doAction(i, r < 0.7 ? 'chaal' : 'pack'); return; }
+    if (seenS > 0.26) { doAction(i, r < 0.34 ? 'chaal' : 'pack'); return; }
+    doAction(i, r < 0.14 ? 'chaal' : 'pack');
+  }
+
+  function act(a) {
+    if (!G || G.over) return;
+    if (cfg.online && G.turn !== cfg.side) return;
+    if (cfg.online && !cfg.isHost) {
+      cfg.room.send({ t: 'act', a: a, seat: cfg.side });
+      if (a === 'see') G.seen[cfg.side] = true;
+      paint();
+      say('Sent\u2026');
+      return;
+    }
+    doAction(G.turn, a);
+  }
+
+  /* ---------------- net ---------------- */
+  function netState() {
+    if (!cfg.online || !cfg.isHost || !cfg.room) return;
+    cfg.room.send({
+      t: 'st',
+      n: G.n,
+      pub: G.name.map(function (nm, i) {
+        return { n: nm, c: G.chips[i], f: G.folded[i], l: G.last[i], s: G.seen[i], p: G.present[i] ? 1 : 0, d: G.debt[i] || 0 };
+      }),
+      pot: G.pot, stake: G.stake, raises: G.raises, round: G.round, turn: G.turn,
+      over: G.over, winner: G.winner, reveal: G.reveal, log: G.log.slice(-25),
+      cards: G.reveal ? G.cards : null
+    });
+    /* each friend only ever receives their OWN three cards */
+    if (cfg.room.sendToSeat) {
+      for (var s = 1; s < G.n; s++) {
+        if (!G.present[s]) continue;
+        cfg.room.sendToSeat(s, { t: 'yours', cards: G.cards[s], seen: G.seen[s] });
+      }
+    }
+  }
+
+  function loadState(m) {
+    if (!G) return;
+    G.pot = m.pot; G.stake = m.stake; G.raises = m.raises; G.round = m.round;
+    G.turn = m.turn; G.over = m.over; G.winner = m.winner; G.reveal = m.reveal;
+    if (m.n) G.n = m.n;
+    m.pub.forEach(function (s, i) {
+      G.chips[i] = s.c; G.folded[i] = s.f; G.last[i] = s.l; G.seen[i] = s.s;
+      if (!G.debt) G.debt = [];
+      G.debt[i] = s.d || 0;
+      if (typeof s.p === 'number') G.present[i] = !!s.p;
+    });
+    if (m.cards) G.cards = m.cards;
+    if (G.log.length !== m.log.length) m.log.slice(G.log.length).forEach(function (x) { logAdd(x); });
+    paint();
+    if (G.over) { stopTurnClock(); say(G.winner === cfg.side ? '\uD83C\uDFC6 You win the hand!' : G.name[G.winner] + ' wins the hand.'); }
+    else if (G.turn === cfg.side) { say('Your move \u2014 chaal, raise, show or pack.'); armTurnClock(cfg.side); }
+    else { say('Waiting for your friend\u2026'); stopTurnClock(); }
+  }
+
+  /* ---------------- modes ---------------- */
+  function showStage(label, note) {
+    $('lobby').classList.add('hidden');
+    $('stage').classList.remove('hidden');
+    $('netNote').textContent = note || '';
+    $('log').innerHTML = '';
+  }
+
+  function nextHand() {
+    if (autoDeal) { clearTimeout(autoDeal); autoDeal = null; }
+    if (cfg.online) {
+      if (cfg.isHost) { fresh(true); netState(); }
+      else cfg.room.send({ t: 'next' });
+      return;
+    }
+    var d = newDeck();
+    G.pot = 0; G.stake = BOOT; G.raises = 0; G.round = 0; G.over = false;
+    G.winner = -1; G.reveal = false; G.log = []; G.turn = 0;
+    if (!G.debt) G.debt = G.chips.map(function () { return 0; });
+    $('log').innerHTML = '';
+    for (var i = 0; i < G.n; i++) {
+      if (!G.present[i]) continue;
+      G.cards[i] = [d.pop(), d.pop(), d.pop()];
+      G.folded[i] = false; G.last[i] = ''; G.seen[i] = false;
+      G.chips[i] -= BOOT; G.pot += BOOT;
+    }
+    logAdd('New hand. Blind boot ' + BOOT + ' each — stacks carry over.');
+    paint(true);
+    turnTick();
+  }
+
+  function startSolo(opts) {
+    cfg = { bot: opts.bot, online: false, isHost: false, room: null, side: 0 };
+    showStage(null, 'Rs ' + START_CHIPS + ' buy-in · blind boot Rs ' + BOOT + ' · stacks carry every hand · borrow Rs ' + BORROW + ' if broke.');
+    say('Dealing\u2026');
+    fresh();
+  }
+
+  function startRoom(room, isHost, o) {
+    o = o || {};
+    var players = (o.players && o.players.length) ? o.players : [0, 1];
+    var seat = (typeof o.seat === 'number' && o.seat >= 0) ? o.seat : (isHost ? 0 : 1);
+    cfg = { bot: 'hard', online: true, isHost: isHost, room: room, side: seat, seats: o.seats || 2, players: players };
+    showStage(null, 'Seats with nobody in them stay off. Only you can see your own three cards.');
+    say('Dealing\u2026');
+    if (isHost) { fresh(); netState(); }
+    else { fresh(); say('Waiting for the deal\u2026'); }
+  }
+
+  var lobby = window.SAAGAR_LOBBY.create({
+    key: 'teenpatti',
+    title: '\uD83C\uDFB4 How do you want to play?',
+    root: $('lobby'),
+    seatChoices: [2, 3, 4, 5, 6],
+    labels: { solo: '\u25B6  Practice table', bot: '\uD83E\uDD16  Play vs 2 bots', create: '\uFF0B  Create room', join: '\uD83D\uDD17  Join room' },
+    onSolo: startSolo,
+    onHostReady: function (room, o) { startRoom(room, true, o); },
+    onGuestReady: function (room, o) { startRoom(room, false, o); },
+    onMessage: function (msg, room, isHost, fromSeat) {
+      if (isHost) {
+        if (!G) return;
+        if (msg.t === 'act' && !G.over) {
+          var seat = (typeof fromSeat === 'number' && fromSeat >= 0) ? fromSeat : msg.seat;
+          if (seat === G.turn && G.present[seat] && !G.folded[seat]) doAction(seat, msg.a);
+        }
+        if (msg.t === 'next') { fresh(true); netState(); }
+        return;
+      }
+      if (msg.t === 'yours' && G) {
+        G.cards[cfg.side] = msg.cards;
+        G.seen[cfg.side] = msg.seen;
+        paint();
+        return;
+      }
+      if (msg.t === 'st') loadState(msg);
+    },
+    onPeerLeave: function () {
+      $('netNote').textContent = 'Your friend disconnected.';
+      if (window.SAAGAR) window.SAAGAR.toast('Friend left the table', true);
+    }
+  });
+
+  $('back').onclick = function () {
+    if (cfg.room) { try { cfg.room.close(true); } catch (e) { } }
+    G = null;
+    $('stage').classList.add('hidden');
+    $('lobby').classList.remove('hidden');
+    lobby.menu();
+  };
+
+  /* read-only state getter for support/inspection; ?debug=1 also unlocks a
+     stack setter so tests can stage a broke seat without playing 200 hands */
+  window.SAAGAR_TP = { state: function () { return G; } };
+  if (/[?&]debug=1/.test(location.search)) {
+    window.SAAGAR_TP.set = function (i, chips, debt) {
+      if (!G) return;
+      if (typeof chips === 'number') G.chips[i] = chips;
+      if (typeof debt === 'number') G.debt[i] = debt;
+      paint();
+    };
+  }
+})();
+</script>
+</body>
+</html>

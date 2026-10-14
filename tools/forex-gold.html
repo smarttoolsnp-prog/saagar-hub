@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forex &amp; Gold Rate Converter (NPR) | SAAGAR Tools</title>
+<meta name="description" content="Convert currencies to and from Nepali rupees using live exchange rates, and price gold and silver by weight.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/forex-gold.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .hero{text-align:center; padding:15px 8px; background:linear-gradient(150deg,#fff,#eef4fb);
+    border:1px solid var(--line); border-radius:16px; margin-bottom:14px;}
+  .hero b{font-size:clamp(26px,5.6vw,38px); font-weight:900; color:var(--navy); display:block; line-height:1.15;}
+  .hero span{font-size:13px; font-weight:700; color:var(--dim);}
+  .rateRow{display:flex; justify-content:space-between; padding:8px 2px; border-bottom:1px solid var(--line); font-size:14px;}
+  .rateRow:last-child{border-bottom:0;}
+  .rateRow b{color:var(--navy-2);}
+  .status{font-size:12.5px; font-weight:700; padding:8px 12px; border-radius:10px; margin-bottom:14px;}
+  .status.live{background:#eefaf1; color:#136c36; border:1px solid #b6e5c4;}
+  .status.off{background:#fdf6e8; color:#8a6410; border:1px solid #f0e0b0;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Forex &amp; Metals</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><circle cx="8" cy="8" r="5.5"/><circle cx="16" cy="16" r="5.5"/><path d="M9 7 L7 9 M15 15 L17 17"/></svg></span>Forex &amp; Metals</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:760px;">
+    <div class="card">
+      <h2><span class="em">🌐</span> Currency converter</h2>
+      <div class="status off" id="status">Loading live rates…</div>
+      <div class="row">
+        <div class="field" style="flex:1;"><label for="amt">Amount</label><input type="number" id="amt" value="1" step="any" min="0"></div>
+        <div class="field" style="flex:1;"><label for="from">From</label><select id="from"></select></div>
+        <div class="field" style="flex:1;"><label for="to">To</label><select id="to"></select></div>
+        <button class="btn" id="swap" type="button" style="flex:0 0 auto;">⇄</button>
+      </div>
+      <div class="hero mt"><b id="conv">—</b><span id="convSub"></span></div>
+      <div id="rateList"></div>
+      <label class="chip mt-s" style="display:inline-block;cursor:pointer;">
+        <input type="checkbox" id="manualToggle" style="width:auto;margin-right:6px;"> Use my own rate instead
+      </label>
+      <div class="row mt-s hidden" id="manualRow">
+        <div class="field" style="flex:1;"><label for="manualRate">1 unit of “from” equals how many NPR?</label><input type="number" id="manualRate" step="any" value="133"></div>
+      </div>
+      <p class="muted mt">Rates are reference mid-market values from a public exchange-rate feed. Banks in Nepal add a spread and service charge, so your counter rate will differ slightly.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">🥇</span> Gold &amp; silver value</h2>
+      <div class="row">
+        <div class="field" style="flex:1;"><label for="gRate">Gold rate per tola (Rs.)</label><input type="number" id="gRate" value="185000" step="500" min="0"></div>
+        <div class="field" style="flex:1;"><label for="sRate">Silver rate per tola (Rs.)</label><input type="number" id="sRate" value="2400" step="50" min="0"></div>
+        <div class="field" style="flex:1;"><label for="gW">Gold weight (tola)</label><input type="number" id="gW" value="2" step="any" min="0"></div>
+        <div class="field" style="flex:1;"><label for="sW">Silver weight (tola)</label><input type="number" id="sW" value="10" step="any" min="0"></div>
+        <button class="btn" id="metalGo" type="button" style="flex:0 0 auto;">Value it</button>
+      </div>
+      <div class="out" id="metalOut" role="status"></div>
+      <p class="muted mt">Metal rates change daily — read today's rate off the Federation of Nepal Gold and Silver Dealers' Association listing and type it in above.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var TOLA = 11.6638;
+
+  var LIST = ['NPR','USD','EUR','GBP','AUD','CAD','CHF','CNY','INR','JPY','SAR','AED','QAR','KWD','MYR','SGD','KRW','THB','HKD','SEK'];
+  var NAMES = { NPR: 'Nepali Rupee', USD: 'US Dollar', EUR: 'Euro', GBP: 'British Pound', AUD: 'Australian Dollar',
+    CAD: 'Canadian Dollar', CHF: 'Swiss Franc', CNY: 'Chinese Yuan', INR: 'Indian Rupee', JPY: 'Japanese Yen',
+    SAR: 'Saudi Riyal', AED: 'UAE Dirham', QAR: 'Qatari Riyal', KWD: 'Kuwaiti Dinar', MYR: 'Malaysian Ringgit',
+    SGD: 'Singapore Dollar', KRW: 'Korean Won', THB: 'Thai Baht', HKD: 'Hong Kong Dollar', SEK: 'Swedish Krona' };
+
+  var RATES = null;   /* how many NPR per 1 unit */
+  var FALLBACK = { NPR: 1, USD: 133.5, EUR: 145, GBP: 170, AUD: 88, CAD: 98, CHF: 152, CNY: 18.7, INR: 1.6,
+    JPY: 0.9, SAR: 35.6, AED: 36.3, QAR: 36.7, KWD: 435, MYR: 30, SGD: 99, KRW: 0.098, THB: 3.9, HKD: 17.1, SEK: 12.7 };
+
+  function options() {
+    ['from','to'].forEach(function (id) {
+      var s = $(id);
+      s.innerHTML = '';
+      LIST.forEach(function (c) {
+        var o = document.createElement('option');
+        o.value = c;
+        o.textContent = c + ' — ' + NAMES[c];
+        s.appendChild(o);
+      });
+    });
+    $('from').value = 'USD';
+    $('to').value = 'NPR';
+  }
+
+  function setStatus(text, live) {
+    $('status').textContent = text;
+    $('status').className = 'status ' + (live ? 'live' : 'off');
+  }
+
+  function load() {
+    setStatus('Loading live rates…', false);
+    fetch('https://open.er-api.com/v6/latest/NPR')
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.rates) throw new Error('bad payload');
+        RATES = { NPR: 1 };
+        LIST.forEach(function (c) {
+          if (c === 'NPR') return;
+          if (j.rates[c]) RATES[c] = 1 / j.rates[c];   /* NPR per 1 unit */
+        });
+        setStatus('Live rates loaded · updated ' + (j.time_last_update_utc || 'just now'), true);
+        render();
+      })
+      .catch(function () {
+        RATES = FALLBACK;
+        setStatus('Live rates unavailable — using approximate saved rates. You can type your own below.', false);
+        render();
+      });
+  }
+
+  function currentRate(from, to) {
+    if ($('manualToggle').checked && $('manualRate').value) {
+      var m = parseFloat($('manualRate').value);
+      if (from === 'NPR') return 1 / m;
+      if (to === 'NPR') return m;
+      return m / (RATES[to] || 1);
+    }
+    if (!RATES) return null;
+    /* amount in 'from' -> NPR -> 'to' */
+    return RATES[from] / RATES[to];
+  }
+
+  function render() {
+    var a = parseFloat($('amt').value);
+    var from = $('from').value, to = $('to').value;
+    if (!isFinite(a) || a < 0) a = 0;
+    var r = currentRate(from, to);
+    if (r == null) { $('conv').textContent = '—'; return; }
+    var out = a * r;
+    $('conv').textContent = out.toLocaleString('en-IN', { maximumFractionDigits: 4 }) + ' ' + to;
+    $('convSub').textContent = a + ' ' + from + ' at 1 ' + from + ' = ' +
+      r.toLocaleString('en-IN', { maximumFractionDigits: 4 }) + ' ' + to;
+
+    var list = $('rateList');
+    list.innerHTML = '';
+    ['USD','EUR','GBP','AED','QAR','SAR','INR','CNY','JPY','KRW'].forEach(function (c) {
+      if (c === from) return;
+      var rr = currentRate(from, c);
+      if (rr == null) return;
+      var d = document.createElement('div');
+      d.className = 'rateRow';
+      d.innerHTML = '<span>1 ' + from + ' → ' + c + '</span><b>' + rr.toLocaleString('en-IN', { maximumFractionDigits: 4 }) + '</b>';
+      list.appendChild(d);
+    });
+  }
+
+  function metals() {
+    var gr = parseFloat($('gRate').value) || 0;
+    var sr = parseFloat($('sRate').value) || 0;
+    var gw = parseFloat($('gW').value) || 0;
+    var sw = parseFloat($('sW').value) || 0;
+    var gVal = gr * gw, sVal = sr * sw;
+    function rs(n) { return 'Rs. ' + Math.round(n).toLocaleString('en-IN'); }
+    $('metalOut').innerHTML = '<span class="big">' + rs(gVal + sVal) + '</span><span class="sub">' +
+      'Gold ' + gw + ' tola = ' + rs(gVal) + ' (' + rs(gr / TOLA) + '/g) · ' +
+      'Silver ' + sw + ' tola = ' + rs(sVal) + ' (' + rs(sr / TOLA) + '/g)</span>';
+    $('metalOut').className = 'out ok';
+  }
+
+  options();
+  ['amt','from','to','manualRate'].forEach(function (id) { $(id).addEventListener('input', render); });
+  ['from','to'].forEach(function (id) { $(id).addEventListener('change', render); });
+  $('manualToggle').addEventListener('change', function () {
+    $('manualRow').classList.toggle('hidden', !this.checked);
+    render();
+  });
+  $('swap').onclick = function () {
+    var f = $('from').value;
+    $('from').value = $('to').value;
+    $('to').value = f;
+    render();
+  };
+  $('metalGo').onclick = metals;
+  ['gRate','sRate','gW','sW'].forEach(function (id) { $(id).addEventListener('input', metals); });
+
+  load();
+  metals();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# old Jutpatti paths now live on as Teen Patti
+/games/jutpatti      /games/teenpatti  301
+/games/jutpatti.html /games/teenpatti  301
+
+# sections removed from the site
+/gk.html          /index.html  301
+/facts.html       /index.html  301
+/jokes.html       /index.html  301
+/quotes.html      /index.html  301
+/philosophy.html  /index.html  301
+/formulas.html    /index.html  301
+/library.html     /skills.html 301
+/tools/accounting.html /tools.html 301

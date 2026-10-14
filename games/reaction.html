@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reaction Duel — test your reflexes | SAAGAR Games</title>
+<meta name="description" content="Reaction time test — race a bot or duel a friend online. Best of five, false starts lose the round.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/games/reaction.html">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/clay.css">
+<style>
+  .pad{border-radius:32px; padding:52px 20px; text-align:center; cursor:pointer; user-select:none;
+    transition:transform .12s, box-shadow .12s; box-shadow:var(--sh-clay);}
+  .pad h3{font-size:clamp(21px,5vw,31px); font-weight:900; letter-spacing:.5px; color:var(--navy-ink);}
+  .pad p{margin-top:9px; font-size:14.5px; opacity:.85; font-weight:600; color:var(--dim);}
+  .pad.wait{background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; box-shadow:var(--sh-clay);}
+  .pad.ready{background:linear-gradient(135deg,#f59e0b,#eab308); color:#fff; box-shadow:var(--sh-clay);
+    animation:pulse-shake .1s ease-in-out 0s 2;}
+  .pad.go{background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; box-shadow:var(--sh-clay);
+    transform:scale(1.012);}
+  .pad.idle{background:var(--card); color:var(--navy-ink); border:none; box-shadow:var(--sh-clay-press);}
+  @keyframes pulse-shake{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.01) translateY(-1px)}}
+  @media(prefers-reduced-motion:reduce){.pad.ready{animation:none}}
+  .st{display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap;}
+  .sb{background:var(--card); border:none; border-radius:18px; padding:9px 16px; text-align:center; min-width:96px; box-shadow:var(--sh-clay);}
+  .sb b{display:block; font-size:20px; color:var(--navy-ink);}
+  .sb span{font-size:10.5px; font-weight:800; letter-spacing:.5px; color:var(--dim); text-transform:uppercase;}
+  .dots{display:flex; gap:7px; justify-content:center; margin-top:14px;}
+  .dots i{width:18px; height:18px; border-radius:50%; background:var(--bg-2); border:none; box-shadow:var(--sh-clay-press);}
+  .dots i.w{background:#22c55e; box-shadow:0 0 0 3px #5cc585, var(--sh-clay);}
+  .dots i.l{background:#ef4444; box-shadow:0 0 0 3px #ef4444, var(--sh-clay);}
+  .hist{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-top:12px;}
+  .hist span{font-size:12px; font-weight:800; background:var(--card); border:none; border-radius:999px; padding:4px 12px; color:var(--navy-ink); box-shadow:var(--sh-clay-press);}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="games">
+
+<div id="hdr"></div>
+<div class="clay-shell" style="display:none"><div class="row gap">
+  <a class="chip" style="font-size:13px;pointer-events:none">SAAGAR</a>
+  <a class="chip" style="font-size:13px">Log in</a>
+  <a class="chip" style="font-size:13px;color:#a35d2b;background:var(--clay-butter);border:1px solid var(--clay-lemon);font-weight:900">Play now →</a>
+</div></div>
+<div id="ftr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../games.html">Games</a> / Reaction Duel</div>
+    <h1><span class="lg"><img src="../assets/clay-logos/sections/games.svg" width="56" height="56" alt="" style="vertical-align:top;margin-right:8px"></span>Reaction Duel</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:600px;">
+    <div id="lobby"></div>
+
+    <div id="stage" class="hidden">
+      <div class="card">
+        <h2><span class="em"><img src="../assets/clay-logos/sections/games.svg" width="44" height="44" alt="" style="vertical-align:middle;margin-right:6px;border-radius:12px"></svg></span> <span id="modeLabel">Duel</span></h2>
+        <div class="pad idle" id="pad" role="button" tabindex="0" aria-label="Reaction pad">
+          <h3 id="padTitle">Tap to start</h3>
+          <p id="padSub">Then wait for green and tap the moment it changes.</p>
+        </div>
+        <div class="st">
+          <div class="sb"><b id="stLast">—</b><span>Last</span></div>
+          <div class="sb"><b id="stBest">—</b><span>Best</span></div>
+          <div class="sb"><b id="stScore">0–0</b><span id="stScoreLbl">Rounds</span></div>
+        </div>
+        <div class="dots" id="dots"></div>
+        <div class="hist" id="hist"></div>
+        <div class="row mt" style="justify-content:center;">
+          <button class="btn shape-lozenge sm" id="again" style="flex:0 0 auto;">Restart duel</button>
+          <button class="btn shape-pill ghost sm" id="back" style="flex:0 0 auto;">Change mode</button>
+        </div>
+      </div>
+      <p class="muted center mt" id="netNote"></p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/peerjs.min.js"></script>
+<script src="../assets/app.js"></script>
+<script src="../assets/net.js"></script>
+<script src="../assets/lobby.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var BEST_ROUNDS = 3;
+  var BOT_MS = { easy: [330, 560], medium: [240, 400], hard: [160, 280] };
+
+  var cfg = { bot: null, online: false, isHost: false, room: null };
+  var R = null, armTimer = null, goAt = 0;
+
+  function newDuel() {
+    R = { my: 0, their: 0, results: [], awaitGo: false, pending: null, botTimes: [] };
+    drawDots();
+    $('hist').innerHTML = '';
+    $('stScore').textContent = '0–0';
+    padIdle('Tap to start', 'Then wait for green and tap the moment it changes.');
+    $('padSub').textContent = 'Tap to start the round.';
+    $('padTitle').textContent = 'Tap to start';
+  }
+
+  function drawDots() {
+    var d = $('dots'); d.innerHTML = '';
+    for (var i = 0; i < BEST_ROUNDS; i++) {
+      var s = document.createElement('i');
+      var r = R.results[i];
+      if (r === 'w') s.className = 'w'; else if (r === 'l') s.className = 'l';
+      d.appendChild(s);
+    }
+  }
+
+  function padClass(c, t, sub) {
+    $('pad').className = 'pad ' + c;
+    if (t !== undefined) $('padTitle').textContent = t;
+    if (sub !== undefined) $('padSub').textContent = sub;
+  }
+  function padIdle(t, s) { padClass('idle', t, s); }
+
+  function pushHist(ms) {
+    var h = $('hist');
+    var s = document.createElement('span');
+    s.textContent = Math.round(ms) + ' ms';
+    h.insertBefore(s, h.firstChild);
+    while (h.children.length > 8) h.removeChild(h.lastChild);
+  }
+
+  /* ---------------- round flow ---------------- */
+  function arm() {
+    if (!R) return;
+    clearTimeout(armTimer);
+    padClass('wait', 'Wait for green…', 'Don\'t tap yet.');
+    R.awaitGo = true;
+    var delay = 900 + Math.random() * 2200;
+    armTimer = setTimeout(function () {
+      if (!R || !R.awaitGo) return;
+      go();
+    }, delay);
+  }
+
+  function go() {
+    R.awaitGo = false;
+    goAt = performance.now();
+    padClass('go', 'TAP NOW!', 'As fast as you can.');
+    if (cfg.online) {
+      /* in a room the host fires "go" for both; we started on receipt */
+    }
+  }
+
+  function falseStart() {
+    R.awaitGo = false;
+    clearTimeout(armTimer);
+    padClass('wait', 'Too early!', 'Round lost — tap to try the next one.');
+    R.results.push('l');
+    R.their++;
+    endRoundCheck('False start — round to your opponent.');
+    if (cfg.online && cfg.isHost) cfg.room.send({ t: 'foul', by: 'host' });
+  }
+
+  function humanTap() {
+    if (!R) return;
+    if (cfg.online && !R.myTurn) return;
+    if (!R.awaitGo && goAt === 0) { arm(); return; }
+    if (R.awaitGo) { falseStart(); return; }
+    var ms = performance.now() - goAt;
+    goAt = 0;
+    record(ms);
+  }
+
+  function record(ms) {
+    $('stLast').textContent = Math.round(ms) + ' ms';
+    var best = SAAGAR.store('reaction.best');
+    if (!best || ms < best) { SAAGAR.store('reaction.best', Math.round(ms)); }
+    $('stBest').textContent = Math.round(SAAGAR.store('reaction.best')) + ' ms';
+    pushHist(ms);
+
+    if (cfg.online) {
+      cfg.room.send({ t: 'time', ms: Math.round(ms) });
+      padClass('ready', 'Waiting…', 'Seeing who was faster.');
+      R.myTurn = false;
+      R.pendingMine = Math.round(ms);
+      if (cfg.isHost && R.pendingTheirs != null) judge(R.pendingMine, R.pendingTheirs);
+      return;
+    }
+
+    if (cfg.bot) {
+      var range = BOT_MS[cfg.bot] || BOT_MS.medium;
+      var bot = Math.round(range[0] + Math.random() * (range[1] - range[0]));
+      R.botTimes.push(bot);
+      judge(Math.round(ms), bot);
+      return;
+    }
+
+    /* solo */
+    padClass('idle', 'Tap to go again', 'Your best is saved on this device.');
+  }
+
+  function judge(mine, theirs) {
+    var win = mine < theirs;
+    R.results.push(win ? 'w' : (mine === theirs ? 'd' : 'l'));
+    if (win) R.my++; else if (mine !== theirs) R.their++;
+    drawDots();
+    $('stScore').textContent = R.my + '–' + R.their;
+    var who = cfg.bot ? 'Bot' : 'Friend';
+    var text = win ? 'You were faster (' + mine + ' vs ' + theirs + ' ms)'
+             : mine === theirs ? 'Dead heat — both ' + mine + ' ms'
+             : who + ' was faster (' + theirs + ' vs ' + mine + ' ms)';
+    var over = R.my === BEST_ROUNDS || R.their === BEST_ROUNDS || R.results.length >= 5;
+    if (over) {
+      text += R.my > R.their ? '  🏆 You win the duel!' : R.my < R.their ? '  ' + who + ' wins the duel.' : '  Duel drawn.';
+      padClass(win ? 'go' : 'wait', R.my > R.their ? '🏆 You win!' : (R.my < R.their ? who + ' wins' : 'Draw'),
+        'Tap “Restart duel” for another.');
+    } else {
+      padIdle(win ? 'Round won!' : 'Round lost', text + '  Tap for the next round.');
+    }
+    R.pendingMine = null; R.pendingTheirs = null;
+    if (cfg.online) R.myTurn = cfg.isHost;
+  }
+
+  function endRoundCheck(msg) {
+    var over = R.my === BEST_ROUNDS || R.their === BEST_ROUNDS || R.results.length >= 5;
+    padIdle('Round lost', msg + (over ? '' : '  Tap for the next round.'));
+    R.pendingMine = null; R.pendingTheirs = null;
+  }
+
+  /* ---------------- pad events ---------------- */
+  $('pad').addEventListener('click', humanTap);
+  $('pad').addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); humanTap(); } });
+
+  /* ---------------- modes ---------------- */
+  function showStage(label, note) {
+    $('lobby').classList.add('hidden');
+    $('stage').classList.remove('hidden');
+    $('modeLabel').textContent = label;
+    $('netNote').textContent = note || '';
+    $('stBest').textContent = (SAAGAR.store('reaction.best') || '—') + (SAAGAR.store('reaction.best') ? ' ms' : '');
+  }
+
+  var lobby = window.SAAGAR_LOBBY.create({
+    key: 'react',
+    seatChoices: [2],
+    title: '⚡ Choose how to play',
+    root: $('lobby'),
+    onSolo: function (o) {
+      cfg = { bot: o.bot, online: false, isHost: false, room: null };
+      newDuel();
+      showStage(o.bot ? 'You vs Bot (' + o.bot + ')' : 'Solo reflex test',
+        o.bot ? 'First to ' + BEST_ROUNDS + ' rounds wins. Guard against tapping early.' : 'Just you and the clock — tap when it turns green.');
+      R.myTurn = true;
+    },
+    onHostReady: function (room) { startRoom(room, true); },
+    onGuestReady: function (room) { startRoom(room, false); },
+    onMessage: function (msg, room, isHost) {
+      if (msg.t === 'start') {
+        newDuel();
+        showStage('Duel — room ' + room.code, 'Both players see green at the same moment. First to ' + BEST_ROUNDS + ' rounds.');
+        R.myTurn = !isHost;
+        if (!isHost) { /* guest waits for the host's arm signal */ }
+      }
+      if (msg.t === 'arm') { arm(); }
+      if (msg.t === 'go' && !isHost) { go(); }
+      if (msg.t === 'time') {
+        if (isHost) {
+          if (R.pendingMine != null) judge(R.pendingMine, msg.ms);
+          else R.pendingTheirs = msg.ms;
+        }
+      }
+      if (msg.t === 'foul') {
+        R.results.push('w');
+        R.my++;
+        drawDots();
+        $('stScore').textContent = R.my + '–' + R.their;
+        padIdle('Opponent tapped early', 'You get the round. Tap for the next.');
+      }
+      if (msg.t === 'arm') { }
+      if (msg.t === 'restart') { newDuel(); if (!isHost) R.myTurn = isHost; }
+    },
+    onPeerLeave: function () {
+      $('netNote').textContent = 'Your friend disconnected.';
+      SAAGAR.toast('Friend left the duel', true);
+    }
+  });
+
+  function startRoom(room, isHost) {
+    cfg = { bot: null, online: true, isHost: isHost, room: room };
+    newDuel();
+    showStage('Duel — room ' + room.code, 'Both players see green at the same moment. Guard against tapping early — that loses the round.');
+    if (isHost) {
+      R.myTurn = true;
+      room.send({ t: 'start' });
+      setTimeout(function () { room.send({ t: 'arm' }); arm(); }, 700);
+    } else {
+      R.myTurn = false;
+    }
+  }
+
+  /* host controls the pace: after each round, re-arm for both */
+  var hostLoop = setInterval(function () {
+    if (!cfg.online || !cfg.isHost || !R) return;
+    if (R.awaitGo || goAt) return;
+    /* nothing pending → start a fresh round automatically */
+  }, 400);
+
+  $('again').onclick = function () {
+    if (cfg.online) {
+      cfg.room.send({ t: 'restart' });
+      newDuel();
+      if (cfg.isHost) { R.myTurn = true; setTimeout(function () { cfg.room.send({ t: 'arm' }); arm(); }, 600); }
+      return;
+    }
+    newDuel();
+    if (cfg.bot) R.myTurn = true;
+  };
+  $('back').onclick = function () {
+    if (armTimer) clearTimeout(armTimer);
+    if (cfg.room) cfg.room.close(true);
+    cfg = { bot: null, online: false, isHost: false, room: null };
+    R = null;
+    $('stage').classList.add('hidden');
+    $('lobby').classList.remove('hidden');
+    lobby.menu();
+  };
+})();
+</script>
+</body>
+</html>

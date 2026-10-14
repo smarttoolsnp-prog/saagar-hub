@@ -3,863 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Games | SAAGAR — Free Neon Arcade</title>
-<meta name="description" content="Free browser arcade — Neon Snake, Memory Match, Reaction Test, Rock-Paper-Scissors and Guess the Number. No install, no login.">
-<meta name="theme-color" content="#08111f">
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<title>Games — free browser games, vs bot or a friend | SAAGAR</title>
+<meta name="description" content="Free browser games: Ludo, Carrom, Teen Patti, Snakes and Ladders, Checkers, Snake, Tic-Tac-Toe, Connect 4, Rock-Paper-Scissors, Guess the Number, Memory, Reaction Duel and 2048. Solo, vs bot, or online in a room with chat and a shareable invite link.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/games.html">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/clay.css">
+<link rel="stylesheet" href="assets/clay.css">
 <style>
-  :root{
-    --ink:#0f2c4c; --gold:#f0a72e;
-    --bg:#08111f; --bg2:#0a1526;
-    --card:rgba(255,255,255,.045); --card-line:rgba(255,255,255,.10);
-    --text:#e8f1fb; --dim:#8fa8c4; --faint:#5d7694;
-    --cyan:#22d3ee; --green:#22c55e; --purple:#a855f7; --amber:#f59e0b;
-    --red:#ef4444; --pink:#f43f5e; --blue:#2f6df6; --teal:#17b3a3;
-    --g1:#2f6df6; --g2:#17b3a3;
-    --font:"Segoe UI",system-ui,-apple-system,Roboto,"Noto Sans Devanagari",Arial,sans-serif;
-    --mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+  .arcade{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px;}
+  .gcard{
+    background:var(--card); border:none; border-radius:34px; overflow:hidden;
+    box-shadow:var(--sh-clay); transition:transform .2s, box-shadow .2s; display:flex; flex-direction:column;
+    padding:14px 14px 20px;
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    font-family:var(--font); background:var(--bg); color:var(--text);
-    line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden;
-    min-height:100vh;
+  .gcard:hover{transform:translateY(-6px); box-shadow:var(--sh-2);}
+  .gtop{
+    display:grid; place-items:center; padding:24px 0 16px; background:none;
   }
-  img{display:block; max-width:100%;}
-  a{color:inherit; text-decoration:none;}
-  button{font-family:inherit;}
-
-  /* ambient glow blobs (motion-safe only) */
-  @media(prefers-reduced-motion:no-preference){
-    body::before, body::after{
-      content:""; position:fixed; z-index:-1; border-radius:50%;
-      filter:blur(90px); opacity:.5; pointer-events:none;
-    }
-    body::before{width:420px; height:420px; left:-140px; top:-120px;
-      background:radial-gradient(circle,#0ea5e9 0%,transparent 70%); animation:float1 22s ease-in-out infinite alternate;}
-    body::after{width:480px; height:480px; right:-160px; bottom:-160px;
-      background:radial-gradient(circle,#7c3aed 0%,transparent 70%); animation:float2 26s ease-in-out infinite alternate;}
-    @keyframes float1{from{transform:translate(0,0) scale(1);} to{transform:translate(70px,50px) scale(1.15);}}
-    @keyframes float2{from{transform:translate(0,0) scale(1);} to{transform:translate(-60px,-40px) scale(1.1);}}
-  }
-
-  /* ---------- header (same as every SAAGAR page) ---------- */
-  header{background:var(--ink); color:#fff; padding:12px 20px; display:flex; align-items:center; gap:12px; border-bottom:3px solid var(--gold); position:sticky; top:0; z-index:50;}
-  header img{width:38px; height:38px;}
-  header strong{letter-spacing:1.5px;}
-  header a{color:#cfe0ef; font-size:13.5px; font-weight:600; margin-left:auto;}
-  header a:hover{color:#fff;}
-
-  .wrap{max-width:960px; margin:0 auto; padding:30px 20px 70px;}
-
-  /* ---------- page hero ---------- */
-  .hero{text-align:center; margin-bottom:30px;}
-  .hero h1{
-    font-size:clamp(30px,6vw,46px); font-weight:900; letter-spacing:1px;
-    background:linear-gradient(90deg,#22d3ee,#a855f7 55%,#f43f5e);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    filter:drop-shadow(0 0 18px rgba(168,85,247,.35));
-  }
-  .hero p{color:var(--dim); font-size:15px; margin-top:6px;}
-  .stats{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px;}
-  .stat{
-    background:rgba(0,0,0,.35); border:1px solid var(--card-line);
-    border-radius:999px; padding:7px 16px; font-size:12.5px; color:var(--dim);
-  }
-  .stat b{color:var(--cyan); font-family:var(--mono);}
-
-  /* ---------- game cabinets ---------- */
-  .cabs{display:flex; flex-direction:column; gap:22px;}
-  .cab{
-    --g1:#2f6df6; --g2:#17b3a3;
-    position:relative; overflow:hidden;
-    background:linear-gradient(165deg, rgba(255,255,255,.055), rgba(255,255,255,.02));
-    border:1px solid var(--card-line); border-radius:22px;
-    padding:22px 22px 24px;
-    box-shadow:0 14px 40px rgba(0,0,0,.35);
-    transition:border-color .25s, box-shadow .25s, transform .25s;
-  }
-  .cab:hover{border-color:rgba(255,255,255,.2); box-shadow:0 20px 50px rgba(0,0,0,.5), 0 0 0 1px var(--g1); transform:translateY(-3px);}
-  .cab::before{
-    content:""; position:absolute; left:0; top:0; right:0; height:4px;
-    background:linear-gradient(90deg,var(--g1),var(--g2));
-  }
-  .cab-head{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
-  .cab-ic{
-    width:56px; height:56px; border-radius:16px; flex-shrink:0;
-    display:grid; place-items:center; font-size:28px;
-    background:linear-gradient(135deg,var(--g1),var(--g2));
-    box-shadow:0 8px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.35);
-  }
-  .cab-title h2{font-size:20px; font-weight:800; letter-spacing:.3px;}
-  .cab-title p{font-size:13px; color:var(--dim);}
-  .chips{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;}
-  .chip{
-    background:rgba(0,0,0,.4); border:1px solid var(--card-line);
-    border-radius:999px; padding:6px 14px; font-size:12.5px; color:var(--dim);
-    white-space:nowrap;
-  }
-  .chip b{color:var(--cyan); font-family:var(--mono); font-size:14px;}
-
-  /* shared controls */
-  .btn{
-    border:0; cursor:pointer; color:#fff; font-weight:800; font-size:14.5px;
-    padding:11px 22px; border-radius:13px;
-    background:linear-gradient(135deg,var(--g1),var(--g2));
-    box-shadow:0 8px 22px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.3);
-    transition:transform .15s, filter .15s;
-    letter-spacing:.3px;
-  }
-  .btn:hover{transform:translateY(-2px); filter:brightness(1.1);}
-  .btn:active{transform:translateY(0);}
-  .btn.ghost{background:rgba(255,255,255,.08); border:1px solid var(--card-line); box-shadow:none;}
-  .btn.ghost:hover{background:rgba(255,255,255,.14);}
-  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-  .out{margin-top:12px; font-weight:700; min-height:24px; font-size:14.5px;}
-  .ok{color:#4ade80;} .bad{color:#f87171;} .warn{color:var(--amber);}
-
-  /* ================= SNAKE ================= */
-  .stage{position:relative; max-width:430px; margin:18px auto 0;}
-  #snake{
-    display:block; width:100%; aspect-ratio:1/1; border-radius:18px;
-    background:radial-gradient(120% 120% at 30% 20%, #0d1f3d 0%, #071021 70%);
-    border:1px solid rgba(34,211,238,.4);
-    box-shadow:0 0 34px rgba(34,211,238,.18), inset 0 0 50px rgba(0,0,0,.55);
-    touch-action:none;
-  }
-  .stage .overlay{
-    position:absolute; inset:0; border-radius:18px;
-    background:rgba(4,10,22,.78); backdrop-filter:blur(4px);
-    display:grid; place-items:center; text-align:center; padding:18px;
-    opacity:1; transition:opacity .25s; z-index:5;
-  }
-  .stage .overlay.hide{opacity:0; pointer-events:none;}
-  .overlay h3{font-size:24px; font-weight:900; letter-spacing:1px;
-    background:linear-gradient(90deg,#22d3ee,#4ade80);
-    -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .overlay p{color:var(--dim); font-size:13.5px; margin:8px 0 16px;}
-  .overlay .btn{--g1:#22d3ee; --g2:#2f6df6;}
-  .pad-wrap{display:flex; align-items:center; justify-content:center; gap:22px; margin-top:16px; flex-wrap:wrap;}
-  .dpad{display:grid; grid-template-columns:repeat(3,52px); grid-template-rows:repeat(3,52px); gap:6px;}
-  .dpad button{
-    border:1px solid var(--card-line); border-radius:13px; cursor:pointer;
-    background:rgba(255,255,255,.07); color:var(--text); font-size:20px;
-    display:grid; place-items:center; user-select:none; -webkit-user-select:none;
-    transition:.12s;
-  }
-  .dpad button:hover{background:rgba(34,211,238,.18); border-color:var(--cyan);}
-  .dpad button:active{transform:scale(.92); background:rgba(34,211,238,.3);}
-  .dpad .up{grid-area:1/2;} .dpad .left{grid-area:2/1;} .dpad .pause{grid-area:2/2; font-size:15px;} .dpad .right{grid-area:2/3;} .dpad .down{grid-area:3/2;}
-  .keyhint{font-size:12.5px; color:var(--faint); text-align:center; max-width:220px;}
-  .keyhint kbd{
-    font-family:var(--mono); background:rgba(255,255,255,.08);
-    border:1px solid var(--card-line); border-bottom-width:2px;
-    border-radius:6px; padding:1px 6px; font-size:11.5px; color:var(--text);
-  }
-
-  /* ================= MEMORY ================= */
-  .mem-wrap{max-width:430px; margin:18px auto 0;}
-  .mem-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
-  .mcard{aspect-ratio:1/1; perspective:700px; cursor:pointer;}
-  .mcard .mi{
-    position:relative; width:100%; height:100%;
-    transform-style:preserve-3d; transition:transform .45s cubic-bezier(.2,.7,.3,1.1);
-  }
-  .mcard.up .mi, .mcard.done .mi{transform:rotateY(180deg);}
-  .mface{
-    position:absolute; inset:0; border-radius:14px;
-    display:grid; place-items:center; backface-visibility:hidden; -webkit-backface-visibility:hidden;
-    font-size:clamp(22px,5.5vw,32px);
-  }
-  .mface.front{
-    background:linear-gradient(135deg,#312e81,#6d28d9);
-    border:1px solid rgba(255,255,255,.18);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 6px 16px rgba(0,0,0,.4);
-    color:rgba(255,255,255,.9); font-size:24px; font-weight:900;
-  }
-  .mface.back{
-    background:linear-gradient(160deg,#111c33,#0a1526);
-    border:1px solid rgba(34,211,238,.35);
-    transform:rotateY(180deg);
-    box-shadow:0 0 18px rgba(34,211,238,.15);
-  }
-  .mcard.done .mface.back{
-    border-color:#4ade80; box-shadow:0 0 22px rgba(74,222,128,.4);
-    animation:pop .35s ease;
-  }
-  @keyframes pop{0%{transform:rotateY(180deg) scale(1);} 55%{transform:rotateY(180deg) scale(1.14);} 100%{transform:rotateY(180deg) scale(1);}}
-  .mem-win{
-    position:absolute; inset:0; border-radius:16px; z-index:6;
-    background:rgba(4,10,22,.82); backdrop-filter:blur(4px);
-    display:none; place-items:center; text-align:center; padding:16px;
-  }
-  .mem-win.show{display:grid; animation:pop .4s ease;}
-  .mem-stage{position:relative;}
-
-  /* ================= REACTION ================= */
-  .react-box{
-    width:100%; min-height:180px; margin-top:16px; border:0; cursor:pointer;
-    border-radius:18px; font-size:clamp(19px,3.4vw,24px); font-weight:900; letter-spacing:1.5px;
-    color:#fff; text-transform:uppercase; transition:background .12s, box-shadow .12s, transform .1s;
-    box-shadow:0 14px 34px rgba(0,0,0,.45);
-    user-select:none; -webkit-user-select:none;
-  }
-  .react-box:active{transform:scale(.99);}
-  .react-box.idle{background:linear-gradient(135deg,#e11d48,#f43f5e); box-shadow:0 14px 34px rgba(228,29,97,.35);}
-  .react-box.wait{background:linear-gradient(135deg,#d97706,#f59e0b); box-shadow:0 14px 34px rgba(245,158,11,.35);}
-  .react-box.go{background:linear-gradient(135deg,#15803d,#22c55e); box-shadow:0 14px 44px rgba(34,197,94,.55);}
-  @media(prefers-reduced-motion:no-preference){
-    .react-box.go{animation:gpulse .5s ease-in-out infinite alternate;}
-    @keyframes gpulse{from{filter:brightness(1);} to{filter:brightness(1.25);}}
-  }
-  .react-hist{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
-
-  /* ================= RPS ARENA ================= */
-  .arena{
-    display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px;
-    margin-top:16px; padding:22px 14px; border-radius:18px;
-    background:radial-gradient(90% 130% at 50% 0%, rgba(139,92,246,.18), rgba(0,0,0,.35));
-    border:1px solid rgba(139,92,246,.35);
-  }
-  .fighter{display:grid; place-items:center; gap:6px;}
-  .fighter .em{font-size:clamp(44px,10vw,64px); line-height:1; min-height:1.1em; display:block; filter:drop-shadow(0 8px 18px rgba(0,0,0,.5));}
-  .fighter .who{font-size:11.5px; letter-spacing:2px; text-transform:uppercase; color:var(--faint); font-weight:800;}
-  .vs{
-    font-weight:900; font-size:20px; letter-spacing:1px;
-    background:linear-gradient(90deg,#f43f5e,#f59e0b);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-  }
-  .pop-anim{animation:hit .4s cubic-bezier(.2,.8,.3,1.4);}
-  @keyframes hit{0%{transform:scale(.4) rotate(-14deg); opacity:0;} 100%{transform:scale(1) rotate(0); opacity:1;}}
-  .rps-moves{display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap;}
-  .mv{
-    --g1:#ec4899; --g2:#8b5cf6;
-    border:1px solid var(--card-line); cursor:pointer;
-    background:linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
-    color:var(--text); border-radius:15px; padding:12px 18px;
-    font-size:15px; font-weight:800; transition:.15s;
-    display:flex; align-items:center; gap:8px;
-  }
-  .mv .e{font-size:22px;}
-  .mv:hover{transform:translateY(-3px); border-color:var(--pink);
-    box-shadow:0 10px 26px rgba(236,72,153,.3);}
-  .rps-score{display:flex; gap:10px; justify-content:center; margin-top:14px;}
-  .score-pill{
-    background:rgba(0,0,0,.42); border:1px solid var(--card-line);
-    border-radius:999px; padding:7px 18px; font-size:13.5px; color:var(--dim);
-  }
-  .score-pill b{font-family:var(--mono); font-size:17px; color:#fff;}
-  .score-pill.you b{color:#4ade80;} .score-pill.cpu b{color:#f87171;}
-
-  /* ================= GUESS ================= */
-  .guess-row{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;}
-  .guess-row input{
-    flex:1; min-width:150px; font:inherit; font-size:17px; font-weight:700;
-    padding:12px 16px; border-radius:13px; color:#fff;
-    background:rgba(0,0,0,.4); border:1px solid var(--card-line);
-    text-align:center; letter-spacing:2px;
-  }
-  .guess-row input:focus{outline:0; border-color:var(--cyan); box-shadow:0 0 0 3px rgba(34,211,238,.2);}
-  .scale{
-    position:relative; height:44px; margin-top:20px; border-radius:12px;
-    background:linear-gradient(90deg,#22d3ee33,#22c55e33,#f43f5e33);
-    border:1px solid var(--card-line);
-  }
-  .scale .lbl{position:absolute; top:-18px; font-size:10.5px; color:var(--faint); font-family:var(--mono);}
-  .scale .l1{left:2px;} .scale .l2{left:50%; transform:translateX(-50%);} .scale .l3{right:4px;}
-  .mk{
-    position:absolute; top:50%; width:16px; height:16px; border-radius:50%;
-    transform:translate(-50%,-50%); border:2px solid #041020;
-    box-shadow:0 0 10px currentColor; animation:drop .3s ease;
-  }
-  @keyframes drop{from{transform:translate(-50%,-160%); opacity:0;} to{transform:translate(-50%,-50%); opacity:1;}}
-  .mk.low{background:var(--cyan); color:var(--cyan);}
-  .mk.high{background:var(--pink); color:var(--pink);}
-  .mk.win{background:var(--green); color:var(--green); width:22px; height:22px; z-index:2;}
-  .tries{display:flex; gap:6px; flex-wrap:wrap; margin-top:14px;}
-  .try{
-    font-family:var(--mono); font-size:12.5px; padding:4px 10px; border-radius:8px;
-    background:rgba(255,255,255,.07); border:1px solid var(--card-line); color:var(--dim);
-  }
-
-  footer{background:var(--ink); color:#b9cddd; padding:22px 0; margin-top:44px; border-top:1px solid rgba(255,255,255,.08);}
-  .foot-inner{max-width:960px; margin:0 auto; padding:0 20px; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; font-size:13px;}
-  .foot-inner a{color:#e6eef6; font-weight:600;}
-  .foot-inner a:hover{text-decoration:underline;}
-
-  @media(max-width:560px){
-    .cab{padding:18px 14px 20px;}
-    .chips{margin-left:0; width:100%;}
-    .pad-wrap{gap:14px;}
-    .keyhint{display:none;}
-  }
+  .gtop img{width:128px; height:128px;}
+  @media(min-width:768px){.gtop img{width:160px; height:160px;}}
+  .gtop span{position:relative; z-index:1;}
+  .gbody{padding:15px 16px 16px; display:flex; flex-direction:column; gap:7px; flex:1;}
+  .gbody h3{font-size:16.5px; font-weight:850; color:var(--navy-2);}
+  .gbody p{font-size:13px; color:var(--dim); flex:1; line-height:1.5;}
+  .modes{display:flex; gap:5px; flex-wrap:wrap;}
+  .modes span{font-size:10.5px; font-weight:800; letter-spacing:.4px; padding:5px 12px; border-radius:999px; text-transform:uppercase; background:#e0e7ff; color:#4338ca; box-shadow:var(--sh-clay-press);}
+  .m-solo{color:#4338ca;}
+  .m-bot{background:#ede9fe !important; color:#6d28d9 !important;}
+  .m-room{background:#d1fae5 !important; color:#047857 !important;}
+  .gfoot{display:flex; flex-direction:column; gap:8px; margin-top:4px;}
+  .play{display:flex; align-items:center; justify-content:center; height:52px; border-radius:999px;
+    background:linear-gradient(135deg,#ffd66b,#ff9a7a); color:#6b4423; font-weight:900; font-size:18px;
+    box-shadow:var(--sh-clay), inset 0 2px 3px rgba(255,255,255,.65); transition:.18s cubic-bezier(.34,1.4,.5,1);}
+  .gcard:hover .play{box-shadow:var(--sh-2);}
+  .play:hover{transform:translateY(-2px);}
+  .online{display:flex; align-items:center; justify-content:center; height:48px; border-radius:999px;
+    background:var(--card); box-shadow:var(--sh-clay); font-weight:800; color:#047857; font-size:14px;
+    transition:.18s cubic-bezier(.34,1.4,.5,1);}
+  .gcard:hover .online{transform:translateY(-1px);}
 </style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
 </head>
-<body>
+<body data-root="" data-page="games">
 
-<header>
-  <img src="assets/logo.svg" alt="SAAGAR"><strong>SAAGAR</strong>
-  <a href="index.html">← Back to hub</a>
-</header>
+<div id="hdr"></div>
 
-<div class="wrap">
-
-  <div class="hero">
-    <h1>🕹️ NEON ARCADE</h1>
-    <p>Five games. Zero downloads. Pure fun — by Sagar.</p>
-    <div class="stats">
-      <span class="stat"><b>5</b> games</span>
-      <span class="stat"><b>100%</b> free</span>
-      <span class="stat"><b>0</b> logins</span>
-      <span class="stat">🌐 plays offline</span>
-    </div>
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="index.html">Home</a> / Games</div>
+    <h1>🎮 Games</h1>
   </div>
+</section>
 
-  <div class="cabs">
-
-    <!-- ============ 1. NEON SNAKE ============ -->
-    <section class="cab" id="cab-snake" style="--g1:#22d3ee; --g2:#2f6df6;">
-      <div class="cab-head">
-        <div class="cab-ic">🐍</div>
-        <div class="cab-title">
-          <h2>Neon Snake</h2>
-          <p>Eat, grow, glow. Walls bite back.</p>
-        </div>
-        <div class="chips">
-          <span class="chip">SCORE <b id="s-score">0</b></span>
-          <span class="chip">🏆 BEST <b id="s-best">0</b></span>
-        </div>
-      </div>
-
-      <div class="stage">
-        <canvas id="snake" width="400" height="400" aria-label="Snake game board"></canvas>
-        <div class="overlay" id="s-overlay">
-          <div>
-            <h3 id="s-ov-title">NEON SNAKE</h3>
-            <p id="s-ov-msg">Arrow keys, WASD, swipe or the pad below.<br>Don't hit the walls or yourself.</p>
-            <button class="btn" id="s-ov-btn">▶ PLAY</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="pad-wrap">
-        <div class="dpad">
-          <button class="up" data-sd="up" aria-label="Up">▲</button>
-          <button class="left" data-sd="left" aria-label="Left">◀</button>
-          <button class="pause" id="s-pause" aria-label="Pause">⏸</button>
-          <button class="right" data-sd="right" aria-label="Right">▶</button>
-          <button class="down" data-sd="down" aria-label="Down">▼</button>
-        </div>
-        <div class="keyhint">
-          <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to steer<br>
-          <kbd>Space</kbd> to pause · speed rises with score
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 2. MEMORY MATCH ============ -->
-    <section class="cab" id="cab-mem" style="--g1:#a855f7; --g2:#6366f1;">
-      <div class="cab-head">
-        <div class="cab-ic">🧠</div>
-        <div class="cab-title">
-          <h2>Memory Match</h2>
-          <p>Flip, remember, pair them all.</p>
-        </div>
-        <div class="chips">
-          <span class="chip">MOVES <b id="m-moves">0</b></span>
-          <span class="chip">⏱ <b id="m-time">0:00</b></span>
-          <span class="chip">🏆 BEST <b id="m-best">—</b></span>
-        </div>
-      </div>
-
-      <div class="mem-wrap mem-stage">
-        <div class="mem-grid" id="m-grid"></div>
-        <div class="mem-win" id="m-win">
-          <div>
-            <h3 style="font-size:26px;">🎉 YOU DID IT!</h3>
-            <p style="color:var(--dim); margin:8px 0 16px;" id="m-win-msg"></p>
-            <button class="btn" id="m-win-btn">🔄 PLAY AGAIN</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="row" style="justify-content:center; margin-top:16px;">
-        <button class="btn ghost" id="m-new">🔄 New game</button>
-      </div>
-    </section>
-
-    <!-- ============ 3. REACTION TEST ============ -->
-    <section class="cab" id="cab-react" style="--g1:#f59e0b; --g2:#ef4444;">
-      <div class="cab-head">
-        <div class="cab-ic">⚡</div>
-        <div class="cab-title">
-          <h2>Reaction Test</h2>
-          <p>Wait for green. Then slam it.</p>
-        </div>
-        <div class="chips">
-          <span class="chip">LAST <b id="r-last">—</b></span>
-          <span class="chip">🏆 BEST <b id="r-best">—</b></span>
-        </div>
-      </div>
-
-      <button class="react-box idle" id="r-box">Click to start</button>
-      <div class="react-hist" id="r-hist"></div>
-      <div class="out" id="r-out"></div>
-    </section>
-
-    <!-- ============ 4. ROCK PAPER SCISSORS ============ -->
-    <section class="cab" id="cab-rps" style="--g1:#ec4899; --g2:#8b5cf6;">
-      <div class="cab-head">
-        <div class="cab-ic">✊</div>
-        <div class="cab-title">
-          <h2>Rock · Paper · Scissors</h2>
-          <p>First to 5 takes the arena.</p>
-        </div>
-        <div class="chips">
-          <span class="chip">🔥 STREAK <b id="p-streak">0</b></span>
-        </div>
-      </div>
-
-      <div class="arena">
-        <div class="fighter">
-          <span class="em" id="p-you">❔</span>
-          <span class="who">You</span>
-        </div>
-        <div class="vs">VS</div>
-        <div class="fighter">
-          <span class="em" id="p-cpu">❔</span>
-          <span class="who">CPU</span>
-        </div>
-      </div>
-
-      <div class="rps-moves">
-        <button class="mv" data-mv="rock"><span class="e">✊</span> Rock</button>
-        <button class="mv" data-mv="paper"><span class="e">✋</span> Paper</button>
-        <button class="mv" data-mv="scissors"><span class="e">✌️</span> Scissors</button>
-      </div>
-
-      <div class="rps-score">
-        <span class="score-pill you">YOU <b id="p-ys">0</b></span>
-        <span class="score-pill cpu">CPU <b id="p-cs">0</b></span>
-      </div>
-      <div class="out" id="p-out" style="text-align:center;">Pick your move!</div>
-      <div class="row" style="justify-content:center; margin-top:6px;">
-        <button class="btn ghost" id="p-reset">🔄 Reset match</button>
-      </div>
-    </section>
-
-    <!-- ============ 5. GUESS THE NUMBER ============ -->
-    <section class="cab" id="cab-guess" style="--g1:#2f6df6; --g2:#17b3a3;">
-      <div class="cab-head">
-        <div class="cab-ic">🔢</div>
-        <div class="cab-title">
-          <h2>Guess the Number</h2>
-          <p>1 to 100 · the scale shows your trail.</p>
-        </div>
-        <div class="chips">
-          <span class="chip">TRIES <b id="g-tries">0</b></span>
-          <span class="chip">🏆 BEST <b id="g-best">—</b></span>
-        </div>
-      </div>
-
-      <div class="guess-row">
-        <input type="number" id="g-in" min="1" max="100" placeholder="1 – 100" inputmode="numeric">
-        <button class="btn" id="g-go">🎯 GUESS</button>
-        <button class="btn ghost" id="g-new">🔄 New</button>
-      </div>
-
-      <div class="scale" id="g-scale">
-        <span class="lbl l1">1</span><span class="lbl l2">50</span><span class="lbl l3">100</span>
-      </div>
-      <div class="tries" id="g-list"></div>
-      <div class="out" id="g-out">I'm thinking of a number between 1 and 100…</div>
-    </section>
-
+<main class="sec">
+  <div class="wrap">
+    <div class="arcade" id="arcade"></div>
   </div>
-</div>
+</main>
 
-<footer>
-  <div class="foot-inner">
-    <span>© 2026 Sagar Dahal · sagardahal123.com.np</span>
-    <span><a href="mailto:dahalsaagar8@gmail.com">dahalsaagar8@gmail.com</a> · <a href="index.html">Back to hub</a></span>
-  </div>
-</footer>
+<div id="ftr"></div>
 
+<script src="assets/app.js"></script>
+<script src="assets/catalog.js"></script>
 <script>
-(function(){
+(function () {
   'use strict';
-  function $(id){ return document.getElementById(id); }
-  function load(k, d){ try{ var v=localStorage.getItem(k); return v==null?d:v; }catch(e){ return d; } }
-  function save(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
-
-  /* =========================================================
-     1) NEON SNAKE
-     ========================================================= */
-  (function(){
-    var cv=$('snake'), ctx=cv.getContext('2d');
-    var G=20, N=400, CELL=N/G;
-    var snake, dir, dirQ, food, score, speed, alive, started, paused, timer=null;
-    var best=+load('saagar.snake.best','0')||0;
-    var visible=false;
-
-    $('s-best').textContent=best;
-
-    function reset(){
-      snake=[{x:9,y:10},{x:8,y:10},{x:7,y:10}];
-      dir={x:1,y:0}; dirQ=[]; score=0; speed=130; alive=true; started=false; paused=false;
-      $('s-score').textContent='0';
-      spawnFood();
-    }
-    function spawnFood(){
-      var ok=false;
-      while(!ok){
-        food={x:Math.floor(Math.random()*G), y:Math.floor(Math.random()*G)};
-        ok=!snake.some(function(s){ return s.x===food.x && s.y===food.y; });
-      }
-    }
-    function draw(){
-      ctx.clearRect(0,0,N,N);
-      // dot grid
-      ctx.fillStyle='rgba(255,255,255,.055)';
-      for(var i=0;i<G;i++) for(var j=0;j<G;j++){
-        ctx.fillRect(i*CELL+CELL/2-1, j*CELL+CELL/2-1, 2, 2);
-      }
-      // food (glowing berry)
-      var fx=food.x*CELL+CELL/2, fy=food.y*CELL+CELL/2;
-      ctx.save();
-      ctx.shadowColor='#f43f5e'; ctx.shadowBlur=18;
-      ctx.fillStyle='#fb7185';
-      ctx.beginPath(); ctx.arc(fx, fy, CELL*0.34, 0, Math.PI*2); ctx.fill();
-      ctx.shadowBlur=0;
-      ctx.fillStyle='rgba(255,255,255,.75)';
-      ctx.beginPath(); ctx.arc(fx-3, fy-3, 3, 0, Math.PI*2); ctx.fill();
-      ctx.restore();
-      // snake
-      for(var s=snake.length-1; s>=0; s--){
-        var seg=snake[s], t=s/Math.max(1,snake.length-1);
-        var pad=s===0?1.5:3;
-        var x=seg.x*CELL+pad, y=seg.y*CELL+pad, r=CELL-pad*2;
-        var g=ctx.createLinearGradient(x,y,x+r,y+r);
-        if(s===0){ g.addColorStop(0,'#7dfdd0'); g.addColorStop(1,'#22c55e'); }
-        else { g.addColorStop(0,'#22c55e'); g.addColorStop(1, t>0.5?'#0e7490':'#15803d'); }
-        ctx.save();
-        if(s===0){ ctx.shadowColor='#22c55e'; ctx.shadowBlur=16; }
-        ctx.fillStyle=g;
-        roundRect(x, y, r, r, s===0?7:5);
-        ctx.fill();
-        ctx.restore();
-      }
-      // eyes
-      var h=snake[0];
-      ctx.fillStyle='#04101f';
-      var cx=h.x*CELL+CELL/2, cy=h.y*CELL+CELL/2, off=4.5;
-      var e1, e2;
-      if(dir.x===1){ e1={x:cx+3,y:cy-off}; e2={x:cx+3,y:cy+off}; }
-      else if(dir.x===-1){ e1={x:cx-3,y:cy-off}; e2={x:cx-3,y:cy+off}; }
-      else if(dir.y===-1){ e1={x:cx-off,y:cy-3}; e2={x:cx+off,y:cy-3}; }
-      else { e1={x:cx-off,y:cy+3}; e2={x:cx+off,y:cy+3}; }
-      ctx.beginPath(); ctx.arc(e1.x,e1.y,2.6,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(e2.x,e2.y,2.6,0,Math.PI*2); ctx.fill();
-    }
-    function roundRect(x,y,w,h,r){
-      ctx.beginPath();
-      ctx.moveTo(x+r,y);
-      ctx.arcTo(x+w,y,x+w,y+h,r);
-      ctx.arcTo(x+w,y+h,x,y+h,r);
-      ctx.arcTo(x,y+h,x,y,r);
-      ctx.arcTo(x,y,x+w,y,r);
-      ctx.closePath();
-    }
-    function step(){
-      if(dirQ.length){ var nd=dirQ.shift(); if(!(nd.x===-dir.x && nd.y===-dir.y)) dir=nd; }
-      var head={x:snake[0].x+dir.x, y:snake[0].y+dir.y};
-      // walls
-      if(head.x<0||head.x>=G||head.y<0||head.y>=G){ die(); return; }
-      // self
-      if(snake.some(function(s){ return s.x===head.x && s.y===head.y; })){ die(); return; }
-      snake.unshift(head);
-      if(head.x===food.x && head.y===food.y){
-        score++;
-        $('s-score').textContent=score;
-        if(score>best){ best=score; $('s-best').textContent=best; save('saagar.snake.best', best); }
-        speed=Math.max(65, 130-score*3);
-        spawnFood();
-      } else { snake.pop(); }
-      draw();
-    }
-    function schedule(){
-      clearTimeout(timer);
-      if(!alive||paused||!started) return;
-      timer=setTimeout(function(){ step(); schedule(); }, speed);
-    }
-    function die(){
-      alive=false; started=false;
-      showOverlay('💀 GAME OVER', 'Score <b style="color:#22d3ee">'+score+'</b> · Best <b style="color:#22d3ee">'+best+'</b><br>'+(score>=best&&score>0?'New record! 🏆':'Try again — you got this.'), '▶ PLAY AGAIN');
-      draw();
-    }
-    function start(){
-      reset(); started=true; paused=false;
-      $('s-overlay').classList.add('hide');
-      draw(); schedule();
-    }
-    function togglePause(){
-      if(!started||!alive) return;
-      paused=!paused;
-      $('s-pause').textContent=paused?'▶':'⏸';
-      if(paused){
-        clearTimeout(timer);
-        showOverlay('⏸ PAUSED','Take a breath.','▶ RESUME');
-      } else {
-        $('s-overlay').classList.add('hide');
-        schedule();
-      }
-    }
-    function showOverlay(title, msg, btn){
-      $('s-ov-title').innerHTML=title;
-      $('s-ov-msg').innerHTML=msg;
-      $('s-ov-btn').textContent=btn;
-      $('s-overlay').classList.remove('hide');
-    }
-    function turn(d){
-      if(!started||!alive) return;
-      var last=dirQ.length?dirQ[dirQ.length-1]:dir;
-      var v={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}[d];
-      if(v.x===-last.x && v.y===-last.y) return;
-      if(v.x===last.x && v.y===last.y) return;
-      if(dirQ.length<2) dirQ.push(v);
-    }
-    $('s-ov-btn').addEventListener('click', function(){
-      if(paused && alive){ togglePause(); } else { start(); }
-    });
-    $('s-pause').addEventListener('click', togglePause);
-    document.querySelectorAll('[data-sd]').forEach(function(b){
-      b.addEventListener('pointerdown', function(e){ e.preventDefault(); turn(b.dataset.sd); });
-    });
-    document.addEventListener('keydown', function(e){
-      if(!visible) return;
-      var k=e.key;
-      var map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
-      if(map[k]){ e.preventDefault(); turn(map[k]); }
-      else if(k===' '){ e.preventDefault(); togglePause(); }
-    });
-    // swipe
-    var sx=0, sy=0;
-    cv.addEventListener('touchstart', function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; }, {passive:true});
-    cv.addEventListener('touchend', function(e){
-      var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
-      if(Math.abs(dx)<24 && Math.abs(dy)<24) return;
-      turn(Math.abs(dx)>Math.abs(dy) ? (dx>0?'right':'left') : (dy>0?'down':'up'));
-    }, {passive:true});
-
-    if('IntersectionObserver' in window){
-      new IntersectionObserver(function(en){ visible=en[0].isIntersecting; }, {threshold:.25}).observe($('cab-snake'));
-    } else { visible=true; }
-
-    reset(); draw();
-  })();
-
-  /* =========================================================
-     2) MEMORY MATCH
-     ========================================================= */
-  (function(){
-    var EMO=['🎮','🎲','🐼','🚀','🍄','🎁','🎃','🍭'];
-    var grid=$('m-grid'), moves=0, matched=0, first=null, lock=false;
-    var t=0, tid=null, started=false;
-    var best=+load('saagar.mem.best','0')||0;
-    $('m-best').textContent=best?best:'—';
-
-    function fmt(s){ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
-    function tick(){ t++; $('m-time').textContent=fmt(t); }
-    function stopTimer(){ if(tid){ clearInterval(tid); tid=null; } }
-
-    function newGame(){
-      stopTimer();
-      first=null; lock=false; moves=0; matched=0; t=0; started=false;
-      $('m-moves').textContent='0'; $('m-time').textContent='0:00';
-      $('m-win').classList.remove('show');
-      var deck=EMO.concat(EMO).slice().sort(function(){ return Math.random()-0.5; });
-      grid.innerHTML='';
-      deck.forEach(function(e){
-        var c=document.createElement('div');
-        c.className='mcard';
-        c.innerHTML='<div class="mi"><div class="mface front">?</div><div class="mface back">'+e+'</div></div>';
-        c.dataset.e=e;
-        c.addEventListener('click', function(){ flip(c); });
-        grid.appendChild(c);
-      });
-    }
-    function flip(c){
-      if(lock || c.classList.contains('up') || c.classList.contains('done')) return;
-      if(!started){ started=true; tid=setInterval(tick,1000); }
-      c.classList.add('up');
-      if(!first){ first=c; return; }
-      moves++; $('m-moves').textContent=moves;
-      if(first.dataset.e===c.dataset.e){
-        var a=first, b=c; first=null;
-        a.classList.add('done'); b.classList.add('done');
-        a.classList.remove('up'); b.classList.remove('up');
-        matched++;
-        if(matched===EMO.length){
-          stopTimer();
-          if(!best || moves<best){ best=moves; $('m-best').textContent=best; save('saagar.mem.best', best); }
-          $('m-win-msg').textContent=moves+' moves · '+fmt(t)+(moves===best?' · NEW BEST 🏆':'');
-          setTimeout(function(){ $('m-win').classList.add('show'); }, 420);
-        }
-      } else {
-        lock=true;
-        var f=first; first=null;
-        setTimeout(function(){
-          f.classList.remove('up'); c.classList.remove('up');
-          lock=false;
-        }, 750);
-      }
-    }
-    $('m-new').addEventListener('click', newGame);
-    $('m-win-btn').addEventListener('click', newGame);
-    newGame();
-  })();
-
-  /* =========================================================
-     3) REACTION TEST
-     ========================================================= */
-  (function(){
-    var box=$('r-box'), out=$('r-out'), hist=$('r-hist');
-    var state='idle', t0=0, tmr=null;
-    var best=+load('saagar.react.best','0')||0;
-    $('r-best').textContent=best?best+' ms':'—';
-
-    function set(cls, txt){ box.className='react-box '+cls; box.textContent=txt; }
-    box.addEventListener('click', function(){
-      if(state==='idle'||state==='done'){
-        out.textContent=''; out.className='out';
-        state='wait'; set('wait','Wait for green…');
-        tmr=setTimeout(function(){
-          state='go'; t0=performance.now(); set('go','TAP NOW!');
-        }, 1100+Math.random()*2600);
-      } else if(state==='wait'){
-        clearTimeout(tmr); state='idle'; set('idle','Too soon! Click to retry');
-        out.className='out bad'; out.textContent='😬 Jumped the gun — calm down and try again.';
-      } else if(state==='go'){
-        var ms=Math.round(performance.now()-t0);
-        state='done'; set('idle', ms+' ms — click to go again');
-        $('r-last').textContent=ms+' ms';
-        out.className='out '+(ms<250?'ok':ms<400?'warn':'bad');
-        out.textContent=ms<250?'⚡ SUPERHUMAN! ':ms<350?'🔥 Blazing fast! ':ms<500?'👍 Solid. ':'🐢 Warm-up… ';
-        out.textContent+='('+ms+' ms)';
-        if(!best||ms<best){ best=ms; $('r-best').textContent=best+' ms'; save('saagar.react.best', best); out.textContent+=' 🏆 NEW BEST!'; }
-        var chip=document.createElement('span');
-        chip.className='try'; chip.textContent=ms+' ms';
-        hist.insertBefore(chip, hist.firstChild);
-        while(hist.children.length>6) hist.removeChild(hist.lastChild);
-      }
-    });
-  })();
-
-  /* =========================================================
-     4) ROCK PAPER SCISSORS
-     ========================================================= */
-  (function(){
-    var you=0, cpu=0, streak=0;
-    var beats={rock:'scissors', paper:'rock', scissors:'paper'};
-    var em={rock:'✊', paper:'✋', scissors:'✌️'};
-    var name={rock:'Rock', paper:'Paper', scissors:'Scissors'};
-    var youEl=$('p-you'), cpuEl=$('p-cpu'), out=$('p-out');
-
-    function bump(el, v){
-      el.textContent=v;
-      el.classList.remove('pop-anim');
-      void el.offsetWidth;
-      el.classList.add('pop-anim');
-    }
-    function finish(msg, win){
-      out.className='out '+(win?'ok':'bad');
-      out.innerHTML=msg+' &nbsp;— &nbsp;<b>Final '+you+' : '+cpu+'</b>';
-      you=0; cpu=0; streak=0;
-      setTimeout(function(){
-        $('p-ys').textContent='0'; $('p-cs').textContent='0'; $('p-streak').textContent='0';
-        bump(youEl,'❔'); bump(cpuEl,'❔');
-        out.className='out'; out.textContent='New match — first to 5!';
-      }, 2600);
-    }
-    document.querySelectorAll('.mv').forEach(function(b){
-      b.addEventListener('click', function(){
-        if(you>=5||cpu>=5) return;
-        var mv=b.dataset.mv;
-        var c=['rock','paper','scissors'][Math.floor(Math.random()*3)];
-        bump(youEl, em[mv]); bump(cpuEl, em[c]);
-        if(mv===c){ streak=0; out.className='out warn'; out.textContent='🤝 Draw — both chose '+name[mv]; }
-        else if(beats[mv]===c){
-          you++; if(you<5){ streak++; }
-          out.className='out ok'; out.textContent='✅ '+name[mv]+' beats '+name[c]+'!';
-        } else {
-          cpu++; streak=0;
-          out.className='out bad'; out.textContent='❌ '+name[c]+' beats '+name[mv]+'!';
-        }
-        $('p-ys').textContent=you; $('p-cs').textContent=cpu;
-        $('p-streak').textContent=streak;
-        if(you>=5) finish('🎉 You own the arena!', true);
-        else if(cpu>=5) finish('😈 CPU takes it… rematch?', false);
-      });
-    });
-    $('p-reset').addEventListener('click', function(){
-      you=0; cpu=0; streak=0;
-      $('p-ys').textContent='0'; $('p-cs').textContent='0'; $('p-streak').textContent='0';
-      bump(youEl,'❔'); bump(cpuEl,'❔');
-      out.className='out'; out.textContent='Match reset — first to 5!';
-    });
-  })();
-
-  /* =========================================================
-     5) GUESS THE NUMBER
-     ========================================================= */
-  (function(){
-    var secret, tries, won;
-    var best=+load('saagar.guess.best','0')||0;
-    $('g-best').textContent=best?best:'—';
-    var scale=$('g-scale'), list=$('g-list');
-
-    function newGame(){
-      secret=1+Math.floor(Math.random()*100); tries=0; won=false;
-      $('g-tries').textContent='0';
-      $('g-out').className='out';
-      $('g-out').textContent="I'm thinking of a number between 1 and 100…";
-      scale.querySelectorAll('.mk').forEach(function(m){ m.remove(); });
-      list.innerHTML='';
-      $('g-in').value='';
-      $('g-in').focus();
-    }
-    function guess(){
-      if(won) return;
-      var v=+$('g-in').value;
-      var out=$('g-out');
-      if(!v||v<1||v>100){ out.className='out bad'; out.textContent='Enter a whole number from 1 to 100.'; return; }
-      tries++; $('g-tries').textContent=tries;
-      var mk=document.createElement('span');
-      mk.className='mk';
-      mk.style.left=((v-1)/99*100)+'%';
-      var chip=document.createElement('span'); chip.className='try';
-      if(v===secret){
-        mk.classList.add('win'); scale.appendChild(mk);
-        chip.textContent='✔ '+v; list.appendChild(chip);
-        won=true;
-        out.className='out ok';
-        out.textContent='🎉 '+v+' is it — in '+tries+' tries'+(tries===1?' (LUCKY! 🍀)':tries<=5?' — sharp!':'')+'!';
-        if(!best||tries<best){ best=tries; $('g-best').textContent=best; save('saagar.guess.best', best); out.textContent+=' 🏆 NEW BEST!'; }
-      } else {
-        mk.classList.add(v<secret?'low':'high'); scale.appendChild(mk);
-        chip.textContent=v+(v<secret?' ↑':' ↓'); list.appendChild(chip);
-        var d=Math.abs(v-secret);
-        out.className='out '+(d<=5?'warn':'');
-        out.textContent=(v<secret?'⬆️ Go higher':'⬇️ Go lower')+(d<=5?' — SO CLOSE! 🔥':'')+'  ('+tries+' '+(tries===1?'try':'tries')+')';
-        $('g-in').select();
-      }
-    }
-    $('g-go').addEventListener('click', guess);
-    $('g-in').addEventListener('keydown', function(e){ if(e.key==='Enter') guess(); });
-    $('g-new').addEventListener('click', newGame);
-    newGame();
-  })();
-
+  var GAMES = window.SAAGAR_GAMES || [];
+  var wrap = document.getElementById('arcade');
+  /* clay-kit icon per game; games without a dedicated clay icon get the games-section placeholder */
+  var CLAY_ICON = {
+    ludo: 'assets/clay-logos/games/ludo.svg',
+    carrom: 'assets/clay-logos/games/carrom.svg',
+    teenpatti: 'assets/clay-logos/games/teen-patti.svg',
+    snakeladder: 'assets/clay-logos/games/snakes-ladders.svg',
+    checkers: 'assets/clay-logos/games/checkers.svg',
+    snake: 'assets/clay-logos/games/neon-snake.svg',
+    tictactoe: 'assets/clay-logos/games/tic-tac-toe.svg',
+    connect4: 'assets/clay-logos/games/connect-4.svg',
+    rps: 'assets/clay-logos/games/rock-paper-scissors.svg'
+  };
+  GAMES.forEach(function (g) {
+    var clay = CLAY_ICON[g.slug] || 'assets/clay-logos/sections/games.svg';
+    var parts = (g.tag || '').split('·').map(function (s) { return s.trim(); }).filter(Boolean);
+    var online = parts.some(function (p) { return /2p|room/i.test(p); });
+    var badges = parts.map(function (p) {
+      var cls = /bot/i.test(p) ? 'm-bot' : (/2p|room/i.test(p) ? 'm-room' : 'm-solo');
+      return '<span class="' + cls + '">' + p + '</span>';
+    }).join('');
+    var a = document.createElement('a');
+    a.className = 'gcard reveal';
+    a.href = g.file;
+    a.innerHTML =
+      '<div class="gtop"><img src="' + clay + '" alt="" width="112" height="112" loading="lazy"></div>' +
+      '<div class="gbody">' +
+        '<h3>' + g.name + '</h3>' +
+        '<div class="modes">' + badges + '</div>' +
+        '<p>' + g.blurb + '</p>' +
+        '<div class="gfoot"><span class="play">Play now →</span>' +
+        (online ? '<span class="online">💬 chat in room</span>' : '') +
+        '</div>' +
+      '</div>';
+    wrap.appendChild(a);
+  });
 })();
 </script>
 </body>

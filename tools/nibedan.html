@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>निवेदन Templates — ready Nepali applications | SAAGAR Tools</title>
+<meta name="description" content="Common Nepali application formats — leave, registration, recommendation, complaint — filled with your details and ready to print.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/nibedan.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .split{display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start;}
+  @media(max-width:900px){ .split{grid-template-columns:1fr;} }
+  .tplList{display:flex; flex-direction:column; gap:7px;}
+  .tpl{text-align:left; border:1px solid var(--line-2); background:#fff; border-radius:11px; padding:11px 13px;
+    font-size:13.5px; font-weight:750; color:var(--navy-2); transition:.15s;}
+  .tpl:hover{border-color:var(--navy); background:#f2f8ff;}
+  .tpl.on{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .paper{background:#fff; border:1px solid var(--line); border-radius:12px; padding:34px 32px; box-shadow:var(--sh);
+    font-family:"Noto Sans Devanagari","Nirmala UI","Segoe UI",system-ui,sans-serif; font-size:15px; line-height:2; white-space:pre-wrap;}
+  .paper h2{text-align:center; font-size:18px; margin-bottom:18px; letter-spacing:.5px;}
+  @media print{
+    body{background:#fff;} #hdr,#ftr,.phero,.noprint{display:none !important;}
+    .wrap{max-width:none; padding:0;} .split{grid-template-columns:1fr;}
+    .paper{border:0; box-shadow:none; padding:0; font-size:13pt;} .sec{padding:0;} .card{display:none;}
+  }
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / निवेदन</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8 L15 8 M9 12 L15 12 M9 16 L12 16"/></svg></span>निवेदन Templates</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap">
+    <div class="split">
+      <div class="card noprint">
+        <h2><span class="em">📄</span> Choose a template</h2>
+        <div class="tplList" id="tplList"></div>
+
+        <h2 class="mt-l"><span class="em">✏️</span> Your details</h2>
+        <div class="field"><label for="name">नाम (Name)</label><input type="text" id="name" placeholder="सागर दाहाल"></div>
+        <div class="field mt-s"><label for="address">ठेगाना (Address)</label><input type="text" id="address" placeholder="सङ्खुवासभा, चैनपुर"></div>
+        <div class="field mt-s"><label for="office">कार्यालय (Office you are writing to)</label><input type="text" id="office" placeholder="प्रधानाध्यापक, श्री माध्यमिक विद्यालय"></div>
+        <div class="field mt-s"><label for="place">जिल्ला (Place)</label><input type="text" id="place" placeholder="सङ्खुवासभा"></div>
+        <div class="field mt-s"><label for="extra1">अतिरिक्त विवरण १ (days, amount…)</label><input type="text" id="extra1" placeholder="७ दिन"></div>
+        <div class="field mt-s"><label for="extra2">अतिरिक्त विवरण २</label><input type="text" id="extra2" placeholder=""></div>
+
+        <div class="row mt">
+          <button class="btn" id="print" type="button" style="flex:0 0 auto;">🖨 Print</button>
+          <button class="btn soft" id="copyBtn" type="button" style="flex:0 0 auto;">Copy text</button>
+        </div>
+        <div class="out" id="msg" role="status"></div>
+      </div>
+
+      <div class="paper" id="paper"></div>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var BS = SAAGAR.bs;
+
+  var TEMPLATES = [
+    {
+      id: 'leave',
+      name: 'बिदाको निवेदन (Leave)',
+      body: function (v) {
+        return { title: 'बिदाको निवेदन', text:
+'श्रीमान् ' + v.office + '\n\nविषय: बिदा पाउँको निवेदन।\n\nमहोदय,\n\nउपर्युक्त सम्बन्धमा यसै विद्यालय/कार्यालयमा कार्यरत म ' + v.name + ', ' + v.address + 'ले ' + v.extra1 + ' को लागि बिदा पाउन आवश्यक भएको हुँदा स्वीकृति दिनुहुन अनुरोध गर्दछु। बिदाको अवधिमा हुने कामको जिम्मेवारी मैले आफ्नो सहकर्मीलाई हस्तान्तरण गरेको छु।\n\nभवदीय,\n' + v.name + '\n' + v.address + '\n\nमिति: ' + v.bsDate + '\n' };
+      }
+    },
+    {
+      id: 'character',
+      name: 'चरित्र प्रमाणित (Character certificate)',
+      body: function (v) {
+        return { title: 'चरित्र प्रमाणितको निवेदन', text:
+'श्रीमान् ' + v.office + '\n\nविषय: चरित्र प्रमाणपत्र पाउँको निवेदन।\n\nमहोदय,\n\nमैले यस कार्यालयबाट ' + v.extra1 + ' मा उत्तीर्ण गरेको हुँदा उच्च शिक्षा/रोजगारीको लागि चरित्र प्रमाणपत्र आवश्यक परेको छ। तसर्थ चरित्र प्रमाणपत्र उपलब्ध गराइदिनुहुन अनुरोध गर्दछु।\n\nभवदीय,\n' + v.name + '\n' + v.address + '\n\nमिति: ' + v.bsDate + '\n' };
+      }
+    },
+    {
+      id: 'recommend',
+      name: 'सिफारिसको निवेदन (Recommendation)',
+      body: function (v) {
+        return { title: 'सिफारिसको निवेदन', text:
+'श्रीमान् ' + v.office + '\n\nविषय: सिफारिस पाउँको निवेदन।\n\nमहोदय,\n\nम ' + v.name + ', ' + v.address + ' बस्ने निवासी हुँ। ' + v.extra1 + ' को सिलसिलामा मलाई सिफारिस आवश्यक परेको हुँदा सो सिफारिस उपलब्ध गराइदिनुहुन अनुरोध गर्दछु। मैले दिएको विवरण सत्य हो।\n\nभवदीय,\n' + v.name + '\n' + v.address + '\n\nमिति: ' + v.bsDate + '\n' };
+      }
+    },
+    {
+      id: 'complaint',
+      name: 'उजुरी (Complaint)',
+      body: function (v) {
+        return { title: 'उजुरी निवेदन', text:
+'श्रीमान् ' + v.office + '\n\nविषय: उजुरी जाहेर गर्ने बारे।\n\nमहोदय,\n\nम ' + v.name + ', ' + v.address + ' बस्ने निवासी हुँ। ' + v.extra1 + ' भएको हुँदा उक्त विषयमा आवश्यक कानुनी कारबाही गरी मलाई न्याय दिलाइदिनुहुन अनुरोध गर्दछु।\n\nभवदीय,\n' + v.name + '\n' + v.address + '\n\nमिति: ' + v.bsDate + '\n' };
+      }
+    },
+    {
+      id: 'scholarship',
+      name: 'छात्रवृत्तिको निवेदन (Scholarship)',
+      body: function (v) {
+        return { title: 'छात्रवृत्तिको निवेदन', text:
+'श्रीमान् ' + v.office + '\n\nविषय: छात्रवृत्ति पाउँको निवेदन।\n\nमहोदय,\n\nम ' + v.name + ', ' + v.address + 'ले यस विद्यालयमा अध्ययन गर्दै आएको छु। पारिवारिक आर्थिक अवस्था कमजोर भएको हुँदा अध्ययनलाई निरन्तर राख्न कठिनाइ भइरहेको छ। तसर्थ ' + v.extra1 + ' को लागि छात्रवृत्ति उपलब्ध गराइदिनुहुन अनुरोध गर्दछु।\n\nभवदीय,\n' + v.name + '\n' + v.address + '\n\nमिति: ' + v.bsDate + '\n' };
+      }
+    },
+    {
+      id: 'transfer',
+      name: 'सरुवाको निवेदन (Transfer)',
+      body: function (v) {
+        return { title: 'सरुवाको निवेदन', text:
+'श्रीमान् ' + v.office + '\n\nविषय: सरुवा गरी पाउँको निवेदन।\n\nमहोदय,\n\nम ' + v.name + ' हाल ' + v.address + ' मा कार्यरत छु। ' + v.extra1 + ' कारणले ' + v.place + ' नजिकको कार्यालयमा सरुवा भएमा काम गर्न सहज हुने छ। तसर्थ सरुवा गरी पाउन अनुरोध गर्दछु।\n\nभवदीय,\n' + v.name + '\n\nमिति: ' + v.bsDate + '\n' };
+      }
+    }
+  ];
+
+  var cur = 0;
+
+  function bsToday() {
+    var b = BS.today();
+    return b ? (BS.neDigits(b.year) + '-' + BS.neDigits(SAAGAR.pad(b.month)) + '-' + BS.neDigits(SAAGAR.pad(b.day))) : '';
+  }
+
+  function values() {
+    return {
+      name: $('name').value.trim() || '…………',
+      address: $('address').value.trim() || '…………',
+      office: $('office').value.trim() || '…………',
+      place: $('place').value.trim() || '…………',
+      extra1: $('extra1').value.trim() || '…………',
+      extra2: $('extra2').value.trim() || '…………',
+      bsDate: bsToday()
+    };
+  }
+
+  function drawList() {
+    var w = $('tplList');
+    w.innerHTML = '';
+    TEMPLATES.forEach(function (t, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tpl' + (i === cur ? ' on' : '');
+      b.textContent = t.name;
+      b.onclick = function () { cur = i; drawList(); render(); };
+      w.appendChild(b);
+    });
+  }
+
+  function render() {
+    var out = TEMPLATES[cur].body(values());
+    $('paper').innerHTML = '<h2>' + out.title + '</h2>' + out.text
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    $('msg').textContent = '';
+  }
+
+  ['name','address','office','place','extra1','extra2'].forEach(function (id) {
+    $(id).addEventListener('input', render);
+  });
+
+  $('print').onclick = function () { render(); window.print(); };
+  $('copyBtn').onclick = function () { SAAGAR.copy($('paper').innerText, 'निवेदन copied'); };
+
+  drawList();
+  render();
+})();
+</script>
+</body>
+</html>

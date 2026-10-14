@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salary &amp; Tax Calculator (Nepal) | SAAGAR Tools</title>
+<meta name="description" content="Work out Nepal income tax slab by slab and your monthly take-home salary, including SSF and other deductions.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/salary-tax.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .hero-num{text-align:center; padding:16px 8px; background:linear-gradient(150deg,#fff,#eef4fb);
+    border:1px solid var(--line); border-radius:16px; margin-bottom:14px;}
+  .hero-num b{font-size:clamp(28px,6vw,42px); font-weight:900; color:var(--navy); display:block; line-height:1.15;}
+  .hero-num span{font-size:13px; font-weight:700; color:var(--dim);}
+  .mini{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px;}
+  .m{background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:11px 13px;}
+  .m b{display:block; font-size:16.5px; color:var(--navy-2); font-weight:900;}
+  .m span{font-size:11px; font-weight:800; letter-spacing:.4px; color:var(--dim); text-transform:uppercase;}
+  tr.active td{background:#eff6ff; font-weight:800;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Salary &amp; Tax</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8 L9 5 L15 5 L15 8 M3 13 L21 13"/></svg></span>Salary &amp; Tax (Nepal)</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:760px;">
+    <div class="card">
+      <h2><span class="em">📥</span> Your salary</h2>
+      <div class="row">
+        <div class="field" style="flex:1;">
+          <label for="gross">Monthly gross salary (Rs.)</label>
+          <input type="number" id="gross" value="75000" step="500" min="0">
+        </div>
+        <div class="field" style="flex:1;">
+          <label for="months">Salary months paid</label>
+          <select id="months">
+            <option value="13">13 (with Dashain bonus)</option>
+            <option value="12" selected>12</option>
+            <option value="14">14</option>
+          </select>
+        </div>
+      </div>
+      <div class="row mt">
+        <div class="field" style="flex:1;">
+          <label for="filing">Filing status</label>
+          <select id="filing">
+            <option value="single" selected>Single</option>
+            <option value="couple">Married (couple)</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1;">
+          <label for="ssf">Retirement fund (SSF / EPF)</label>
+          <select id="ssf">
+            <option value="no" selected>Not contributing</option>
+            <option value="yes">Contributing — 1% slab applies</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1;">
+          <label for="other">Other monthly deductions (Rs.)</label>
+          <input type="number" id="other" value="0" step="100" min="0">
+        </div>
+      </div>
+      <button class="btn block mt" id="go" type="button">Calculate take-home</button>
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card" id="res" style="display:none;">
+      <div class="hero-num">
+        <b id="take">—</b>
+        <span id="takeSub"></span>
+      </div>
+      <div class="mini">
+        <div class="m"><b id="annual">—</b><span>Annual gross</span></div>
+        <div class="m"><b id="tax">—</b><span>Income tax / year</span></div>
+        <div class="m"><b id="taxM">—</b><span>Tax / month</span></div>
+        <div class="m"><b id="eff">—</b><span>Effective rate</span></div>
+        <div class="m"><b id="retire">—</b><span>Retirement 11%</span></div>
+        <div class="m"><b id="netY">—</b><span>Net / year</span></div>
+      </div>
+
+      <h2 class="mt-l"><span class="em">📊</span> Slab by slab</h2>
+      <table class="tbl" id="slabTbl">
+        <thead><tr><th>Slab</th><th>Rate</th><th>Tax</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="muted mt" id="slabNote"></p>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">ℹ️</span> How this is worked out</h2>
+      <ul class="facts" style="padding-left:20px; font-size:14px; line-height:1.8;">
+        <li>Tax is charged <b>slab by slab</b>, not on the whole amount — so only the money above each threshold is taxed at the higher rate.</li>
+        <li>Individuals contributing to a retirement fund get a <b>1% rate on the first slab</b> instead of the normal rate.</li>
+        <li>Married couples filing together usually get a <b>higher first threshold</b>.</li>
+        <li>SSF/EPF contribution is typically <b>11% from the employee</b> and 20% from the employer.</li>
+      </ul>
+      <p class="muted mt">The slab figures here follow the commonly published annual rates. Tax rules are set every year in the budget, so confirm the current year's numbers with the Inland Revenue Department before you rely on them for filing.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+
+  /* Slabs: [width, rate]. Married couples get a wider first slab.
+     1% applies to the first slab when the person contributes to SSF/EPF. */
+  function slabs(status, ssf) {
+    if (status === 'couple') {
+      return [
+        { upTo: 600000, rate: ssf === 'yes' ? 0.01 : 0.01, label: 'First 6,00,000' },
+        { upTo: 800000, rate: 0.10, label: 'Next 2,00,000' },
+        { upTo: 1000000, rate: 0.20, label: 'Next 2,00,000' },
+        { upTo: 2000000, rate: 0.30, label: 'Next 10,00,000' },
+        { upTo: 5000000, rate: 0.36, label: 'Next 30,00,000' },
+        { upTo: Infinity, rate: 0.39, label: 'Above 50,00,000' }
+      ];
+    }
+    return [
+      { upTo: 500000, rate: ssf === 'yes' ? 0.01 : 0.01, label: 'First 5,00,000' },
+      { upTo: 700000, rate: 0.10, label: 'Next 2,00,000' },
+      { upTo: 1000000, rate: 0.20, label: 'Next 3,00,000' },
+      { upTo: 2000000, rate: 0.30, label: 'Next 10,00,000' },
+      { upTo: 5000000, rate: 0.36, label: 'Next 30,00,000' },
+      { upTo: Infinity, rate: 0.39, label: 'Above 50,00,000' }
+    ];
+  }
+
+  function rs(n) { return 'Rs. ' + Math.round(n).toLocaleString('en-IN'); }
+
+  function run() {
+    var monthly = parseFloat($('gross').value) || 0;
+    var months = parseFloat($('months').value) || 12;
+    var other = parseFloat($('other').value) || 0;
+    var status = $('filing').value;
+    var ssf = $('ssf').value;
+
+    var annual = monthly * months;
+    var retire = ssf === 'yes' ? annual * 0.11 : 0;
+
+    /* retirement contribution is deductible, so tax is on the reduced income */
+    var taxable = Math.max(0, annual - retire);
+    var table = slabs(status, ssf);
+    var prev = 0, tax = 0;
+    var tbody = $('slabTbl').querySelector('tbody');
+    tbody.innerHTML = '';
+
+    table.forEach(function (s) {
+      var width = s.upTo - prev;
+      var inSlab = Math.max(0, Math.min(taxable, s.upTo) - prev);
+      var t = inSlab * s.rate;
+      tax += t;
+      if (inSlab > 0) {
+        var tr = document.createElement('tr');
+        tr.className = inSlab >= width - 0.001 && taxable > s.upTo ? '' : 'active';
+        tr.innerHTML = '<td>' + s.label + '</td><td>' + (s.rate * 100).toFixed(0) + '%</td><td>' + rs(t) + '</td>';
+        tbody.appendChild(tr);
+      }
+      prev = s.upTo;
+    });
+
+    var monthlyTax = tax / 12;
+    var netMonthly = monthly - monthlyTax - (retire / 12) - other;
+    var eff = annual > 0 ? tax / annual * 100 : 0;
+
+    $('take').textContent = rs(netMonthly);
+    $('takeSub').textContent = 'estimated monthly take-home';
+    $('annual').textContent = rs(annual);
+    $('tax').textContent = rs(tax);
+    $('taxM').textContent = rs(monthlyTax);
+    $('eff').textContent = eff.toFixed(1) + '%';
+    $('retire').textContent = rs(retire);
+    $('netY').textContent = rs(annual - tax - retire - other * 12);
+    $('slabNote').textContent = 'Tax is worked out on ' + rs(taxable) + ' after deducting your retirement contribution from ' + rs(annual) + '.';
+    $('res').style.display = '';
+    $('msg').textContent = '';
+    $('msg').className = 'out';
+  }
+
+  $('go').onclick = run;
+  ['gross','months','other','filing','ssf'].forEach(function (id) {
+    $(id).addEventListener('change', run);
+  });
+  run();
+})();
+</script>
+</body>
+</html>

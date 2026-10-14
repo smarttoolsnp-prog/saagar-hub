@@ -3,195 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Smart Tools | SAAGAR</title>
-<meta name="description" content="Free smart tools — date converter, age calculator, unit converters, percentage calculator and more. Plain and fast.">
-<meta name="theme-color" content="#0f2c4c">
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<title>Tools — 25 free browser tools | SAAGAR</title>
+<meta name="description" content="25 free tools that run in your browser: BS date converter, age, percentage, GPA, units, salary tax, EMI, forex, QR, PDF, compressor, scanner and more.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools.html">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/clay.css">
+<link rel="stylesheet" href="assets/clay.css">
+<link rel="stylesheet" href="assets/clay.css">
 <style>
-  :root{--navy:#1c3d5e; --ink:#0f2c4c; --paper:#f4f8fd; --card:#fff; --line:#d7e3f0; --text:#1a2b3c; --dim:#5b7186; --blue:#2f6df6; --ok:#1fa564;}
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{font-family:"Segoe UI",system-ui,sans-serif; background:var(--paper); color:var(--text); line-height:1.6;}
-  header{background:var(--ink); color:#fff; padding:12px 20px; display:flex; align-items:center; gap:12px; border-bottom:3px solid #f0a72e;}
-  header img{width:38px; height:38px;}
-  header a.home{color:#cfe0ef; font-size:13.5px; font-weight:600; margin-left:auto;}
-  header a.home:hover{color:#fff;}
-  .wrap{max-width:900px; margin:0 auto; padding:28px 20px 70px;}
-  h1{font-size:26px; font-weight:800; margin-bottom:6px;}
-  .sub{color:var(--dim); font-size:14px; margin-bottom:26px;}
-  .tool{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:16px;}
-  .tool h2{font-size:16.5px; margin-bottom:10px;}
-  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-  input,select,button{font:inherit; padding:10px 12px; border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--text);}
-  input:focus,select:focus{outline:2px solid var(--blue); outline-offset:0;}
-  button{background:var(--blue); color:#fff; border:0; font-weight:700; cursor:pointer;}
-  button:hover{filter:brightness(1.08);}
-  .out{margin-top:10px; font-size:15px; font-weight:700; color:var(--ok); min-height:24px;}
-  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
-  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
-  .muted{color:var(--dim); font-size:12.5px; margin-top:8px;}
+  .gtitle{font-size:12px; font-weight:900; letter-spacing:2.4px; text-transform:uppercase; color:var(--faint); margin:28px 0 12px;}
+  .gtitle:first-child{margin-top:0;}
+  /* clay: big icon, no banner behind it */
+  .tile .ic{background:none; border:none; box-shadow:none; width:auto; height:auto;}
+  .tile .ic svg{width:72px; height:72px;}
 </style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
 </head>
-<body>
-<header>
-  <img src="assets/logo.svg" alt="SAAGAR">
-  <strong>SAAGAR</strong>
-  <a class="home" href="index.html">← Back to hub</a>
-</header>
-<div class="wrap">
-  <h1>🧰 Smart Tools</h1>
-  <p class="sub">The useful tools, plain and simple. Everything runs in your browser — nothing is uploaded.</p>
+<body data-root="" data-page="tools">
 
-  <div class="tool">
-    <h2>📅 BS ↔ AD Date Converter</h2>
-    <div class="row">
-      <select id="d-dir">
-        <option value="ad2bs">AD → BS</option>
-        <option value="bs2ad">BS → AD</option>
-      </select>
-      <input type="date" id="d-ad" value="2026-09-24">
-      <input type="text" id="d-bs" placeholder="YYYY-MM-DD (e.g. 2083-06-08)" style="display:none">
-      <button id="d-go">Convert</button>
-    </div>
-    <div class="out" id="d-out"></div>
-    <div class="muted">Approximate conversion using standard Nepali calendar data (1975–2100 BS).</div>
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="index.html">Home</a> / Tools</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><rect x="5" y="3" width="6" height="6" rx="1"/><rect x="13" y="3" width="6" height="6" rx="1" fill="currentColor" opacity=".3"/><rect x="2" y="11" width="20" height="2" rx="1"/><rect x="2" y="15" width="20" height="2" rx="1"/></svg></span>Smart Tools</h1>
   </div>
+</section>
 
-  <div class="tool">
-    <h2>🎂 Age Calculator</h2>
-    <div class="row">
-      <input type="date" id="a-dob">
-      <button id="a-go">Calculate</button>
+<main class="sec">
+  <div class="wrap">
+    <div class="fbar">
+      <input type="search" id="tFilter" placeholder="Filter tools… (date, pdf, gold, land)" autocomplete="off" aria-label="Filter tools">
+      <span class="cnt" id="tCount"></span>
     </div>
-    <div class="out" id="a-out"></div>
+    <div id="tList"></div>
   </div>
+</main>
 
-  <div class="tool">
-    <h2>％ Percentage Calculator</h2>
-    <div class="grid2">
-      <div>
-        <div class="row"><input type="number" id="p-x" placeholder="X"><span>is what % of</span><input type="number" id="p-y" placeholder="Y"></div>
-        <div class="out" id="p-out1"></div>
-      </div>
-      <div>
-        <div class="row"><input type="number" id="p-p" placeholder="P"><span>% of</span><input type="number" id="p-n" placeholder="N"></div>
-        <div class="out" id="p-out2"></div>
-      </div>
-    </div>
-    <div class="row" style="margin-top:6px"><button id="p-go">Calculate both</button></div>
-  </div>
+<div id="ftr"></div>
 
-  <div class="tool">
-    <h2>🔁 Unit Converter</h2>
-    <div class="row">
-      <input type="number" id="u-val" placeholder="Value">
-      <select id="u-from">
-        <option value="km">km</option><option value="m">m</option><option value="cm">cm</option>
-        <option value="mile">mile</option><option value="ft">ft</option><option value="in">inch</option>
-        <option value="kg">kg</option><option value="lb">lb</option>
-      </select>
-      <span>→</span>
-      <select id="u-to">
-        <option value="km">km</option><option value="m" selected>m</option><option value="cm">cm</option>
-        <option value="mile">mile</option><option value="ft">ft</option><option value="in">inch</option>
-        <option value="kg">kg</option><option value="lb">lb</option>
-      </select>
-      <button id="u-go">Convert</button>
-    </div>
-    <div class="out" id="u-out"></div>
-    <div class="muted">Length units convert with length units, weight with weight.</div>
-  </div>
-</div>
-
+<script src="assets/app.js"></script>
+<script src="assets/catalog.js"></script>
 <script>
-(function(){
+(function () {
   'use strict';
-  /* ---------- BS<->AD (approx table-based, 1975-2100) ---------- */
-  // days in each BS month (12 months), key = BS year. Data: standard public tables.
-  var BS = {
-    2080:[31,31,31,32,31,31,30,29,30,29,30,30],2081:[31,31,32,31,31,31,30,29,30,29,30,30],
-    2082:[31,32,31,31,31,30,30,29,30,29,30,30],2083:[31,32,31,32,30,31,30,29,30,29,30,30],
-    2084:[31,32,31,32,30,31,30,29,30,29,30,30],2085:[31,32,31,32,30,31,30,30,29,30,29,31],
-    2086:[31,32,31,32,30,31,30,30,29,30,29,30],2087:[31,32,31,32,30,31,30,30,29,29,30,31],
-    2088:[30,32,31,32,30,31,30,30,29,30,29,31],2089:[31,32,31,32,30,31,30,30,29,30,30,29]
-  };
-  // BS new year day-of-week/anchor: 2083-01-01 BS = 2026-04-14 AD
-  var anchorBS=[2083,1,1], anchorAD=new Date(2026,3,14);
-  function daysInBSYear(y){ var a=BS[y]; return a? a.reduce(function(s,n){return s+n;},0) : null; }
-  function bsToAbs(y,m,d){ // days since anchor (m,d are 1-based)
-    if(!BS[y]) return null;
-    var n=0, i;
-    for(i=1;i<m;i++) n+=BS[y][i-1];
-    n+=d-1;
-    return n;
+  var TOOLS = window.SAAGAR_TOOLS || [];
+  var list = document.getElementById('tList');
+  var filter = document.getElementById('tFilter');
+  var count = document.getElementById('tCount');
+
+  function draw(q) {
+    q = (q || '').trim().toLowerCase();
+    list.innerHTML = '';
+    var shown = 0;
+    var groups = [];
+    TOOLS.forEach(function (t) {
+      if (q && (t.name + ' ' + t.blurb + ' ' + t.kw + ' ' + t.group).toLowerCase().indexOf(q) === -1) return;
+      if (groups.indexOf(t.group) === -1) groups.push(t.group);
+    });
+    groups.forEach(function (g) {
+      var head = document.createElement('div');
+      head.className = 'gtitle';
+      head.textContent = g;
+      list.appendChild(head);
+      var grid = document.createElement('div');
+      grid.className = 'tiles';
+      TOOLS.forEach(function (t) {
+        if (t.group !== g) return;
+        if (q && (t.name + ' ' + t.blurb + ' ' + t.kw + ' ' + t.group).toLowerCase().indexOf(q) === -1) return;
+        var a = document.createElement('a');
+        a.className = 'tile';
+        a.href = t.file;
+        a.innerHTML = '<div class="ic">' + t.icon + '</div><h3>' + t.name + '</h3><p>' + t.blurb + '</p><span class="go">Open →</span>';
+        grid.appendChild(a);
+        shown++;
+      });
+      list.appendChild(grid);
+    });
+    count.textContent = shown + ' of ' + TOOLS.length + ' tools';
+    if (!shown) list.innerHTML = '<div class="card center"><p class="muted">Nothing matches that filter.</p></div>';
   }
-  document.getElementById('d-dir').addEventListener('change', function(){
-    var bs = this.value==='bs2ad';
-    document.getElementById('d-bs').style.display = bs? '':'none';
-    document.getElementById('d-ad').style.display = bs? 'none':'';
-  });
-  document.getElementById('d-go').addEventListener('click', function(){
-    var out=document.getElementById('d-out');
-    if(document.getElementById('d-dir').value==='ad2bs'){
-      var dt=new Date(document.getElementById('d-ad').value+'T00:00:00');
-      if(isNaN(dt)){ out.textContent='Pick a valid AD date.'; return; }
-      var diff=Math.round((dt-anchorAD)/86400000);
-      var y=anchorBS[0];
-      // walk years
-      while(true){
-        var dy=daysInBSYear(y);
-        if(dy==null){ out.textContent='Outside 2080–2089 BS range for exact table.'; return; }
-        if(diff < dy) break;
-        diff-=dy; y++;
-      }
-      var m=1;
-      while(diff >= BS[y][m-1]){ diff-=BS[y][m-1]; m++; }
-      var d=diff+1;
-      out.textContent='🇳🇵 BS: '+y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    } else {
-      var parts=document.getElementById('d-bs').value.trim().split('-').map(Number);
-      if(parts.length!==3 || !BS[parts[0]]){ out.textContent='Use format YYYY-MM-DD (2080–2089 BS supported exactly).'; return; }
-      var abs=bsToAbs(parts[0],parts[1],parts[2]);
-      if(abs==null){ out.textContent='Invalid BS date.'; return; }
-      var res=new Date(anchorAD.getTime()+abs*86400000);
-      out.textContent='🌍 AD: '+res.toISOString().slice(0,10);
-    }
-  });
 
-  /* ---------- Age ---------- */
-  document.getElementById('a-go').addEventListener('click', function(){
-    var v=document.getElementById('a-dob').value;
-    var out=document.getElementById('a-out');
-    if(!v){ out.textContent='Pick your date of birth.'; return; }
-    var dob=new Date(v+'T00:00:00'), now=new Date();
-    var y=now.getFullYear()-dob.getFullYear();
-    var m=now.getMonth()-dob.getMonth();
-    var d=now.getDate()-dob.getDate();
-    if(d<0){ m--; d+=new Date(now.getFullYear(),now.getMonth(),0).getDate(); }
-    if(m<0){ y--; m+=12; }
-    out.textContent='🎉 You are '+y+' years, '+m+' months, '+d+' days old.';
-  });
-
-  /* ---------- Percentage ---------- */
-  document.getElementById('p-go').addEventListener('click', function(){
-    var x=+document.getElementById('p-x').value, y=+document.getElementById('p-y').value;
-    var p=+document.getElementById('p-p').value, n=+document.getElementById('p-n').value;
-    var o1=document.getElementById('p-out1'), o2=document.getElementById('p-out2');
-    if(x>0 && y>0) o1.textContent=x+' is '+(x/y*100).toFixed(2)+'% of '+y;
-    if(p>0 && n>0) o2.textContent=p+'% of '+n+' = '+(p/100*n).toFixed(2);
-  });
-
-  /* ---------- Unit converter ---------- */
-  var toMeter={km:1000, m:1, cm:0.01, mile:1609.344, ft:0.3048, in:0.0254};
-  var toKg={kg:1, lb:0.45359237};
-  document.getElementById('u-go').addEventListener('click', function(){
-    var v=+document.getElementById('u-val').value;
-    var f=document.getElementById('u-from').value, t=document.getElementById('u-to').value;
-    var out=document.getElementById('u-out');
-    if(!v){ out.textContent='Enter a value.'; return; }
-    if(toMeter[f] && toMeter[t]){ out.textContent=(v*toMeter[f]/toMeter[t])+' '+t; }
-    else if(toKg[f] && toKg[t]){ out.textContent=(v*toKg[f]/toKg[t])+' '+t; }
-    else { out.textContent='⚠️ Cannot convert length ↔ weight.'; }
-  });
+  filter.addEventListener('input', function () { draw(this.value); });
+  draw('');
 })();
 </script>
 </body>

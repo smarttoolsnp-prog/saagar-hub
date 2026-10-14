@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Age Calculator — exact age and next birthday | SAAGAR Tools</title>
+<meta name="description" content="Find your exact age in years, months and days, total days lived, and how many days until your next birthday.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/age.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .bigage{text-align:center; padding:18px 10px; background:linear-gradient(150deg,#fff,#eef4fb);
+    border:1px solid var(--line); border-radius:16px;}
+  .bigage b{font-size:clamp(30px,7vw,46px); font-weight:900; color:var(--navy); display:block; line-height:1.15;}
+  .bigage span{font-size:13.5px; font-weight:700; color:var(--dim);}
+  .facts{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:11px; margin-top:16px;}
+  .f{background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:12px 14px;}
+  .f b{display:block; font-size:18px; color:var(--navy-2); font-weight:900;}
+  .f span{font-size:11.5px; font-weight:800; letter-spacing:.4px; color:var(--dim); text-transform:uppercase;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Age Calculator</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><circle cx="12" cy="8" r="6"/><path d="M6 8 L9 5 M12 8 L15 5 M18 8 L15 11 M12 8 L9 11"/><path d="M12 14 L12 20 M9 17 L15 17"/></svg></span>Age Calculator</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:700px;">
+    <div class="card">
+      <h2><span class="em">🗓️</span> Enter your birth date</h2>
+      <div class="row">
+        <div class="field" style="flex:2;">
+          <label for="dob">Date of birth</label>
+          <input type="date" id="dob">
+        </div>
+        <div class="field" style="flex:2;">
+          <label for="onDate">Age on this date (optional)</label>
+          <input type="date" id="onDate">
+        </div>
+        <button class="btn" id="go" style="flex:0 0 auto;">Calculate</button>
+      </div>
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card" id="card" style="display:none;">
+      <div class="bigage">
+        <b id="ageBig">—</b>
+        <span id="ageSub"></span>
+      </div>
+      <div class="facts">
+        <div class="f"><b id="fDays">—</b><span>Days lived</span></div>
+        <div class="f"><b id="fWeeks">—</b><span>Weeks</span></div>
+        <div class="f"><b id="fMonths">—</b><span>Months</span></div>
+        <div class="f"><b id="fHours">—</b><span>Hours</span></div>
+        <div class="f"><b id="fBorn">—</b><span>Born on</span></div>
+        <div class="f"><b id="fNext">—</b><span>Next birthday</span></div>
+      </div>
+      <p class="muted mt" id="bsNote"></p>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">💡</span> Good to know</h2>
+      <p class="muted">Age is counted the way schools and offices do it: full years first, then full months, then the leftover days. For official forms in Nepal you usually need the date of birth in Bikram Sambat — the <a href="date-convert.html" style="color:var(--blue);font-weight:800;">date converter</a> will give you that.</p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script src="../assets/bs-calendar.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var BS = SAAGAR.bs;
+
+  function compute() {
+    var v = $('dob').value;
+    if (!v) { msg('Pick your date of birth.'); return; }
+    var p = v.split('-').map(Number);
+    var dob = new Date(p[0], p[1] - 1, p[2], 0, 0, 0);
+    var ref = new Date();
+    if ($('onDate').value) {
+      var q = $('onDate').value.split('-').map(Number);
+      ref = new Date(q[0], q[1] - 1, q[2], 0, 0, 0);
+    }
+    if (dob > ref) { msg('That date is still in the future.'); return; }
+
+    var y = ref.getFullYear() - dob.getFullYear();
+    var m = ref.getMonth() - dob.getMonth();
+    var d = ref.getDate() - dob.getDate();
+    if (d < 0) { m--; d += new Date(ref.getFullYear(), ref.getMonth(), 0).getDate(); }
+    if (m < 0) { y--; m += 12; }
+
+    var msDay = 86400000;
+    var days = Math.round((ref - dob) / msDay);
+    var hours = days * 24;
+
+    /* next birthday */
+    var next = new Date(ref.getFullYear(), dob.getMonth(), dob.getDate());
+    if (next < ref) next = new Date(ref.getFullYear() + 1, dob.getMonth(), dob.getDate());
+    var until = Math.round((next - ref) / msDay);
+    var turning = next.getFullYear() - dob.getFullYear();
+
+    $('ageBig').textContent = y + ' years, ' + m + ' months, ' + d + ' days';
+    $('ageSub').textContent = 'as on ' + SAAGAR.niceDate(ref) + (until === 0 ? '  ·  🎉 Happy birthday!' : '');
+    $('fDays').textContent = days.toLocaleString();
+    $('fWeeks').textContent = Math.floor(days / 7).toLocaleString();
+    $('fMonths').textContent = (y * 12 + m).toLocaleString();
+    $('fHours').textContent = hours.toLocaleString();
+    $('fBorn').textContent = BS.DAYS[dob.getDay()];
+    $('fNext').textContent = until === 0 ? 'Today 🎉' : (until + ' days → ' + turning);
+
+    /* BS equivalents */
+    var bsDob = BS.adToBs(new Date(Date.UTC(dob.getFullYear(), dob.getMonth(), dob.getDate())));
+    var line = bsDob ? 'In Bikram Sambat you were born on ' + BS.bsLabel(bsDob, false) + ' (' + BS.bsLabel(bsDob, true) + ').' : '';
+    var bsToday = BS.adToBs(new Date(Date.UTC(ref.getFullYear(), ref.getMonth(), ref.getDate())));
+    if (bsToday) line += '  Today is ' + BS.bsLabel(bsToday, false) + '.';
+    $('bsNote').textContent = line;
+
+    $('card').style.display = '';
+    msg('');
+  }
+  function msg(t) {
+    $('msg').textContent = t;
+    $('msg').className = t ? 'out bad' : 'out';
+  }
+
+  $('go').onclick = compute;
+  $('dob').addEventListener('change', compute);
+  $('onDate').addEventListener('change', compute);
+  $('dob').addEventListener('keydown', function (e) { if (e.key === 'Enter') compute(); });
+})();
+</script>
+</body>
+</html>

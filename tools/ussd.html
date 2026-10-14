@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NTC &amp; Ncell USSD Codes — balance, data, own number | SAAGAR Tools</title>
+<meta name="description" content="All NTC and Ncell USSD codes in one place — main balance, remaining data, own number, SIM owner, packs, balance transfer and customer care, with one-tap dialling. Verified against the operators' own pages.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/ussd.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .net{margin-bottom:24px;}
+  .net h3{font-size:13px; letter-spacing:1.8px; text-transform:uppercase; margin-bottom:10px; padding-left:2px; display:flex; align-items:center; gap:8px;}
+  .ntc h3{color:#0369a1;} .ncell h3{color:#047857;} .general h3{color:#a16207;}
+  .net h3 .pill{font-size:9.5px; letter-spacing:.6px; font-weight:900; padding:2px 8px; border-radius:99px;
+    background:var(--bg-2); border:1px solid var(--line); color:var(--dim); text-transform:uppercase;}
+  .codes{display:grid; grid-template-columns:repeat(auto-fill,minmax(258px,1fr)); gap:11px;}
+  .cd{display:flex; align-items:center; gap:11px; background:#fff; border:1px solid var(--line); border-radius:13px;
+    padding:12px 14px; box-shadow:var(--sh); transition:.16s;}
+  .cd:hover{border-color:var(--line-2); box-shadow:var(--sh-2); transform:translateY(-1px);}
+  .cd .code{font-family:var(--mono); font-size:15px; font-weight:900; color:var(--navy-2); overflow-wrap:anywhere;}
+  .cd .lab{font-size:11.5px; font-weight:700; color:var(--dim); margin-top:2px; line-height:1.4;}
+  .cd .acts{margin-left:auto; display:flex; gap:6px; flex-shrink:0;}
+  .mini{border:1px solid var(--line-2); background:var(--bg-2); color:var(--navy); border-radius:9px;
+    padding:6px 10px; font-size:12px; font-weight:800; text-decoration:none; cursor:pointer; font-family:inherit;}
+  .mini:hover{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .fnote{font-size:12.5px; color:var(--dim); margin:0 0 16px;}
+  .fnote a{font-weight:800;}
+  .hint{display:flex; gap:10px; align-items:flex-start; background:var(--bg-2); border:1px solid var(--line);
+    border-radius:12px; padding:12px 14px; font-size:13px; color:var(--dim); margin-top:22px;}
+  .hint b{color:var(--navy-2);}
+  @media(max-width:560px){ .codes{grid-template-columns:1fr;} .cd .acts{gap:5px;} .mini{padding:7px 9px;} }
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / USSD Codes</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><path d="M5 4 L8 4 L10 9 L7.5 10.5 C8.5 13 11 15.5 13.5 16.5 L15 14 L20 16 L20 19 A2 2 0 0 1 18 21 C10 20 4 14 3 6 A2 2 निकाल्नुहोस् 0 0 1 5 4 Z"/></svg></span>NTC &amp; Ncell USSD Codes</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:880px;">
+    <div class="card">
+      <div class="field" style="margin-bottom:16px;">
+        <label for="q">Find a code</label>
+        <input type="search" id="q" placeholder="balance, data, own number, transfer…" autocomplete="off">
+      </div>
+      <p class="fnote">Taken from the operators' own pages —
+        <a href="https://www.ntc.net.np/post/useful-short-codes" target="_blank" rel="noopener">Nepal Telecom</a> and
+        <a href="https://www.ncell.com.np/en/individual/contact-us" target="_blank" rel="noopener">Ncell</a>.
+        Checked September 2026. Operators do change codes, so if one fails, use their app or care line.</p>
+
+      <div class="net ntc" id="ntc"></div>
+      <div class="net ncell" id="ncell"></div>
+      <div class="net general" id="general"></div>
+      <div id="empty" class="hidden muted center">No code matches that.</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">💡</span> Using USSD on a Nepali SIM</h2>
+      <ul style="padding-left:20px; font-size:14px; line-height:1.9;">
+        <li>Type the code exactly, with the <b>*</b> at the start and <b>#</b> at the end, then press call.</li>
+        <li>The reply appears on screen as a message — no internet needed.</li>
+        <li>Balance checks and USSD requests are free. You only pay when you actually buy a pack.</li>
+        <li>A code that does nothing usually means your SIM is on a plan that hides it — call customer care.</li>
+        <li>For data packs the operator app shows more than USSD can, including price and validity.</li>
+      </ul>
+      <div class="hint">
+        <span style="font-size:18px;">🔒</span>
+        <span>Never give your <b>security code (SCODE)</b> or recharge PIN to anyone — not even someone claiming to be
+        from the operator. They are only needed when <i>you</i> transfer balance or recharge a number.</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var s = function (a, b, c, d) { return { code: a, label: b, dial: c, where: d }; };
+
+  var NETS = [
+    {
+      id: 'ntc', name: 'NTC (Nepal Telecom) — prepaid', pill: 'Namaste',
+      items: [
+        s('*400#', 'Main balance'),
+        s('*9#', 'Your own mobile number'),
+        s('*922#', 'Name of the SIM owner'),
+        s('*1415*55#', 'Remaining data / free resources'),
+        s('*1415#', 'Latest offers and data packages'),
+        s('*1442#', 'Subscribe add-on packs'),
+        s('*1416#', 'NT Fiber / landline balance and package'),
+        s('*422*SCODE*98XXXXXXXX*50#', 'Transfer balance (SCODE = your security code)'),
+        s('SCODE → 1415', 'Get your security code', false),
+        s('*1477#', 'Namaste Credit (small loan)'),
+        s('*1400*1#', 'Missed call alert — turn on'),
+        s('*1400*2#', 'Missed call alert — turn off'),
+        s('SUB → 1455', 'Caller tune (CRBT) — turn on', false),
+        s('UNSUB → 1455', 'Caller tune (CRBT) — turn off', false),
+        s('*43#', 'Call waiting — turn on'),
+        s('#43#', 'Call waiting — turn off'),
+        s('*1415*7#', 'International roaming — on / off'),
+        s('#331*0000#', 'International calling — turn on'),
+        s('*331*0000#', 'International calling — turn off'),
+        s('1415', 'Recharge card IVR (also reads your balance)'),
+        s('1498', 'Namaste customer care'),
+        s('198', 'Landline / fiber complaint'),
+        s('197', 'Landline number enquiry')
+      ]
+    },
+    {
+      id: 'ncell', name: 'Ncell — prepaid', pill: 'Axiata',
+      items: [
+        s('*901#', 'Main balance'),
+        s('*101#', 'Main balance (older SIMs)'),
+        s('*103#', 'Your own mobile number'),
+        s('*9966#', 'Name of the SIM owner'),
+        s('*903#', 'How old your SIM is'),
+        s('*123#', 'Data packs and offers'),
+        s('*17118#', 'Voice packs'),
+        s('*1119#', 'SMS packs'),
+        s('*102*PIN#', 'Recharge with a 16-digit PIN'),
+        s('*102*PIN*98XXXXXXXX#', 'Recharge someone else'),
+        s('*17122*98XXXXXXXX*50#', 'Transfer balance'),
+        s('*9988#', 'Ncell Credit (small loan)'),
+        s('*104#', 'Date and time'),
+        s('*9208#', 'Caller tune (PRBT)'),
+        s('*123*7*1#', 'International roaming'),
+        s('#330*0000#', 'Cancel call barring'),
+        s('*9005*7#', 'Damaged recharge card'),
+        s('90011', 'Blank SMS here for balance', false),
+        s('9005', 'Ncell customer care'),
+        s('9007', 'Ncell Pro / Biz support'),
+        s('9809005000', 'Ncell care from another network')
+      ]
+    },
+    {
+      id: 'general', name: 'Good to know', pill: 'both networks',
+      items: [
+        s('*#06#', 'Your phone\'s IMEI number'),
+        s('*1415*55#', 'NTC: what is left in your pack'),
+        s('*901# / *400#', 'Ncell / NTC balance — remember these two'),
+        s('*422# / *17122#', 'NTC / Ncell balance transfer menu')
+      ]
+    }
+  ];
+
+  var ALL = [];
+
+  function dialHref(code) {
+    return 'tel:' + encodeURIComponent(code).replace(/#/g, '%23');
+  }
+
+  NETS.forEach(function (net) {
+    var host = document.getElementById(net.id);
+    var h = document.createElement('h3');
+    h.innerHTML = net.name + '<span class="pill">' + net.pill + '</span>';
+    host.appendChild(h);
+    var grid = document.createElement('div');
+    grid.className = 'codes';
+    net.items.forEach(function (it) {
+      var canDial = it.dial !== false && /^[*#\d]/.test(it.code);
+      var d = document.createElement('div');
+      d.className = 'cd';
+      d.setAttribute('data-k', (it.code + ' ' + it.label).toLowerCase());
+      d.innerHTML = '<div><div class="code">' + it.code + '</div><div class="lab">' + it.label + '</div></div>' +
+        '<div class="acts">' +
+        (canDial ? '<a class="mini" href="' + dialHref(it.code) + '">Dial</a>' : '') +
+        '<button class="mini" type="button">Copy</button>' +
+        '</div>';
+      d.querySelector('button').onclick = function () {
+        window.SAAGAR.copy(it.code.replace(/\s*→.*$/, ''), it.code + ' copied');
+      };
+      grid.appendChild(d);
+      ALL.push(d);
+    });
+    host.appendChild(grid);
+  });
+
+  /* filter */
+  var q = document.getElementById('q');
+  var empty = document.getElementById('empty');
+  q.addEventListener('input', function () {
+    var v = this.value.trim().toLowerCase();
+    var shown = 0;
+    ALL.forEach(function (row) {
+      var hit = !v || row.getAttribute('data-k').indexOf(v) > -1;
+      row.style.display = hit ? '' : 'none';
+      if (hit) shown++;
+    });
+    NETS.forEach(function (net) {
+      var host = document.getElementById(net.id);
+      var any = [].slice.call(host.querySelectorAll('.cd')).some(function (r) { return r.style.display !== 'none'; });
+      host.style.display = any ? '' : 'none';
+    });
+    empty.classList.toggle('hidden', shown > 0);
+  });
+})();
+</script>
+</body>
+</html>

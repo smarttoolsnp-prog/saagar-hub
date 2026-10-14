@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rock · Paper · Scissors — vs bot or a friend | SAAGAR Games</title>
+<meta name="description" content="Rock Paper Scissors best of five against an adaptive bot or online with a friend.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/games/rps.html">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/clay.css">
+<style>
+  /* clay spec: big clay choice buttons (96/120px), SVG move art, reveal shake, best-of-5 pips */
+  .arena{display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; text-align:center;}
+  .fighter{background:var(--bg-2); border:none; border-radius:24px; padding:20px 10px; box-shadow:var(--sh-clay-press);}
+  .fighter .emo{font-size:54px; line-height:1.1; transition:transform .16s; display:grid; place-items:center;}
+  .fighter .emo svg{width:64px; height:64px;}
+  .fighter.pop .emo{transform:scale(1.16);}
+  .fighter h4{font-size:13px; font-weight:900; letter-spacing:.6px; color:var(--dim); text-transform:uppercase; margin-bottom:6px;}
+  .vs{font-size:20px; font-weight:900; color:var(--faint);}
+  .picks{display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap;}
+  .pick{background:var(--card); border:none; border-radius:999px; width:96px; padding:16px 6px 12px;
+    text-align:center; transition:.18s cubic-bezier(.34,1.4,.5,1); box-shadow:var(--sh-clay);}
+  .pick:hover{transform:translateY(-4px); box-shadow:var(--sh-2);}
+  .pick:active{transform:translateY(1px) scale(.96); box-shadow:var(--sh-clay-press);}
+  .pick .e{display:grid; place-items:center;}
+  .pick .e svg{width:40px; height:40px;}
+  .pick .l{font-size:12px; font-weight:800; color:var(--dim); display:block; margin-top:4px;}
+  .pick:disabled{opacity:.45; cursor:not-allowed; transform:none; box-shadow:var(--sh-clay-press);}
+  .shake{animation:rps-shake .2s ease-in-out 0s 3;}
+  @keyframes rps-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  @media(prefers-reduced-motion:reduce){.shake{animation:none}}
+  @media(min-width:640px){.pick{width:120px; padding:18px 8px 14px;}.pick .e svg{width:56px; height:56px;}
+    .fighter .emo svg{width:80px; height:80px;}}
+  .rounds{display:flex; gap:6px; justify-content:center; margin-top:14px; flex-wrap:wrap;}
+  .dot{width:16px; height:16px; border-radius:50%; background:var(--bg-2); border:none;
+    box-shadow:var(--sh-clay-press); display:grid; place-items:center; font-size:9px; font-weight:900; color:var(--dim);}
+  .dot.w{background:var(--clay-mint); box-shadow:0 0 0 2px #5cc585, var(--sh-clay);}
+  .dot.l{background:var(--clay-blush); box-shadow:0 0 0 2px #e87a8c, var(--sh-clay);}
+  .dot.d{background:#d9d2f2; box-shadow:0 0 0 2px #a48be0, var(--sh-clay);}
+  .big{font-size:19px; font-weight:900; color:var(--navy-ink); text-align:center; margin-top:14px; min-height:28px;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="games">
+
+<div id="hdr"></div>
+<div class="clay-shell" style="display:none"><div class="row gap">
+  <a class="chip" style="font-size:13px;pointer-events:none">SAAGAR</a>
+  <a class="chip" style="font-size:13px">Log in</a>
+  <a class="chip" style="font-size:13px;color:#a35d2b;background:var(--clay-butter);border:1px solid var(--clay-lemon);font-weight:900">Play now →</a>
+</div></div>
+<div id="ftr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../games.html">Games</a> / Rock Paper Scissors</div>
+    <h1><span class="lg"><img src="../assets/clay-logos/games/rock-paper-scissors.svg" width="56" height="56" alt="" style="vertical-align:top;margin-right:8px"></span>Rock · Paper · Scissors</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:640px;">
+    <div id="lobby"></div>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="rps-rock"><circle cx="12" cy="12" r="9" fill="#b08954"/><circle cx="9" cy="8.5" r="4.5" fill="#d9b98a" opacity=".8"/><path d="M6 15 Q9 17 12 15 Q15 13 18 15" stroke="#78521f" stroke-width="1.8" fill="none" stroke-linecap="round"/></g>
+    <g id="rps-paper"><rect x="4.5" y="3" width="15" height="18" rx="2.5" fill="#f6f7fb" stroke="#c9cfe2" stroke-width="1.2"/><path d="M8.5 8.5 L16 8.5 M8.5 12 L16 12 M8.5 15.5 L13.5 15.5" stroke="#9aa4c0" stroke-width="1.4" stroke-linecap="round"/></g>
+    <g id="rps-scissors">
+      <path d="M7 4.5 L16 16" stroke="#3b6fb5" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 4.5 L8 16" stroke="#5a83c4" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="7" cy="19" r="2.6" fill="none" stroke="#3b6fb5" stroke-width="1.8"/>
+      <circle cx="17" cy="19" r="2.6" fill="none" stroke="#5a83c4" stroke-width="1.8"/>
+    </g>
+    <g id="rps-none"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#c9cfe2" stroke-width="2"/><path d="M12 8 L12 13 M12 16 L12 16.2" stroke="#c9cfe2" stroke-width="2" stroke-linecap="round"/></g>
+  </defs>
+</svg>
+<div id="stage" class="hidden">
+      <div class="card">
+        <h2><span class="em"><img src="../assets/clay-logos/games/rock-paper-scissors.svg" width="44" height="44" alt="" style="vertical-align:middle;margin-right:6px;border-radius:12px"></svg></span> <span id="modeLabel">Match</span></h2>
+        <div class="arena">
+          <div class="fighter" id="f1"><h4 id="n1">You</h4><div class="emo" id="e1"><svg viewBox="0 0 24 24" data-k="none"><use href="#rps-none"/></svg></div></div>
+          <div class="vs">VS</div>
+          <div class="fighter" id="f2"><h4 id="n2">Bot</h4><div class="emo" id="e2"><svg viewBox="0 0 24 24" data-k="none"><use href="#rps-none"/></svg></div></div>
+        </div>
+        <div class="rounds" id="rounds"></div>
+        <div class="big" id="msg">Pick your move</div>
+        <div class="picks" id="picks">
+          <button class="pick" data-p="rock"><span class="e"><svg viewBox="0 0 24 24"><use href="#rps-rock"/></svg></span><span class="l">Rock</span></button>
+          <button class="pick" data-p="paper"><span class="e"><svg viewBox="0 0 24 24"><use href="#rps-paper"/></svg></span><span class="l">Paper</span></button>
+          <button class="pick" data-p="scissors"><span class="e"><svg viewBox="0 0 24 24"><use href="#rps-scissors"/></svg></span><span class="l">Scissors</span></button>
+        </div>
+        <div class="row mt" style="justify-content:center;">
+          <button class="btn shape-notch sm" id="again" style="flex:0 0 auto;">New match</button>
+          <button class="btn shape-pill ghost sm" id="back" style="flex:0 0 auto;">Change mode</button>
+        </div>
+      </div>
+      <p class="muted center mt" id="netNote"></p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/peerjs.min.js"></script>
+<script src="../assets/app.js"></script>
+<script src="../assets/net.js"></script>
+<script src="../assets/lobby.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var EMO = { rock: 'rock', paper: 'paper', scissors: 'scissors', none: 'none' };  /* now a symbol key */
+  function setEmo(id, key) {
+    var holder = $(id);
+    key = key || 'none';
+    holder.innerHTML = '<svg viewBox="0 0 24 24"><use href="#rps-' + key + '"/></svg>';
+    holder.parentElement.classList.remove('shake'); void holder.offsetWidth;
+    holder.parentElement.classList.add('shake');
+  }
+  var BEAT = { rock: 'scissors', paper: 'rock', scissors: 'paper' };     /* key beats value */
+  var LOSES = { rock: 'paper', paper: 'scissors', scissors: 'rock' };
+
+  var cfg = { bot: null, online: false, isHost: false, room: null };
+  var M = null;
+  var history = { mine: [], theirs: [] };   /* for bot learning */
+
+  function newMatch() {
+    M = { myWins: 0, theirWins: 0, round: 0, results: [], locked: false, waiting: false };
+    history = { mine: [], theirs: [] };
+    drawRounds();
+    setMsg(cfg.online ? 'Pick your move' : 'Pick your move');
+    setPicksEnabled(true);
+    setEmo('e1', 'none');
+    setEmo('e2', 'none');
+  }
+
+  function drawRounds() {
+    var w = $('rounds'); w.innerHTML = '';
+    for (var i = 0; i < 5; i++) {
+      var r = M.results[i];
+      var d = document.createElement('div');
+      d.className = 'dot' + (r === 'w' ? ' w' : r === 'l' ? ' l' : r === 'd' ? ' d' : '');
+      d.textContent = r === 'w' ? '✓' : r === 'l' ? '✕' : r === 'd' ? '–' : (i + 1);
+      w.appendChild(d);
+    }
+  }
+  function setMsg(t) { $('msg').textContent = t; }
+  function setPicksEnabled(on) {
+    Array.prototype.forEach.call(document.querySelectorAll('.pick'), function (b) { b.disabled = !on; });
+  }
+
+  /* ---------------- bot brain ---------------- */
+  function botPick(level) {
+    if (level === 'easy' || history.mine.length < 2) {
+      var r = ['rock', 'paper', 'scissors'];
+      return r[Math.floor(Math.random() * 3)];
+    }
+    /* predict the player's next move from their history */
+    var counts = { rock: 0, paper: 0, scissors: 0 };
+    history.mine.forEach(function (p, i) {
+      var weight = 1 + i / Math.max(1, history.mine.length);   /* recent moves matter more */
+      counts[p] += weight;
+    });
+    /* also look for a repeating pattern of length 2 */
+    var guess = null;
+    if (history.mine.length >= 3) {
+      var a = history.mine[history.mine.length - 2], b = history.mine[history.mine.length - 1];
+      for (var i = 0; i < history.mine.length - 2; i++) {
+        if (history.mine[i] === a && history.mine[i + 1] === b) { guess = history.mine[i + 2]; break; }
+      }
+    }
+    if (!guess) {
+      guess = Object.keys(counts).sort(function (x, y) { return counts[y] - counts[x]; })[0];
+    }
+    if (level === 'hard') {
+      /* also consider that the player may try to counter the bot's last move */
+      var lastBot = history.theirs[history.theirs.length - 1];
+      if (lastBot && Math.random() < 0.35) guess = LOSES[lastBot];
+    }
+    return LOSES[guess];      /* throw whatever beats the predicted move */
+  }
+
+  /* ---------------- round resolution ---------------- */
+  function resolve(myPick, theirPick) {
+    var res;
+    if (myPick === theirPick) res = 'd';
+    else if (BEAT[myPick] === theirPick) res = 'w';
+    else res = 'l';
+    M.round++;
+    M.results.push(res);
+    if (res === 'w') M.myWins++;
+    else if (res === 'l') M.theirWins++;
+    drawRounds();
+    setEmo('e1', EMO[myPick]);
+    setEmo('e2', EMO[theirPick]);
+    $('f1').classList.add('pop'); $('f2').classList.add('pop');
+    setTimeout(function () { $('f1').classList.remove('pop'); $('f2').classList.remove('pop'); }, 180);
+
+    var done = M.myWins === 3 || M.theirWins === 3 || M.results.length === 5;
+    var text = res === 'w' ? 'You win this round!' : res === 'l' ? (cfg.bot ? 'Bot wins this round.' : 'Friend wins this round.') : 'Draw.';
+    if (done) {
+      text = M.myWins > M.theirWins ? '🏆 You win the match ' + M.myWins + '–' + M.theirWins + '!'
+           : M.myWins < M.theirWins ? (cfg.bot ? 'Bot wins the match ' : 'Friend wins the match ') + M.theirWins + '–' + M.myWins + '.'
+           : 'Match drawn ' + M.myWins + '–' + M.theirWins + '.';
+      setPicksEnabled(false);
+    } else {
+      text += '  Score ' + M.myWins + '–' + M.theirWins;
+      setPicksEnabled(true);
+      M.locked = false;
+    }
+    setMsg(text);
+  }
+
+  /* ---------------- play ---------------- */
+  function throwMove(pick) {
+    if (!M || M.locked) return;
+    M.locked = true;
+    history.mine.push(pick);
+    setEmo('e1', EMO[pick]);
+    setPicksEnabled(false);
+
+    if (cfg.online) {
+      if (cfg.isHost) {
+        setMsg('Waiting for your friend…');
+        M.hostPick = pick;
+        cfg.room.send({ t: 'ready' });
+      } else {
+        setMsg('Waiting for the host…');
+        cfg.room.send({ t: 'pick', p: pick });
+      }
+      return;
+    }
+    setMsg('Bot is deciding…');
+    setTimeout(function () {
+      var bp = botPick(cfg.bot || 'medium');
+      history.theirs.push(bp);
+      resolve(pick, bp);
+    }, 420);
+  }
+
+  /* ---------------- modes ---------------- */
+  function showStage(label, note) {
+    $('lobby').classList.add('hidden');
+    $('stage').classList.remove('hidden');
+    $('modeLabel').textContent = label;
+    $('netNote').textContent = note || '';
+  }
+
+  var lobby = window.SAAGAR_LOBBY.create({
+    key: 'rps',
+    seatChoices: [2],
+    title: '✊ Choose how to play',
+    root: $('lobby'),
+    onSolo: function (o) {
+      cfg = { bot: o.bot || 'medium', online: false, isHost: false, room: null };
+      $('n1').textContent = 'You';
+      $('n2').textContent = 'Bot (' + (o.bot || 'medium') + ')';
+      showStage('Best of five', 'The bot learns your habits — mix it up.');
+      newMatch();
+    },
+    onHostReady: function (room) { startRoom(room, true); },
+    onGuestReady: function (room) { startRoom(room, false); },
+    onMessage: function (msg, room, isHost) {
+      if (msg.t === 'pick' && isHost) {
+        M.guestPick = msg.p;
+        if (M.hostPick) resolveTwo();
+      }
+      if (msg.t === 'ready' && !isHost) {
+        if (M.guestPick) { /* host already knows our pick */ }
+      }
+      if (msg.t === 'reveal' && !isHost) {
+        setEmo('e2', EMO[msg.theirs]);
+        resolve(msg.mine, msg.theirs);
+      }
+      if (msg.t === 'restart' && !isHost) newMatch();
+    },
+    onPeerLeave: function () {
+      $('netNote').textContent = 'Your friend disconnected.';
+      window.SAAGAR.toast('Friend left the match', true);
+    }
+  });
+
+  function resolveTwo() {
+    var mine = M.hostPick, theirs = M.guestPick;
+    cfg.room.send({ t: 'reveal', mine: mine, theirs: theirs });
+    resolve(mine, theirs);
+  }
+
+  function startRoom(room, isHost) {
+    cfg = { bot: null, online: true, isHost: isHost, room: room };
+    $('n1').textContent = 'You';
+    $('n2').textContent = 'Friend';
+    showStage('Room ' + room.code, 'Both players pick at the same time — the host reveals the round.');
+    newMatch();
+    if (isHost) { M.hostPick = null; M.guestPick = null; }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.pick'), function (b) {
+    b.onclick = function () { throwMove(b.getAttribute('data-p')); };
+  });
+
+  $('again').onclick = function () {
+    if (cfg.online) { cfg.room.send({ t: 'restart' }); if (cfg.isHost) { M.hostPick = null; M.guestPick = null; } }
+    newMatch();
+    if (cfg.online && cfg.isHost) { M.hostPick = null; M.guestPick = null; }
+  };
+  $('back').onclick = function () {
+    if (cfg.room) cfg.room.close(true);
+    cfg = { bot: null, online: false, isHost: false, room: null };
+    $('stage').classList.add('hidden');
+    $('lobby').classList.remove('hidden');
+    lobby.menu();
+  };
+})();
+</script>
+</body>
+</html>

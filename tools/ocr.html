@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes → Text (OCR) — copy text from a photo | SAAGAR Tools</title>
+<meta name="description" content="Extract readable text from a photo of a page, board or note. Runs on your device; the OCR engine downloads only when you use it.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/tools/ocr.html">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .preview{background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:10px; text-align:center; margin-top:14px;}
+  .preview img{max-height:280px; margin:0 auto; border-radius:8px;}
+  progress{width:100%; height:14px; border-radius:999px; margin-top:12px;}
+  textarea#text{min-height:230px; font-size:14px; line-height:1.7;}
+  .stat{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+  .stat span{font-size:12.5px; font-weight:800; background:var(--bg-2); border:1px solid var(--line); border-radius:9px; padding:5px 11px; color:var(--navy);}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="tools">
+
+<div id="hdr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../tools.html">Smart Tools</a> / Notes → Text</div>
+    <h1><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;display:inline;vertical-align:top;margin-right:6px"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/><path d="M13 7 L19 7 M16 13 L16 19 M18 13 L18 19"/></svg></span>Notes → Text (OCR)</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:760px;">
+    <div class="card">
+      <h2><span class="em">📥</span> Add a photo</h2>
+      <div class="row">
+        <div class="field" style="flex:2;">
+          <label for="file">Image of the text</label>
+          <input type="file" id="file" accept="image/*" style="padding:8px;">
+        </div>
+        <div class="field" style="flex:1;">
+          <label for="lang">Text language</label>
+          <select id="lang">
+            <option value="eng" selected>English</option>
+            <option value="nep+eng">Nepali + English</option>
+            <option value="nep">Nepali</option>
+            <option value="hin">Hindi</option>
+          </select>
+        </div>
+      </div>
+      <div id="preview" class="preview hidden"><img id="img" alt="Chosen image"></div>
+      <div class="row mt">
+        <button class="btn" id="run" type="button" style="flex:0 0 auto;">🔍 Extract text</button>
+        <button class="btn soft" id="copy" type="button" style="flex:0 0 auto;">Copy text</button>
+        <button class="btn ghost" id="dl" type="button" style="flex:0 0 auto;">⬇ Download .txt</button>
+      </div>
+      <progress id="bar" value="0" max="100" class="hidden"></progress>
+      <div class="out" id="msg" role="status"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">📝</span> Extracted text</h2>
+      <textarea id="text" placeholder="The recognised text will appear here. You can edit it before copying."></textarea>
+      <div class="stat">
+        <span id="words">0 words</span>
+        <span id="chars">0 characters</span>
+        <span id="conf">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">💡</span> Getting a good result</h2>
+      <ul style="padding-left:20px; font-size:14px; line-height:1.8;">
+        <li>Fill the frame with the text and keep the camera square to the page.</li>
+        <li>Good, even light beats a high-res photo — shadows break OCR.</li>
+        <li>Printed text works far better than handwriting.</li>
+        <li>The engine itself (a few MB) downloads the first time you press Extract, so give it a moment on slow connections.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var file = null, engineLoading = false;
+
+  function msg(t, bad, ok) {
+    $('msg').textContent = t || '';
+    $('msg').className = bad ? 'out bad' : (ok ? 'out ok' : 'out');
+  }
+
+  $('file').onchange = function () {
+    if (!this.files[0]) return;
+    file = this.files[0];
+    $('img').src = URL.createObjectURL(file);
+    $('preview').classList.remove('hidden');
+    msg('');
+  };
+
+  function loadEngine() {
+    return new Promise(function (resolve, reject) {
+      if (window.Tesseract) return resolve();
+      if (engineLoading) {
+        var t = setInterval(function () {
+          if (window.Tesseract) { clearInterval(t); resolve(); }
+        }, 250);
+        return;
+      }
+      engineLoading = true;
+      msg('Downloading the OCR engine (one time only)…');
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
+      s.onload = function () { engineLoading = false; resolve(); };
+      s.onerror = function () { engineLoading = false; reject(new Error('offline')); };
+      document.head.appendChild(s);
+    });
+  }
+
+  $('run').onclick = function () {
+    if (!file) { msg('Choose an image first.', true); return; }
+    var bar = $('bar');
+    bar.classList.remove('hidden');
+    bar.value = 0;
+    msg('Preparing…');
+
+    loadEngine().then(function () {
+      msg('Reading the image — this can take a few seconds…');
+      return window.Tesseract.recognize(file, $('lang').value, {
+        logger: function (m) {
+          if (m.status === 'recognizing text') bar.value = Math.round(m.progress * 100);
+        }
+      });
+    }).then(function (res) {
+      var text = (res && res.data && res.data.text) ? res.data.text.replace(/\n{3,}/g, '\n\n').trim() : '';
+      $('text').value = text;
+      updateStats(res && res.data ? res.data.confidence : null);
+      if (!text) msg('No readable text found. Try a sharper, brighter photo.', true);
+      else msg('Done — edit the text if you like, then copy or download it.', false, true);
+      bar.classList.add('hidden');
+    }).catch(function () {
+      msg('The OCR engine could not be downloaded. Check your connection and try again.', true);
+      bar.classList.add('hidden');
+    });
+  };
+
+  function updateStats(conf) {
+    var t = $('text').value;
+    var words = t.trim() ? t.trim().split(/\s+/).length : 0;
+    $('words').textContent = words + ' words';
+    $('chars').textContent = t.length + ' characters';
+    $('conf').textContent = conf != null ? 'confidence ' + Math.round(conf) + '%' : '—';
+  }
+  $('text').addEventListener('input', function () { updateStats(null); });
+
+  $('copy').onclick = function () {
+    if (!$('text').value.trim()) { msg('Nothing to copy yet.', true); return; }
+    SAAGAR.copy($('text').value, 'Text copied');
+  };
+  $('dl').onclick = function () {
+    if (!$('text').value.trim()) { msg('Nothing to download yet.', true); return; }
+    SAAGAR.downloadBlob(new Blob([$('text').value], { type: 'text/plain;charset=utf-8' }), 'extracted-text.txt');
+  };
+})();
+</script>
+</body>
+</html>

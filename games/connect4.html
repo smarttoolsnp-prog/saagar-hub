@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect 4 — vs bot or a friend | SAAGAR Games</title>
+<meta name="description" content="Play Connect 4 against a look-ahead bot or online with a friend using a room code.">
+<meta name="theme-color" content="#171341">
+<link rel="icon" href="../assets/saagar-logo.png" type="image/png">
+<link rel="canonical" href="https://sagardahal123.com.np/games/connect4.html">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/clay.css">
+<style>
+  /* clay spec: blue clay slab #3b82f6→#1e3a8a, inset holes, red #ef4444 / yellow #facc15 discs, glow win */
+  .c4wrap{position:relative; background:linear-gradient(160deg,#3b82f6 0%,#1e3a8a 100%); padding:14px; border-radius:32px;
+    box-shadow:var(--sh-clay);}
+  .c4wrap::before{content:""; position:absolute; inset:6px; border-radius:26px; pointer-events:none;
+    box-shadow:inset 4px 6px 14px rgba(0,0,0,.35), inset -3px -3px 10px rgba(255,255,255,.14);}
+  .c4{display:grid; grid-template-columns:repeat(7,1fr); gap:8px;}
+  .slot{aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 40% 34%,#1e3a8a,#0f1d5c 75%,#0a1440);
+    box-shadow:inset 0 4px 9px rgba(0,0,0,.5), inset 0 -2px 4px rgba(147,197,253,.2); cursor:pointer; transition:.14s;}
+  .slot:hover{background:radial-gradient(circle at 40% 34%,#2563eb,#132a6e 75%,#0a1440);}
+  .slot.r{background:radial-gradient(circle at 34% 30%,#fca5a5,#ef4444 55%,#b91c1c);
+    box-shadow:inset 0 -3px 6px rgba(0,0,0,.3), inset 0 2px 3px rgba(255,255,255,.55), 4px 4px 9px rgba(0,0,0,.28);}
+  .slot.y{background:radial-gradient(circle at 34% 30%,#fef08a,#facc15 55%,#d97706);
+    box-shadow:inset 0 -3px 6px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.6), 4px 4px 9px rgba(0,0,0,.28);}
+  .slot.win{box-shadow:0 0 0 4px #fde68a, 0 0 18px rgba(250,204,21,.75), inset 0 -3px 6px rgba(0,0,0,.3);}
+  .turnb{text-align:center; font-size:15px; font-weight:800; color:var(--navy-ink); margin:14px auto; display:table;
+    background:var(--clay-butter); border-radius:999px; padding:9px 22px; box-shadow:var(--sh-clay);}
+  .score{display:flex; gap:10px; justify-content:center; margin-top:15px; flex-wrap:wrap;}
+  .sc{background:var(--card); border-radius:18px; padding:8px 15px; text-align:center; min-width:88px; box-shadow:var(--sh-clay);}
+  .sc b{display:block; font-size:19px; color:var(--navy-ink);}
+  .sc span{font-size:10.5px; font-weight:800; letter-spacing:.5px; color:var(--dim); text-transform:uppercase;}
+</style>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9617852445804852"
+     crossorigin="anonymous"></script>
+</head>
+<body data-root=".." data-page="games">
+
+<div id="hdr"></div>
+<div class="clay-shell" style="display:none"><div class="row gap">
+  <a class="chip" style="font-size:13px;pointer-events:none">SAAGAR</a>
+  <a class="chip" style="font-size:13px">Log in</a>
+  <a class="chip" style="font-size:13px;color:#a35d2b;background:var(--clay-butter);border:1px solid var(--clay-lemon);font-weight:900">Play now →</a>
+</div></div>
+<div id="ftr"></div>
+
+<section class="phero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Home</a> / <a href="../games.html">Games</a> / Connect 4</div>
+    <h1><span class="lg"><img src="../assets/clay-logos/games/connect-4.svg" width="56" height="56" alt="" style="vertical-align:top;margin-right:8px"></span>Connect 4</h1>
+    </div>
+</section>
+
+<main class="sec">
+  <div class="wrap" style="max-width:620px;">
+    <div id="lobby"></div>
+
+    <div id="stage" class="hidden">
+      <div class="card">
+        <h2><span class="em"><img src="../assets/clay-logos/games/connect-4.svg" width="44" height="44" alt="" style="vertical-align:middle;margin-right:6px;border-radius:12px"></svg></span> <span id="modeLabel">Game</span></h2>
+        <div class="turnb" id="turn">Your turn — pick a column</div>
+        <div class="c4wrap"><div class="c4" id="grid"></div></div>
+        <div class="score">
+          <div class="sc"><b id="scYou">0</b><span id="lblYou">You</span></div>
+          <div class="sc"><b id="scDraw">0</b><span>Draws</span></div>
+          <div class="sc"><b id="scThem">0</b><span id="lblThem">Bot</span></div>
+        </div>
+        <div class="row mt" style="justify-content:center;">
+          <button class="btn shape-notch sm" id="again" style="flex:0 0 auto;">Play again</button>
+          <button class="btn shape-pill ghost sm" id="back" style="flex:0 0 auto;">Change mode</button>
+        </div>
+      </div>
+      <p class="muted center mt" id="netNote"></p>
+    </div>
+  </div>
+</main>
+
+<div id="ftr"></div>
+
+<script src="../assets/peerjs.min.js"></script>
+<script src="../assets/app.js"></script>
+<script src="../assets/net.js"></script>
+<script src="../assets/lobby.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var ROWS = 6, COLS = 7;
+  var grid = [];               /* grid[r][c], r=0 is TOP */
+  var over = false, wins = [0, 0, 0];
+  var cfg = { bot: null, online: false, isHost: false, myMark: 'r', theirMark: 'y', room: null };
+
+  function blank() { return Array.from({ length: ROWS }, function () { return Array(COLS).fill(''); }); }
+
+  /* ---------- rules ---------- */
+  function dropRow(g, c) {
+    for (var r = ROWS - 1; r >= 0; r--) if (!g[r][c]) return r;
+    return -1;
+  }
+  function findWin(g) {
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+      var v = g[r][c]; if (!v) continue;
+      var dirs = [[0,1],[1,0],[1,1],[1,-1]];
+      for (var d = 0; d < 4; d++) {
+        var dr = dirs[d][0], dc = dirs[d][1], cells = [[r,c]], ok = true;
+        for (var k = 1; k < 4; k++) {
+          var nr = r + dr*k, nc = c + dc*k;
+          if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS || g[nr][nc] !== v) { ok = false; break; }
+          cells.push([nr,nc]);
+        }
+        if (ok) return { mark: v, cells: cells };
+      }
+    }
+    var full = g.every(function (row) { return row.every(function (x) { return x; }); });
+    return full ? { mark: 'draw', cells: [] } : null;
+  }
+  function validCols(g) {
+    var v = []; for (var c = 0; c < COLS; c++) if (dropRow(g, c) > -1) v.push(c); return v;
+  }
+
+  /* ---------- bot ---------- */
+  function scoreWindow(cells, me, opp) {
+    var m = 0, o = 0;
+    cells.forEach(function (v) { if (v === me) m++; else if (v === opp) o++; });
+    if (m && o) return 0;
+    if (m === 4) return 100000;
+    if (o === 4) return -100000;
+    if (m === 3) return 60;
+    if (m === 2) return 8;
+    if (o === 3) return -80;
+    return 0;
+  }
+  function evaluate(g, me, opp) {
+    var s = 0;
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+      if (c + 3 < COLS) s += scoreWindow([g[r][c],g[r][c+1],g[r][c+2],g[r][c+3]], me, opp);
+      if (r + 3 < ROWS) s += scoreWindow([g[r][c],g[r+1][c],g[r+2][c],g[r+3][c]], me, opp);
+      if (r + 3 < ROWS && c + 3 < COLS) s += scoreWindow([g[r][c],g[r+1][c+1],g[r+2][c+2],g[r+3][c+3]], me, opp);
+      if (r + 3 < ROWS && c - 3 >= 0) s += scoreWindow([g[r][c],g[r+1][c-1],g[r+2][c-2],g[r+3][c-3]], me, opp);
+    }
+    /* prefer the centre */
+    for (var rr = 0; rr < ROWS; rr++) if (g[rr][3] === me) s += 6;
+    return s;
+  }
+  function clone(g) { return g.map(function (r) { return r.slice(); }); }
+
+  function search(g, depth, alpha, beta, maximizing, me, opp) {
+    var w = findWin(g);
+    if (w) {
+      if (w.mark === me) return { score: 100000 + depth * 100, col: -1 };
+      if (w.mark === opp) return { score: -100000 - depth * 100, col: -1 };
+      return { score: 0, col: -1 };
+    }
+    if (depth === 0) return { score: evaluate(g, me, opp), col: -1 };
+
+    var cols = validCols(g);
+    /* search centre-first for better pruning */
+    cols.sort(function (a, b) { return Math.abs(3 - a) - Math.abs(3 - b); });
+    var best = { score: maximizing ? -Infinity : Infinity, col: cols[0] };
+
+    for (var i = 0; i < cols.length; i++) {
+      var c = cols[i], r = dropRow(g, c);
+      var nb = clone(g); nb[r][c] = maximizing ? me : opp;
+      var res = search(nb, depth - 1, alpha, beta, !maximizing, me, opp);
+      if (maximizing) {
+        if (res.score > best.score) best = { score: res.score, col: c };
+        alpha = Math.max(alpha, res.score);
+      } else {
+        if (res.score < best.score) best = { score: res.score, col: c };
+        beta = Math.min(beta, res.score);
+      }
+      if (beta <= alpha) break;
+    }
+    return best;
+  }
+
+  function botPick(level) {
+    var free = validCols(grid);
+    if (!free.length) return -1;
+    var me = cfg.online ? cfg.myMark : 'y', opp = me === 'r' ? 'y' : 'r';
+
+    if (level === 'easy') {
+      if (Math.random() < 0.55) return free[Math.floor(Math.random() * free.length)];
+      return search(grid, 2, -Infinity, Infinity, true, 'y', 'r').col;
+    }
+    if (level === 'medium') {
+      if (Math.random() < 0.18) return free[Math.floor(Math.random() * free.length)];
+      return search(grid, 4, -Infinity, Infinity, true, 'y', 'r').col;
+    }
+    return search(grid, 6, -Infinity, Infinity, true, 'y', 'r').col;
+  }
+
+  /* ---------- render ---------- */
+  function draw(winCells) {
+    var g = $('grid');
+    g.innerHTML = '';
+    var winSet = {};
+    (winCells || []).forEach(function (p) { winSet[p[0] + ',' + p[1]] = 1; });
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+      var d = document.createElement('div');
+      var v = grid[r][c];
+      d.className = 'slot' + (v ? ' ' + v : '') + (winSet[r + ',' + c] ? ' win' : '');
+      (function (col) {
+        if (!over) d.onclick = function () { humanPlay(col); };
+      })(c);
+      g.appendChild(d);
+    }
+    $('scYou').textContent = wins[0];
+    $('scDraw').textContent = wins[2];
+    $('scThem').textContent = wins[1];
+  }
+
+  function isMyTurn() {
+    if (over) return false;
+    var count = 0;
+    grid.forEach(function (row) { row.forEach(function (v) { if (v) count++; }); });
+    var turnMark = count % 2 === 0 ? 'r' : 'y';
+    return cfg.online ? turnMark === cfg.myMark : turnMark === 'r';
+  }
+
+  function setTurn(t) { $('turn').textContent = t; }
+
+  function humanPlay(c, fromNet) {
+    if (over || dropRow(grid, c) < 0) return;
+    if (!fromNet && cfg.online && !cfg.isHost) {
+      if (!isMyTurn()) return;
+      cfg.room.send({ t: 'move', c: c });
+      commit(c, cfg.myMark);
+      return;
+    }
+    if (cfg.online) {
+      if (!fromNet && !isMyTurn()) return;
+      commit(c, cfg.myMark);
+      if (cfg.isHost) cfg.room.send({ t: 'state', g: grid, over: over, res: cfg.res || null });
+      return;
+    }
+    /* solo hotseat: whoever's turn it is plays (red starts, then yellow) */
+    var count = 0;
+    grid.forEach(function (row) { row.forEach(function (v) { if (v) count++; }); });
+    commit(c, count % 2 === 0 ? 'r' : 'y');
+  }
+
+  function commit(c, mark) {
+    var r = dropRow(grid, c);
+    if (r < 0) return;
+    grid[r][c] = mark;
+    var w = findWin(grid);
+    if (w) {
+      over = true; cfg.res = w;
+      if (w.mark === 'draw') { wins[2]++; setTurn('Board full — draw.'); }
+      else {
+        var iWon = cfg.online ? (w.mark === cfg.myMark) : (w.mark === 'r');
+        wins[iWon ? 0 : 1]++;
+        setTurn(mark === 'r' ? 'Red wins!' : 'Yellow wins!');
+      }
+      draw(w.cells);
+      return;
+    }
+    draw();
+    if (cfg.bot) {
+      setTurn('Bot thinking…');
+      setTimeout(function () {
+        if (over) return;
+        var c2 = botPick(cfg.bot);
+        if (c2 > -1) {
+          var r2 = dropRow(grid, c2);
+          grid[r2][c2] = 'y';
+          var w2 = findWin(grid);
+          if (w2) {
+            over = true; cfg.res = w2;
+            if (w2.mark === 'draw') { wins[2]++; setTurn('Board full — draw.'); }
+            else { wins[1]++; setTurn('Bot wins!'); }
+            draw(w2.cells);
+          } else { draw(); setTurn('Your turn — pick a column'); }
+        }
+      }, 420);
+    } else {
+      setTurn(isMyTurn() ? 'Your turn — pick a column' : "Friend's turn…");
+    }
+  }
+
+  function reset() { grid = blank(); over = false; cfg.res = null; draw(); setTurn(isMyTurn() ? 'Your turn — pick a column' : (cfg.online ? "Friend's turn…" : 'Bot thinking…')); }
+
+  /* ---------- modes ---------- */
+  function showStage(label, note) {
+    $('lobby').classList.add('hidden');
+    $('stage').classList.remove('hidden');
+    $('modeLabel').textContent = label;
+    $('netNote').textContent = note || '';
+  }
+
+  var lobby = window.SAAGAR_LOBBY.create({
+    key: 'c4',
+    seatChoices: [2],
+    title: '🔴 Choose how to play',
+    root: $('lobby'),
+    onSolo: function (o) {
+      cfg = { bot: o.bot, online: false, isHost: false, myMark: 'r', theirMark: 'y', room: null };
+      wins = [0, 0, 0];
+      $('lblYou').textContent = 'You (Red)';
+      $('lblThem').textContent = o.bot ? 'Bot (' + o.bot + ')' : '—';
+      showStage(o.bot ? 'You vs Bot' : 'Solo practice');
+      reset();
+    },
+    onHostReady: function (room) { startRoom(room, true); },
+    onGuestReady: function (room) { startRoom(room, false); },
+    onMessage: function (msg, room, isHost) {
+      if (msg.t === 'move' && isHost && !over) {
+        var r = dropRow(grid, msg.c);
+        if (r > -1 && !grid[r][msg.c]) {
+          grid[r][msg.c] = cfg.theirMark;
+          var w = findWin(grid);
+          if (w) {
+            over = true; cfg.res = w;
+            if (w.mark === 'draw') { wins[2]++; setTurn('Board full — draw.'); }
+            else { wins[0]++; setTurn('You win!'); }
+            draw(w.cells);
+          } else { draw(); setTurn('Your turn — pick a column'); }
+          room.send({ t: 'state', g: grid, over: over, res: cfg.res || null });
+        }
+      }
+      if (msg.t === 'state' && !isHost) {
+        var wasOver = over;
+        grid = msg.g; over = !!msg.over; cfg.res = msg.res;
+        if (over && msg.res && !wasOver) {   /* count a finished game once */
+          if (msg.res.mark === 'draw') { wins[2]++; setTurn('Board full — draw.'); }
+          else if (msg.res.mark === cfg.myMark) { wins[0]++; setTurn('You win!'); }
+          else { wins[1]++; setTurn('Friend wins.'); }
+          draw(msg.res.cells);
+        } else if (over && msg.res) {
+          draw(msg.res.cells);
+        } else {
+          draw();
+          var count = 0; grid.forEach(function (row) { row.forEach(function (v) { if (v) count++; }); });
+          var turnMark = count % 2 === 0 ? 'r' : 'y';
+          setTurn(turnMark === cfg.myMark ? 'Your turn — pick a column' : "Friend's turn…");
+        }
+      }
+      /* host is authoritative for rematch: reset the board and broadcast */
+      if (msg.t === 'again' && isHost) {
+        reset();
+        room.send({ t: 'state', g: grid, over: false, res: null });
+        return;
+      }
+    },
+    onPeerLeave: function () {
+      $('netNote').textContent = 'Your friend disconnected.';
+      window.SAAGAR.toast('Friend left the game', true);
+    }
+  });
+
+  function startRoom(room, isHost) {
+    cfg = { bot: null, online: true, isHost: isHost, myMark: isHost ? 'r' : 'y', theirMark: isHost ? 'y' : 'r', room: room };
+    wins = [0, 0, 0];
+    $('lblYou').textContent = 'You (' + (isHost ? 'Red' : 'Yellow') + ')';
+    $('lblThem').textContent = 'Friend (' + (isHost ? 'Yellow' : 'Red') + ')';
+    showStage('Room ' + room.code + ' — you are ' + (isHost ? 'Red' : 'Yellow'),
+              'Connected. ' + (isHost ? 'Red moves first.' : 'Waiting for Red to move.'));
+    reset();
+    if (isHost) room.send({ t: 'state', g: grid, over: false, res: null });
+  }
+
+  $('again').onclick = function () {
+    if (cfg.online) {
+      cfg.room.send({ t: 'again' });
+      if (cfg.isHost) { reset(); cfg.room.send({ t: 'state', g: grid, over: false, res: null }); }
+    } else reset();
+  };
+  $('back').onclick = function () {
+    if (cfg.room) cfg.room.close(true);
+    cfg = { bot: null, online: false, isHost: false, myMark: 'r', theirMark: 'y', room: null };
+    $('stage').classList.add('hidden');
+    $('lobby').classList.remove('hidden');
+    lobby.menu();
+  };
+})();
+</script>
+</body>
+</html>

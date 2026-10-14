@@ -1,0 +1,2 @@
+# ads.txt for sagardahal123.com.np
+google.com, pub-9617852445804852, DIRECT, f08c47fec0942fa0
